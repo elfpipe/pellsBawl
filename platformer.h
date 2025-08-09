@@ -51,7 +51,15 @@ struct Enemy {
     }
 };
 
-class Platformer : public QOpenGLWidget {
+#define USE_OPENGL 1
+
+class Platformer
+#ifdef USE_OPENGL
+: public QOpenGLWidget
+#else
+: public QWidget
+#endif
+{
     Q_OBJECT
 
 public:
