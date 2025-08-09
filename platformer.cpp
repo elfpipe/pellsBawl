@@ -6,13 +6,17 @@
 #include <QJsonObject>
 #include <QJsonArray>
 
-Platformer::Platformer(QWidget *parent) : QWidget(parent), isJumping(false), isMovingLeft(false), isMovingRight(false), isFalling(true), jumpVelocity(15), gravity(1), velocityX(0), velocityY(0) {
+Platformer::Platformer(QWidget *parent) : QOpenGLWidget(parent), isJumping(false), isMovingLeft(false), isMovingRight(false), isFalling(true), jumpVelocity(15), gravity(1), velocityX(0), velocityY(0) {
     setFixedSize(800, 600);
     playerPixmap.load(":/assets/character.png"); // Load the character image
     playerRect = QRect(100, 500, 50, 50); // Initial position of the player
 
     // Load platforms from a JSON file
     loadPlatforms(":/assets/platforms.json");
+
+    // Create enemies and assign them to platforms
+    enemies.append(Enemy(110, 412, 40, 40));  // Example enemy 1 on platform
+    enemies.append(Enemy(310, 312, 40, 40));  // Example enemy 2 on platform
 
     gameTimer = new QTimer(this);
     connect(gameTimer, &QTimer::timeout, this, &Platformer::doTimerEvent); // Connect the timer to the doTimerEvent slot
@@ -46,15 +50,48 @@ void Platformer::keyReleaseEvent(QKeyEvent *event) {
 void Platformer::paintEvent(QPaintEvent *event) {
     QPainter painter(this);
     painter.setBrush(Qt::blue);
+
+    // Draw platforms
     for (const Platform &platform : platforms) {
         painter.drawRect(platform.rect); // Draw each platform
     }
+
+    // Draw enemies with the correct animation based on their state
+    for (const Enemy &enemy : enemies) {
+        if (!enemy.isDefeated) {
+            painter.drawPixmap(enemy.rect, enemy.alivePixmap); // Draw enemy when alive
+        } else {
+            painter.drawPixmap(enemy.rect, enemy.defeatedPixmap); // Draw enemy when defeated
+        }
+    }
+
+    // Draw player
     painter.drawPixmap(playerRect, playerPixmap); // Draw player character
+}
+
+void Platformer::checkEnemyCollisions() {
+    for (Enemy &enemy : enemies) {
+        if (playerRect.intersects(enemy.rect)) {
+            if (!enemy.isDefeated) {
+                // If the player collides with an enemy, mark it as defeated
+                enemy.isDefeated = true;
+            }
+        }
+
+        // Move the enemy based on its platform
+        for (const Platform &platform : platforms) {
+            if (platform.rect.intersects(enemy.rect)) {
+                enemy.move(platform.rect);  // Move the enemy within its platform
+            }
+        }
+    }
 }
 
 void Platformer::doTimerEvent() {
     updatePlayerPosition();
+    // move enemies
     checkCollisions();
+    checkEnemyCollisions();
     update(); // Repaint the widget
 }
 

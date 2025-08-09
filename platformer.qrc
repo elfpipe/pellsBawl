@@ -5,5 +5,7 @@
         <!-- Add all the frames you generated for the animation -->
         <file>assets/frame_1.png</file>
         <file>assets/frame_2.png</file>
+        <file>assets/enemy_sad.png</file>
+        <file>assets/enemy_happy.png</file>
     </qresource>
 </RCC>
