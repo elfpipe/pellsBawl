@@ -8,6 +8,8 @@
 #include <QPixmap>
 #include <QList>
 
+#include "fluffyWalk.h"
+
 #include <proto/exec.h>
 
 struct Platform {
@@ -80,10 +82,13 @@ private:
     void loadPlatforms(const QString &filePath);
 void checkEnemyCollisions();
 
-    QPixmap playerPixmap;
+    // QPixmap playerPixmap;
+    WalkerAnim playerAnim;
     QRect playerRect;
     QList<Platform> platforms;
     QList<Enemy> enemies;
+
+
 
     bool isJumping;
     bool isMovingLeft;

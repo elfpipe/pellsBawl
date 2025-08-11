@@ -6,6 +6,8 @@
 #include <QJsonObject>
 #include <QJsonArray>
 
+#include "fluffyWalk.h"
+
 Platformer::Platformer(QWidget *parent)
 #ifdef USE_OPENGL
 : QOpenGLWidget(parent)
@@ -14,7 +16,7 @@ Platformer::Platformer(QWidget *parent)
 #endif
 , isJumping(false), isMovingLeft(false), isMovingRight(false), isFalling(true), jumpVelocity(15), gravity(1), velocityX(0), velocityY(0) {
     setFixedSize(800, 600);
-    playerPixmap.load(":/assets/character.png"); // Load the character image
+    // playerPixmap.load(":/assets/character.png"); // Load the character image
     playerRect = QRect(100, 500, 50, 50); // Initial position of the player
 
     // Load platforms from a JSON file
@@ -78,7 +80,8 @@ void Platformer::paintEvent(QPaintEvent *event) {
     }
 
     // Draw player
-    painter.drawPixmap(playerRect, playerPixmap); // Draw player character
+    // painter.drawPixmap(playerRect, playerPixmap); // Draw player character
+    playerAnim.paintWalker(painter, playerRect); // Draw player character
 }
 
 void Platformer::checkEnemyCollisions() {
