@@ -26,9 +26,14 @@ Platformer::Platformer(QWidget *parent)
     enemies.append(Enemy(110, 412, 40, 40));  // Example enemy 1 on platform
     enemies.append(Enemy(310, 312, 40, 40));  // Example enemy 2 on platform
 
-    gameTimer = new QTimer(this);
-    connect(gameTimer, &QTimer::timeout, this, &Platformer::doTimerEvent); // Connect the timer to the doTimerEvent slot
-    gameTimer->start(16); // Approximately 60 FPS
+    // gameTimer = new QTimer(this);
+    // connect(gameTimer, &QTimer::timeout, this, &Platformer::doTimerEvent); // Connect the timer to the doTimerEvent slot
+    // gameTimer->start(16); // Approximately 60 FPS
+
+    startTimer(1000/60); // ~60 FPS
+    m_clock.start();
+
+    m_lastMs = m_clock.elapsed();
 }
 
 Platformer::~Platformer() {}
@@ -86,6 +91,12 @@ void Platformer::paintEvent(QPaintEvent *event) {
     // painter.drawPixmap(playerRect, playerPixmap); // Draw player character
     playerAnim.paintWalker(painter, playerRect, turningLeft, qAbs(velocityX) * 0.5); // Draw player character
     playerAnim.drawShadow(painter, QPointF(playerRect.left() + playerRect.width() / 2, 562), QSizeF(120, 17), 0.35);
+
+    // debug
+    painter.setPen(QColor(255,255,255,180));
+    // painter.setFont(QFont("DejaVu", 10));
+    painter.drawText(10, height()-10,
+    QString("rate: %1x  %2").arg(m_playbackRate,0,'f',2).arg(m_paused? "paused":""));
 }
 
 void Platformer::checkEnemyCollisions() {
@@ -106,26 +117,38 @@ void Platformer::checkEnemyCollisions() {
     }
 }
 
-void Platformer::doTimerEvent() {
+void Platformer::timerEvent(QTimerEvent *event) {
+    qint64 now = m_clock.elapsed();
+    double dt = (now - m_lastMs) / 1000.0;
+    m_lastMs = now;
+    const double m_durationSec = 1.0;
+
+    if (!m_paused) {
+        m_animTime += dt * m_playbackRate;
+        // keep in [0, duration)
+        if (m_durationSec > 0.0) {
+            m_animTime = std::fmod(m_animTime, m_durationSec);
+            if (m_animTime < 0) m_animTime += m_durationSec; // support reverse
+        }
+    }
+
     updatePlayerPosition();
     // move enemies
     checkCollisions();
     checkEnemyCollisions();
+
     update(); // Repaint the widget
 }
 
 void Platformer::updatePlayerPosition() {
     // Handle horizontal movement
     if (isMovingLeft) {
-        velocityX -= 0.1; // velocityX == 0 ? -.5 : (velocityX < -4.0 ? velocityX : (qAbs(velocityX) > 2.0 ? velocityX - 0.5 : velocityX - .2));
+        velocityX = -std::max(0.1, std::min(7.0, -velocityX * 1.25));
     } else if (isMovingRight) {
-        velocityX += 0.1; //velocityX == 0 ? .5 : (velocityX > 4.0 ? velocityX : (qAbs(velocityX) > 2.0 ? velocityX + 0.5 : velocityX + .2));
+        velocityX = std::max(0.1, std::min(7.0, velocityX * 1.25));
     } else {
-        velocityX *= 0.9;
+        velocityX *= 0.95;
     }
-
-    // friction - this could be done better
-    // velocityX *= 0.98;
 
     // Apply gravity and jump velocity
     if (isJumping || isFalling) {

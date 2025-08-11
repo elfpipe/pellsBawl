@@ -73,13 +73,14 @@ static const char* kAnimJson = R"JSON(
 }
 )JSON";
 
-void WalkerAnim::paintWalker(QPainter &p, QRectF r, bool m_flipHorizontal, double speedConst) {
+void WalkerAnim::paintWalker(QPainter &p, QRectF r, bool m_flipHorizontal, const double m_animTime) {
     // QPainter p(this);
     p.setRenderHints(QPainter::Antialiasing | QPainter::SmoothPixmapTransform, true);
     // p.fillRect(rect(), QColor("#1b1e23"));
 
     const QPointF center = r.center(); //rect().center();
-    const double t = std::fmod(m_clock.elapsed()/1000.0, m_durationSec) * speedConst;
+    // const double t = std::fmod(m_clock.elapsed()/1000.0, m_durationSec) * speedConst;
+    const double t = m_animTime;
 
     // compute animation in BODY-LOCAL space (origin = body center)
     struct DrawItem { const Track* tr; QPointF posLocal; double rotDeg; };

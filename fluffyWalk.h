@@ -51,7 +51,7 @@ public:
         // m_clock.start();
     }
 
-    void paintWalker(QPainter &p, QRectF r, bool turningLeft = false, double speedConst = 1.0);
+    void paintWalker(QPainter &p, QRectF r, bool turningLeft = false, const double m_animTime = .0);
     void drawShadow(QPainter& p, const QPointF& center, const QSizeF& size, double opacity) {
         QRadialGradient g(center, size.width()/2.0, center);
         QColor c(0,0,0, int(255*opacity));

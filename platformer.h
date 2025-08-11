@@ -72,9 +72,7 @@ protected:
     void keyPressEvent(QKeyEvent *event) override;
     void keyReleaseEvent(QKeyEvent *event) override;
     void paintEvent(QPaintEvent *event) override;
-
-public slots:
-    void doTimerEvent(); // Slot for handling the timer event
+    void timerEvent(QTimerEvent *event) override; // Slot for handling the timer event
 
 private:
     void updatePlayerPosition();
@@ -100,7 +98,13 @@ void checkEnemyCollisions();
     double velocityX;
     double velocityY;
 
-    QTimer *gameTimer;
+    QElapsedTimer m_clock;
+
+    // in WalkerWidget:
+    double m_playbackRate = 1.0;   // 1.0 = normal speed
+    bool   m_paused = false;
+    double m_animTime = 0.0;       // current time within [0, durationSec)
+    qint64 m_lastMs = 0;           // for dt calc
 };
 
 #endif // PLATFORMER_H
