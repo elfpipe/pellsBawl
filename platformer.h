@@ -84,11 +84,11 @@ void checkEnemyCollisions();
 
     // QPixmap playerPixmap;
     WalkerAnim playerAnim;
-    QRect playerRect;
+    QRectF playerRect;
     QList<Platform> platforms;
     QList<Enemy> enemies;
 
-
+    bool turningLeft = false;
 
     bool isJumping;
     bool isMovingLeft;
@@ -97,8 +97,8 @@ void checkEnemyCollisions();
 
     int jumpVelocity;
     int gravity;
-    int velocityX;
-    int velocityY;
+    double velocityX;
+    double velocityY;
 
     QTimer *gameTimer;
 };

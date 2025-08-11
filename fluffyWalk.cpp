@@ -5,7 +5,7 @@
 
 static const char* kAnimJson = R"JSON(
 {
-  "meta": { "name": "fluffy_walk_cycle_v3", "version": 3, "durationSec": 1.0, "loop": true },
+  "meta": { "name": "fluffy_walk_cycle_v3", "version": 3, "durationSec": 1.0, "loop": true, "globalScale": 0.7 },
   "rig": {
     "body": { "pivot": "center", "sizeHintPx": 220 },
     "left_hand":  { "pivot": "center" },
@@ -17,7 +17,7 @@ static const char* kAnimJson = R"JSON(
     {
       "id": "body",
       "size": { "w": 220, "h": 220 },
-      "baseOffset": { "x": 0, "y": 0 },
+      "baseOffset": { "x": 0, "y": -100 },
       "properties": {
         "x": { "type": "const", "value": 0 },
         "y": { "type": "sine", "amp": 6, "phaseDeg": 0, "bias": 0 },
@@ -28,7 +28,7 @@ static const char* kAnimJson = R"JSON(
     {
       "id": "left_foot",
       "size": { "w": 120, "h": 80 },
-      "baseOffset": { "x": -30, "y": 120 },
+      "baseOffset": { "x": -30, "y": 20 },
       "properties": {
         "x": { "type": "sine", "amp": 30, "phaseDeg": 0, "bias": 0 },
         "y": { "type": "sine", "amp": 8, "phaseDeg": 180, "bias": 2 },
@@ -39,7 +39,7 @@ static const char* kAnimJson = R"JSON(
     {
       "id": "right_foot",
       "size": { "w": 120, "h": 80 },
-      "baseOffset": { "x": 30, "y": 120 },
+      "baseOffset": { "x": 30, "y": 20 },
       "properties": {
         "x": { "type": "sine", "amp": 30, "phaseDeg": 180, "bias": 0 },
         "y": { "type": "sine", "amp": 8, "phaseDeg": 0, "bias": 2 },
@@ -50,7 +50,7 @@ static const char* kAnimJson = R"JSON(
     {
       "id": "left_hand",
       "size": { "w": 100, "h": 80 },
-      "baseOffset": { "x": -80, "y": 10 },
+      "baseOffset": { "x": -80, "y": -90 },
       "properties": {
         "x": { "type": "sine", "amp": 18, "phaseDeg": 180, "bias": 0 },
         "y": { "type": "sine", "amp": 6, "phaseDeg": 0, "bias": 0 },
@@ -61,7 +61,7 @@ static const char* kAnimJson = R"JSON(
     {
       "id": "right_hand",
       "size": { "w": 100, "h": 80 },
-      "baseOffset": { "x": 80, "y": 10 },
+      "baseOffset": { "x": 80, "y": -90 },
       "properties": {
         "x": { "type": "sine", "amp": 18, "phaseDeg": 0, "bias": 0 },
         "y": { "type": "sine", "amp": 6, "phaseDeg": 180, "bias": 0 },
@@ -73,97 +73,91 @@ static const char* kAnimJson = R"JSON(
 }
 )JSON";
 
-void WalkerAnim::paintWalker(QPainter &p, QRect r) {
+void WalkerAnim::paintWalker(QPainter &p, QRectF r, bool m_flipHorizontal, double speedConst) {
     // QPainter p(this);
     p.setRenderHints(QPainter::Antialiasing | QPainter::SmoothPixmapTransform, true);
     // p.fillRect(rect(), QColor("#1b1e23"));
 
     const QPointF center = r.center(); //rect().center();
-    const double t = std::fmod(m_clock.elapsed()/1000.0, m_durationSec);
+    const double t = std::fmod(m_clock.elapsed()/1000.0, m_durationSec) * speedConst;
 
-    if (!m_allPixLoaded) {
-        drawShadow(p, center + QPointF(0, 150), QSizeF(220, 30), 0.35);
-        p.setPen(Qt::NoPen);
-        p.setBrush(QColor(0,0,0,160));
-        p.drawRoundedRect(QRectF(r.width()*0.5-240, r.height()*0.5-60, 480, 120), 12, 12);
-        p.setPen(Qt::white);
-        p.setFont(QFont("Inter,Arial", 11, QFont::DemiBold));
-        p.drawText(QRectF(r.width()*0.5-220, r.height()*0.5-40, 440, 80),
-                    Qt::AlignCenter,
-                    "PNG parts not found.\nPlace: body.png, left_hand.png, right_hand.png, left_foot.png, right_foot.png");
-        return;
-    }
-
-    struct DrawItem { const Track* tr; QPointF pos; double rotDeg; };
+    // compute animation in BODY-LOCAL space (origin = body center)
+    struct DrawItem { const Track* tr; QPointF posLocal; double rotDeg; };
     QVector<DrawItem> items; items.reserve(m_tracks.size());
 
-    // Body (for bob/tilt)
     const Track* body = trackById("body");
     double bodyBobY = 0.0, bodyRot = 0.0, bodyX = 0.0;
     if (body) {
         bodyX    = body->x.eval(t, m_durationSec);
         bodyBobY = body->y.eval(t, m_durationSec);
         bodyRot  = body->rot.eval(t, m_durationSec);
-        items.push_back({body,
-                            QPointF(center.x() + bodyX + body->baseOffset.x(),
-                                    center.y() + bodyBobY + body->baseOffset.y()),
-                            bodyRot});
+        items.push_back({ body, QPointF(bodyX + body->baseOffset.x(),
+                                        bodyBobY + body->baseOffset.y()),
+                          bodyRot });
     }
 
-    // Foot capsule params
-    const double W = 50.0;     // contact width
-    const double H = 30.0;      // swing lift height
-    const double duty = 0.30;   // stance fraction
+    // foot path params (unchanged)
+    const double W = 120.0, H = 20.0, duty = 0.60;
     const double toeDown = -8.0, toeUp = +12.0;
 
-    auto evalFoot = [&](const Track& tr, double phase01)->std::tuple<QPointF,double> {
+    auto evalFootLocal = [&](const Track& tr, double phase01)->std::tuple<QPointF,double> {
         double u = std::fmod(t / m_durationSec + phase01, 1.0);
         if (u < 0) u += 1.0;
-
         if (u < duty) {
             double s = u / duty;
             double x = tr.baseOffset.x() + ( +W/2.0 + (-W) * s );
-            double y = tr.baseOffset.y(); // flat
-            return { QPointF(center.x() + x, center.y() + bodyBobY + y), toeDown };
+            double y = tr.baseOffset.y() + bodyBobY; // include body bob in local Y
+            return { QPointF(x, y), toeDown };
         } else {
-            double s  = (u - duty) / (1.0 - duty);
-            double e  = 0.5 * (1.0 - std::cos(M_PI*s));
-            double x  = tr.baseOffset.x() + (-W/2.0 + W * e);
-            double y  = tr.baseOffset.y() - ( H * std::sin(M_PI * e) );
-            double r  = toeDown * (1.0 - e) + toeUp * e * (1.0 - e) * 4.0;
-            return { QPointF(center.x() + x, center.y() + bodyBobY + y), r };
+            double s = (u - duty) / (1.0 - duty);
+            double e = 0.5 * (1.0 - std::cos(M_PI*s));
+            double x = tr.baseOffset.x() + (-W/2.0 + W * e);
+            double y = tr.baseOffset.y() + bodyBobY - ( H * std::sin(M_PI * e) );
+            double r = toeDown * (1.0 - e) + toeUp * e * (1.0 - e) * 4.0;
+            return { QPointF(x, y), r };
         }
     };
 
-    // Other tracks
     for (const auto& tr : m_tracks) {
         if (tr.id == "body") continue;
-
         if (tr.id.contains("foot")) {
             double phase = tr.id.contains("left") ? 0.0 : 0.5;
-            auto [pos, rdeg] = evalFoot(tr, phase);
+            auto [pos, rdeg] = evalFootLocal(tr, phase);
             items.push_back({ &tr, pos, rdeg });
         } else {
             double px = tr.baseOffset.x() + tr.x.eval(t, m_durationSec);
-            double py = tr.baseOffset.y() + tr.y.eval(t, m_durationSec);
+            double py = tr.baseOffset.y() + bodyBobY + tr.y.eval(t, m_durationSec);
             double rot = tr.rot.eval(t, m_durationSec);
-            items.push_back({ &tr, QPointF(center.x() + px, center.y() + bodyBobY + py), rot });
+            items.push_back({ &tr, QPointF(px, py), rot });
         }
     }
 
-    // Sort by z
     std::stable_sort(items.begin(), items.end(),
-                        [](const DrawItem& a, const DrawItem& b){ return a.tr->zOrder < b.tr->zOrder; });
+        [](const DrawItem& a, const DrawItem& b){ return a.tr->zOrder < b.tr->zOrder; });
 
-    // Shadow
-    drawShadow(p, center + QPointF(0, 150), QSizeF(220, 30), 0.35);
+    // === global transform: translate to center, then scale the whole character ===
+    p.save();
+    double flipX = m_flipHorizontal ? -1.0 : 1.0;
+    p.translate(center);
+    p.scale(flipX * m_globalScale, m_globalScale);
 
-    // Render (with scaling)
-    for (const auto& it : items) drawPixmapScaledCentered(p, *it.tr, it.pos, it.rotDeg);
+    // draw shadow INSIDE the scaled space if you want it to scale with the character:
+    // drawShadow(p, QPointF(0, 50), QSizeF(220, 30), 0.35);
 
-    // Optional ground guide
+    // draw parts at local positions
+    for (const auto& it : items)
+        drawPixmapScaledCentered(p, *it.tr, it.posLocal, it.rotDeg);
+
+    p.restore();
+
+    // (Alternative) If you want the shadow to stay constant size regardless of character scale,
+    // comment the shadow call above and use this unscaled one:
+    // drawShadow(p, center + QPointF(0, 100), QSizeF(220, 30), 0.35);
+
+    // ground guide (unscaled world)
     p.setPen(QPen(QColor(255,255,255,40), 1, Qt::DashLine));
-    p.drawLine(QPointF(0, center.y() + bodyBobY + 70), QPointF(r.width(), center.y() + bodyBobY + 70));
+    p.drawLine(QPointF(0, center.y() + bodyBobY * m_globalScale + 70 * m_globalScale),
+               QPointF(r.width(), center.y() + bodyBobY * m_globalScale + 70 * m_globalScale));
 }
 
 
@@ -171,6 +165,7 @@ void WalkerAnim::loadAnimation() {
     auto doc = QJsonDocument::fromJson(QByteArray(kAnimJson));
     auto root = doc.object();
     m_durationSec = root.value("meta").toObject().value("durationSec").toDouble(1.0);
+    m_globalScale = root.value("meta").toObject().value("globalScale").toDouble(1.0);
 
     const QJsonArray tracks = root.value("tracks").toArray();
     m_tracks.clear(); m_tracks.reserve(tracks.size());

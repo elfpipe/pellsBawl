@@ -36,14 +36,17 @@ Platformer::~Platformer() {}
 void Platformer::keyPressEvent(QKeyEvent *event) {
     if (event->key() == Qt::Key_Left) {
         isMovingLeft = true;
+        turningLeft = true;
     }
     if (event->key() == Qt::Key_Right) {
         isMovingRight = true;
+        turningLeft = false;
     }
     if (event->key() == Qt::Key_Space && !isJumping) {
         isJumping = true;
         velocityY = -jumpVelocity;
     }
+    if (event->key() == Qt::Key_Escape) close();
 }
 
 void Platformer::keyReleaseEvent(QKeyEvent *event) {
@@ -81,7 +84,8 @@ void Platformer::paintEvent(QPaintEvent *event) {
 
     // Draw player
     // painter.drawPixmap(playerRect, playerPixmap); // Draw player character
-    playerAnim.paintWalker(painter, playerRect); // Draw player character
+    playerAnim.paintWalker(painter, playerRect, turningLeft, qAbs(velocityX) * 0.5); // Draw player character
+    playerAnim.drawShadow(painter, QPointF(playerRect.left() + playerRect.width() / 2, 562), QSizeF(120, 17), 0.35);
 }
 
 void Platformer::checkEnemyCollisions() {
@@ -113,12 +117,15 @@ void Platformer::doTimerEvent() {
 void Platformer::updatePlayerPosition() {
     // Handle horizontal movement
     if (isMovingLeft) {
-        velocityX = -5;
+        velocityX -= 0.1; // velocityX == 0 ? -.5 : (velocityX < -4.0 ? velocityX : (qAbs(velocityX) > 2.0 ? velocityX - 0.5 : velocityX - .2));
     } else if (isMovingRight) {
-        velocityX = 5;
+        velocityX += 0.1; //velocityX == 0 ? .5 : (velocityX > 4.0 ? velocityX : (qAbs(velocityX) > 2.0 ? velocityX + 0.5 : velocityX + .2));
     } else {
-        velocityX = 0;
+        velocityX *= 0.9;
     }
+
+    // friction - this could be done better
+    // velocityX *= 0.98;
 
     // Apply gravity and jump velocity
     if (isJumping || isFalling) {
@@ -152,7 +159,7 @@ void Platformer::checkCollisions() {
         isFalling = true;
     }
 
-    QRect sceneRect = rect();
+    QRectF sceneRect = rect();
     if (!sceneRect.contains(playerRect)) {
         playerRect.moveTop(qMax(sceneRect.top(), playerRect.top()));
         playerRect.moveBottom(qMin(sceneRect.bottom(), playerRect.bottom()));

@@ -51,11 +51,22 @@ public:
         // m_clock.start();
     }
 
-    void paintWalker(QPainter &p, QRect r);
+    void paintWalker(QPainter &p, QRectF r, bool turningLeft = false, double speedConst = 1.0);
+    void drawShadow(QPainter& p, const QPointF& center, const QSizeF& size, double opacity) {
+        QRadialGradient g(center, size.width()/2.0, center);
+        QColor c(0,0,0, int(255*opacity));
+        g.setColorAt(0.0, c);
+        g.setColorAt(1.0, QColor(0,0,0,0));
+        QPainterPath path;
+        QRectF r(center.x()-size.width()/2.0, center.y()-size.height()/2.0, size.width(), size.height());
+        path.addEllipse(r);
+        p.save(); p.setBrush(g); p.setPen(Qt::NoPen); p.drawPath(path); p.restore();
+    }
 
 private:
     QVector<Track> m_tracks;
     double m_durationSec = 1.0;
+    double m_globalScale = 1.25; // 1.0 = original size
     bool m_allPixLoaded = false;
     QElapsedTimer m_clock;
 
@@ -81,16 +92,6 @@ private:
 
     void loadAnimation();
 
-    void drawShadow(QPainter& p, const QPointF& center, const QSizeF& size, double opacity) {
-        QRadialGradient g(center, size.width()/2.0, center);
-        QColor c(0,0,0, int(255*opacity));
-        g.setColorAt(0.0, c);
-        g.setColorAt(1.0, QColor(0,0,0,0));
-        QPainterPath path;
-        QRectF r(center.x()-size.width()/2.0, center.y()-size.height()/2.0, size.width(), size.height());
-        path.addEllipse(r);
-        p.save(); p.setBrush(g); p.setPen(Qt::NoPen); p.drawPath(path); p.restore();
-    }
 
     void drawPixmapScaledCentered(QPainter& p, const Track& tr, const QPointF& pos, double rotDeg) {
         if (tr.pix.isNull()) return;
