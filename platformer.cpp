@@ -89,14 +89,14 @@ void Platformer::paintEvent(QPaintEvent *event) {
 
     // Draw player
     // painter.drawPixmap(playerRect, playerPixmap); // Draw player character
-    playerAnim.paintWalker(painter, playerRect, turningLeft, qAbs(velocityX) * 0.5); // Draw player character
+    playerAnim.paintWalker(painter, playerRect, turningLeft, m_animTime); // Draw player character
     playerAnim.drawShadow(painter, QPointF(playerRect.left() + playerRect.width() / 2, 562), QSizeF(120, 17), 0.35);
 
     // debug
-    painter.setPen(QColor(255,255,255,180));
+    // painter.setPen(QColor(255,255,255,180));
     // painter.setFont(QFont("DejaVu", 10));
-    painter.drawText(10, height()-10,
-    QString("rate: %1x  %2").arg(m_playbackRate,0,'f',2).arg(m_paused? "paused":""));
+    // painter.drawText(10, height()-10,
+    // QString("rate: %1x  %2").arg(m_playbackRate,0,'f',2).arg(m_paused? "paused":""));
 }
 
 void Platformer::checkEnemyCollisions() {
@@ -143,12 +143,14 @@ void Platformer::timerEvent(QTimerEvent *event) {
 void Platformer::updatePlayerPosition() {
     // Handle horizontal movement
     if (isMovingLeft) {
-        velocityX = -std::max(0.1, std::min(7.0, -velocityX * 1.25));
+        velocityX = -std::max(0.1, std::min(5.0, -velocityX * 1.25));
     } else if (isMovingRight) {
-        velocityX = std::max(0.1, std::min(7.0, velocityX * 1.25));
+        velocityX = std::max(0.1, std::min(5.0, velocityX * 1.25));
     } else {
         velocityX *= 0.95;
     }
+
+    m_playbackRate = qAbs(velocityX/2);
 
     // Apply gravity and jump velocity
     if (isJumping || isFalling) {
