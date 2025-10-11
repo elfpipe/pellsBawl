@@ -1,0 +1,9 @@
+build
+platformer
+*.o
+*moc*
+qrc_*
+*.user
+Makefile
+.qmake.stash
+*_plugin_import*

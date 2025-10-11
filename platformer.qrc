@@ -1,11 +1,15 @@
-<!DOCTYPE RCC><RCC version="1.0">
+<RCC>
     <qresource prefix="/">
         <file>assets/character.png</file>
         <file>assets/platforms.json</file>
-        <!-- Add all the frames you generated for the animation -->
         <file>assets/frame_1.png</file>
         <file>assets/frame_2.png</file>
         <file>assets/enemy_sad.png</file>
         <file>assets/enemy_happy.png</file>
+        <file>assets/right_hand.png</file>
+        <file>assets/right_foot.png</file>
+        <file>assets/left_hand.png</file>
+        <file>assets/left_foot.png</file>
+        <file>assets/body.png</file>
     </qresource>
 </RCC>

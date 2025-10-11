@@ -6,28 +6,60 @@
 #include <cmath>
 
 struct Curve {
-    enum Type { Const, Sine } type = Const;
+    enum Type { Const, Sine, Linear } type = Const;
+
+    // const
     double value = 0.0;
+
+    // sine
     double amp = 0.0, phaseRad = 0.0, bias = 0.0;
+
+    // linear
+    double start = 0.0, end = 0.0;
+
     double eval(double t, double duration) const {
-        if (type == Const) return value;
-        const double omega = (duration > 0.0) ? (2.0 * M_PI / duration) : 0.0;
-        return amp * std::sin(omega * t + phaseRad) + bias;
+        switch (type) {
+        case Const:
+            return value;
+        case Sine: {
+            const double omega = (duration > 0.0) ? (2.0 * M_PI / duration) : 0.0;
+            return amp * std::sin(omega * t + phaseRad) + bias;
+        }
+        case Linear: {
+            if (duration <= 0.0) return end;            // safe fallback
+            const double u = t / duration;               // 0..1 over the clip
+            return start + (end - start) * u;
+        }
+        }
+        return 0.0;
     }
+
     static Curve fromJson(const QJsonValue& v) {
         Curve c;
-        if (!v.isObject()) return c;
-        auto o = v.toObject();
-        const QString type = o.value("type").toString();
-        if (type == "const") {
+        if (!v.isObject()) {
+            // allow bare numbers to act like const curves
+            c.type = Const;
+            c.value = v.toDouble(0.0);
+            return c;
+        }
+        const auto o = v.toObject();
+        const QString t = o.value("type").toString("const");
+
+        if (t == "const") {
             c.type = Const;
             c.value = o.value("value").toDouble(0.0);
-        } else {
+        } else if (t == "sine") {
             c.type = Sine;
             c.amp = o.value("amp").toDouble(0.0);
             c.bias = o.value("bias").toDouble(0.0);
-            double phaseDeg = o.value("phaseDeg").toDouble(0.0);
-            c.phaseRad = phaseDeg * M_PI / 180.0;
+            c.phaseRad = o.value("phaseDeg").toDouble(0.0) * M_PI / 180.0;
+        } else if (t == "linear") {
+            c.type = Linear;
+            c.start = o.value("start").toDouble(0.0);
+            c.end   = o.value("end").toDouble(c.start);
+        } else {
+            // unknown type → fallback to const 0
+            c.type = Const; c.value = 0.0;
         }
         return c;
     }
@@ -47,6 +79,7 @@ class WalkerAnim : public QObject {
 public:
     WalkerAnim() {
         loadAnimation();
+        selectClip("walk");
         // startTimer(1000/60); // ~60 FPS
         // m_clock.start();
     }
@@ -63,6 +96,33 @@ public:
         p.save(); p.setBrush(g); p.setPen(Qt::NoPen); p.drawPath(path); p.restore();
     }
 
+    bool selectClip(const QString& id) {
+        auto it = m_clips.find(id);
+        if (it == m_clips.end()) return false;
+        m_activeClipId = id;
+        m_tracks       = it->tracks;
+        m_durationSec  = it->durationSec;
+        m_useFootCapsule = it->useFootCapsule;
+        // m_animTime = 0.0; // optional: reset time on switch
+        // update();
+        return true;
+    }
+
+private:
+
+    struct AnimClip {
+        QString id;
+        double durationSec = 1.0;
+        bool loop = true;
+        bool useFootCapsule = false;
+        QVector<Track> tracks;   // tracks for this clip (pixmaps are implicitly shared)
+    };
+
+    QHash<QString, AnimClip> m_clips;
+    QString m_activeClipId;
+    bool m_useFootCapsule = false;   // read from active clip
+    QHash<QString, QPixmap> m_pixById; // loaded once per part id
+
 private:
     QVector<Track> m_tracks;
     double m_durationSec = 1.0;
@@ -75,19 +135,18 @@ private:
         return nullptr;
     }
 
+    static QPointF readPoint(const QJsonValue& v) {
+        const auto o = v.toObject();
+        return QPointF(o.value("x").toDouble(0.0), o.value("y").toDouble(0.0));
+    }
     static QSizeF readSizeFromJson(const QJsonValue& v) {
-        // Accept { "w": ..., "h": ... } or number (uniform)
-        if (v.isDouble()) {
-            double s = v.toDouble();
-            return QSizeF(s, s);
-        }
+        if (v.isDouble()) { double s=v.toDouble(); return QSizeF(s,s); }
         if (v.isObject()) {
-            QJsonObject o = v.toObject();
-            double w = o.value("w").toDouble(qQNaN());
-            double h = o.value("h").toDouble(qQNaN());
-            if (!std::isnan(w) && !std::isnan(h)) return QSizeF(w, h);
+            auto o=v.toObject(); 
+            if (o.contains("w") && o.contains("h"))
+                return QSizeF(o.value("w").toDouble(), o.value("h").toDouble());
         }
-        return QSizeF(); // invalid -> use natural image size
+        return QSizeF(); // invalid => use natural image size
     }
 
     void loadAnimation();

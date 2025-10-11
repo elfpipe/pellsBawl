@@ -10,8 +10,6 @@
 
 #include "fluffyWalk.h"
 
-#include <proto/exec.h>
-
 struct Platform {
     QRect rect;
     bool isGround;
@@ -37,7 +35,6 @@ struct Enemy {
     }
 
     void move(const QRect &platform) {
-        IExec->DebugPrintF("move\n");
         // Move the enemy left or right within the platform bounds
         if (movingLeft) {
             rect.moveLeft(rect.left() - velocityX);

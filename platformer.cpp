@@ -51,6 +51,15 @@ void Platformer::keyPressEvent(QKeyEvent *event) {
         isJumping = true;
         velocityY = -jumpVelocity;
     }
+    if (event->key() == Qt::Key_T) {
+        playerAnim.selectClip("throw");
+    }
+    if (event->key() == Qt::Key_J) {
+        playerAnim.selectClip("jump_straight");
+    }
+    if (event->key() == Qt::Key_S) {
+        playerAnim.selectClip("jump_spin");
+    }
     if (event->key() == Qt::Key_Escape) close();
 }
 
@@ -63,7 +72,7 @@ void Platformer::keyReleaseEvent(QKeyEvent *event) {
     }
 }
 
-void Platformer::paintEvent(QPaintEvent *event) {
+void Platformer::paintEvent(QPaintEvent *) {
     QPainter painter(this);
 #ifdef USE_OPENGL
     //cls - this shouldn't be necessary, is probably an amiga thing
@@ -117,7 +126,7 @@ void Platformer::checkEnemyCollisions() {
     }
 }
 
-void Platformer::timerEvent(QTimerEvent *event) {
+void Platformer::timerEvent(QTimerEvent *) {
     qint64 now = m_clock.elapsed();
     double dt = (now - m_lastMs) / 1000.0;
     m_lastMs = now;
