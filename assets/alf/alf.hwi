@@ -1,0 +1,901 @@
+;********* BE FIGHTERS - 2010 Edition ***********
+;**** © 2009-2010 Alfkil Thorbjørn Wennermark****
+;************************************************
+
+;****************** alf.hwi *******************
+
+
+@INCLUDE "alfsprite.hwi"
+
+Const #alfbrushstart = 59
+
+;**For debug:
+;@BRUSH -123, "/mark.png", {Transparency = #BLACK}
+
+@BRUSH 15, "alfkil_wins.png", {Transparency = #WHITE}
+Const #alfwinbrush = 15
+
+
+Const #alfalignleft 		= 482		;defines the "center" (stomach) of the sprite on x-axis
+Const #alfalignright 		= -#alfalignleft
+
+Const #alfgroundy = 67		;When I'm resting on the ground
+
+Const #alfstaa		= 1
+Const #alfstaa_n		= 4
+Const #alfgaa		= 5
+Const #alfgaa_n			= 4
+Const #alfding		= 9
+Const #alfding_n		= 4
+Const #alfvend		= 13
+Const #alfvend_n		= 3
+Const #alfduk		= 16
+Const #alfduk_n			= 3
+Const #alfhop		= 19
+Const #alfhop_n			= 4
+Const #alfsalto		= 23
+Const #alfsalto_n		= 6
+
+Const #alfblok		= 29
+Const #alfblok_n		= 3
+Const #alfsejr		= 32
+Const #alfsejr_n		= 7
+Const #alframned	= 39
+Const #alframned_n		= 2
+Const #alframop		= 41
+Const #alframop_n		= 1
+Const #alfrluft		= 42
+Const #alfrluft_n		= 1
+Const #alfslaa1		= 43
+Const #alfslaa1_n		= 4
+Const #alfslaa2		= 47		;really alf-knæ...
+Const #alfslaa2_n		= 6
+Const #alfspark1	= 53
+Const #alfspark1_n		= 3
+Const #alfspark2	= 56
+Const #alfspark2_n		= 8	
+
+Const #alffald		= 98
+Const #alffald_n		= 1
+
+;Const #alfdukslaa	= 49
+;Const #alfdukslaa_n=2
+
+Const #alfdukspark	= 64
+Const #alfdukspark_n	= 3
+Const #alfluftsp	= 67
+Const #alfluftsp_n		= 2
+Const #alfluftslaa	= 69
+Const #alfluftslaa_n	= 2
+
+Const #alf_stem			= 71
+Const #alf_stem_n			= 11
+Const #alf_violinpow	= 82
+Const #alf_violinpow_n		= 7
+Const #alf_violinwack	= 89
+Const #alf_violinwack_n 	= 5
+
+Const #alf_dies		= 94
+Const #alf_dies_n		= 4
+
+
+Const #alfgrabbed	= 10
+Const #alfgrabbed_n		=1
+
+Const #alfgrabandcrunchwait = 350 ;how long is the wait for the other player when I crunch him?
+Const #alfgrabdistance = 70
+
+Const #alfprojectileoffsetx = 150
+Const #alfprojectileoffsety = 280
+Const #alfprojectilecenterx = 77
+
+@INCLUDE "alfhots.txt"	;new collision method...
+
+
+alfstate = {}	 ; what am I doing?
+alfframe = {}  ;frame in given 'state'
+ndispframe = {}  ;frame in sprite
+alfanimn = {}  ;no frames in anim
+alfspeedx = {} 
+alfaccx   = {}
+alfspeedy = {}
+alfaccy = {}
+alflasttime = {}  ;given time at last frame
+alfframetime = {}
+alfanimtime = {}
+alfanimonce = {}	;if anim is to be player only once, not repeated (like hit or kick)
+alfanimdone = {}  ;if anim has player through
+alfhit = {}		;am I hit?
+alffire1handled = {}
+alffire2handled = {}
+alfdownblok	= {}	;we don't have an anim state for this
+
+alfprojectilex = {}
+alfprojectiley = {}
+alfprojectilespeedx = {}
+alfprojectileframe = {}
+
+alfbreakingsoundplaying = {}
+
+
+Function p_alfInit (p)
+	If p=1
+		playerx[1] = #displaywidth/2 - 200
+		playerflipx[1] = True
+		playerdir[1] = 1
+	ElseIf p=2
+		playerx[2] = #displaywidth/2 + 200
+		playerflipx[2] = False
+		playerdir[1] = - 1
+	EndIf
+
+	playery[p] = #alfgroundy
+	alfframe[p] = 0			;frames range 0 to animn-1
+	alfstate[p] = #alfstaa
+	alfanimn[p] = #alfstaa_n
+	alfspeedx[p] = 0
+	alfaccx[p] = 0
+	alflasttime[p] = 0      ; GetTimer(1)
+	alfframetime[p] = 0
+	alfanimtime[p] = 100	;time in miliseconds before new anim frame (used to slow down "too fast" animation)
+	alfanimonce[p] = False
+	alfanimdone[p] = False
+	alfhit[p] = False
+	alffire1handled[p] = False
+	alffire2handled[p] = False
+	playerisflying[p] = False
+	alfspeedy[p] = 0.0
+	alfaccy[p] = 0.0
+	alfdownblok[p] = False
+	playergrabandcrunchtime[p] = 0.0
+	playergrabandcrunchwait[p] = 0.0
+
+	playerenergy[p] = 100.0
+	playerhandicap[p] = 1.0
+	playerdamage[p] = 0.0
+	playerisdead[p] = False
+	playerhasdied[p] = False
+
+	playerhasprojectile[p] = True
+	playerprojectileinair[p] = False
+
+	alfbreakingsoundplaying[p] = False
+
+	player_movementdone[p] = False
+
+	playerfalldelay[p] = 0.0
+EndFunction
+
+alfloaded = False
+
+Function p_alfLoad(p)
+
+	if alfloaded = False
+		For i = 1 TO #alfnumberofframes
+			LoadBrush (i+#alfbrushstart, "newalf/"..alfsprite[i].filename, {Transparency = #WHITE})
+			CopyBrush (i+#alfbrushstart, i+#alfbrushstart+#alfnumberofframes)  ;for the reversed images
+			FlipBrush (i+#alfbrushstart+#alfnumberofframes, True)
+
+			alfsprite[i+#alfnumberofframes] = {filename ="",
+												x = -(alfsprite[i].x + GetAttribute(#BRUSH, i+#alfbrushstart, #ATTRWIDTH)),
+												y = alfsprite[i].y}  							;copy data and reverse xalign
+		Next
+
+		LoadBrush (1+#alfbrushstart+2*#alfnumberofframes, "newalf/bow.png", {Transparency = #WHITE})
+		CopyBrush (1+#alfbrushstart+2*#alfnumberofframes, 2+#alfbrushstart+2*#alfnumberofframes)
+		FlipBrush (2+#alfbrushstart+2*#alfnumberofframes, True)
+
+		alfloaded = True
+	EndIf
+EndFunction
+
+Function p_AlfUnload(p)
+	if alfloaded = False Then Return()
+
+	For Local i = 1 TO #alfnumberofframes
+		FreeBrush(i+#alfbrushstart)
+		FreeBrush(i+#alfbrushstart+#alfnumberofframes)
+	Next
+	FreeBrush (1+#alfbrushstart+2*#alfnumberofframes)
+	FreeBrush (2+#alfbrushstart+2*#alfnumberofframes)
+EndFunction
+
+Function p_AlfDisplaySprite(p, newx, frame)
+	Local x = newx+alfsprite[frame].x
+	Local y = playery[p]+alfsprite[frame].y
+
+	If Not (alfstate[p] = #alffald)
+		x = x + foreoffx
+		y = y + foreoffy
+	Endif
+
+	SetLayerStyle(ToString(p), {X = x, Y = y, ID = #alfbrushstart+frame})
+EndFunction
+
+Function p_AlfShowProjectile(p)
+	DisplayBrush(-1, -1, -1, {Name = "P"..p})
+EndFunction
+
+Function p_AlfDisplayProjectile(p, frame)
+	Local x = alfprojectilex[p]
+	Local y = alfprojectiley[p]
+
+	SetLayerStyle("P"..p, {X = x, Y = y, ID = #alfbrushstart+2*#alfnumberofframes+frame})
+EndFunction
+
+Function p_AlfRemoveProjectile(p)
+	RemoveLayer("P"..p)
+EndFunction
+
+Function p_alfMove(p)
+	Local accx
+	Local accy
+
+	Local input = 0
+	Switch(playertype[p])
+	case #human:
+		;input = p_inputfunc[p]()
+		input = p_DoInput(p)
+	case #robot:
+		input = p_RobotalfInput(p)
+	;case #superrobot:
+	;	bla. bla
+	;default:
+	EndSwitch
+
+;**First do time stuff
+	Local time = GetTimer(1)
+	Local timepassed = time - alflasttime[p]
+	Local timepassed1000 = timepassed/1000
+	alflasttime[p] = time
+	alfframetime[p] = alfframetime[p]+timepassed
+	Local newframe = Int(Div (alfframetime[p], alfanimtime[p]))
+	alfframetime[p] = alfframetime[p] - newframe*alfanimtime[p]
+
+;**Take care of collisions
+	playerdir[p] = Iif (playerflipx[p], 1, -1)
+
+	;** fall over edge
+	if Not alfhit[p] And Not playerisflying[p] And (playerx[p] < 100 Or playerx[p] > #displaywidth - 100)
+		alfhit[p] = True
+		alfstate[p] = #alffald
+		alfanimn[p] = #alffald_n
+		playerisflying[p] = true
+		p_PlaySample(#soundfall)
+		alfspeedy[p] = 6.0
+		alfspeedx[p] = 0.0
+		playerfalldelay[p] = 3.0
+	EndIf
+
+	if collhotplayer[p] AND Not alfhit[p]		;I'm hit!
+
+		if playerhitarea[3-p] <> #hitgrabandcrunch
+			alfhit[p] = True
+			playerenergy[p] = playerenergy[p] - playerdamage[3-p] * playerhandicap[p]
+			p_UpdateEnergy(p, playerenergy[p])
+			playerdamage[3-p] = 0.0
+		EndIf
+		alfanimonce[p] = True
+		alfanimdone[p] = False
+		alfframe[p] = 0
+
+		if playerisflying[p]	;hit in the air...
+			if  playerhitarea[3-p] <> #hitgrabandcrunch
+				alfstate[p] = #alfrluft
+				alfanimn[p] = #alfrluft_n
+				p_PlaySample(#soundmalehit2)
+				alfspeedx[p] = -5.0*directionotherplayer[p]
+			EndIf
+		ElseIf Not (alfstate[p] = #alfblok)  AND (Not alfdownblok[p])
+			if (alfstate[p] = #alfduk)
+				if playerhitarea[3-p] <> #hitgrabandcrunch
+					alfstate[p] = #alframned
+					alfanimn[p] = #alframned_n
+					alfspeedx[p] = -2.0*directionotherplayer[p]
+					p_PlaySample (#soundmalehit1)
+				EndIf
+			Else
+				;where am I hit?
+				Switch(playerhitarea[3-p])
+				case #hitlow:
+					alfstate[p] = #alframned
+					alfanimn[p] = #alframned_n
+					alfanimtime[p] = 200
+					alfspeedx[p] = -3.0*directionotherplayer[p]
+					p_PlaySample (#soundmalehit1)
+				case #hithigh:
+					alfstate[p] = #alframop
+					alfanimn[p] = #alframop_n
+					alfanimtime[p] = 300
+					alfspeedx[p]= -5.0*directionotherplayer[p]
+					p_PlaySample (#soundmalehit2)
+				case #hithighkick:
+					playerisflying[p] = True
+					alfstate[p] = #alfrluft
+					alfanimn[p] = #alfrluft_n
+					alfspeedx[p] = -5.0*directionotherplayer[p]
+					alfspeedy[p] = -5.0
+					p_PlaySample (#soundmalehit1)
+				case #hitair:
+					alfstate[p] = #alframop
+					alfanimn[p] = #alframop_n
+					alfanimtime[p] = 300
+					alfspeedx[p]= -5.0*directionotherplayer[p]
+					p_PlaySample (#soundmalehit2)
+				case #hitspecial1:
+					;the uppercut of death!
+					playerisflying[p] = True
+					alfstate[p] = #alfrluft
+					alfanimn[p] = #alfrluft_n
+					alfspeedx[p] = -5.0*directionotherplayer[p]
+					alfspeedy[p] = -12.5
+					p_PlaySample (#soundmaleagony)	;YEAH!...
+				case #hitsuperpunch:
+					playerisflying[p] = True
+					alfstate[p] = #alfrluft
+					alfanimn[p] = #alfrluft_n
+					alfspeedx[p] = -12.0*directionotherplayer[p]
+					alfspeedy[p] = -1.5
+					p_PlaySample (#soundmalehit2)
+				case #hitgrabandcrunch:
+					alfstate[p] = #alfgrabbed
+					alfanimn[p] = #alfgrabbed_n
+					alfspeedx[p]=0
+					alfspeedy[p]=0
+
+					;playerx[p] = playerx[3-p] + playergrabdistance[3-p]
+					playergrabandcrunchwait[p] = playergrabandcrunchtime[p]
+					;p_PlaySample (#soundmalegrabandcrunch)
+				case #hitprojectile:
+					alfstate[p] = #alframop
+					alfanimn[p] = #alframop_n
+					alfanimtime[p] = 300
+					alfspeedx[p]= -5.0*directionotherplayer[p]
+					;alfspeedy[p] = -5.5
+					if player[3-p] = #gitte
+						p_PlaySample(#soundguitarhit)
+					Else
+						p_PlaySample (#soundmalehit2)
+					EndIf
+				case #hitnohit:
+					;error?
+				EndSwitch
+			EndIf
+		EndIf
+	EndIf
+
+	if Not collhotplayer[3-p] AND collplayerplayer
+
+		if alfstate[p] = #alfstaa OR alfstate[p] = #alfgaa
+			if Abs(alfspeedx[p]) > 0.8 And Sgn(alfspeedx[p]) = directionotherplayer[p]
+				alfspeedx[p] = -alfspeedx[p]
+				p_PlaySample (#soundboing2)
+			Else
+				;move away
+				alfspeedx[p] = 0.0
+				playerx[p] = playerx[p] -10*directionotherplayer[p]
+			EndIf
+		EndIf
+	EndIf
+
+;**Take care of user input
+	accx = 0.0
+	accy = 0.0
+
+	Local forwardjoy=0
+	Local backwardjoy=0
+	if playerflipx[p]
+		forwardjoy=#inputright
+		backwardjoy=#inputleft
+	Else
+		forwardjoy=#inputleft
+		backwardjoy=#inputright
+	EndIf
+
+	if (input & #inputbut1)=0
+		alffire1handled[p] = False
+	EndIf
+	if (input & #inputbut2)=0
+		alffire2handled[p] = False
+	EndIf
+
+	if (IsKeyDown("p") OR IsKeyDown ("P")) AND p=2
+		NPrint ("speed="..alfspeedx[2])
+		NPrint ("time ="..timepassed1000)
+		;NPrint ("robotstate="..robotalf_plan[2])
+		;NPrint ("waitnewplan="..robotalf_waitnewplan[2])
+		NPrint ("alfhit="..alfhit[2])
+		;NPrint ("newplanontime="..robotalf_newplanontime[2])
+		;NPrint ("plandone="..robotalf_plandone[2])
+	EndIf
+
+	if Not playerisdead[p]
+	if alfstate[p] = #alfduk AND alfanimdone[p] = True
+		if (input & #inputdown) AND (input & #inputbut2) AND (alffire2handled[p] = False)
+			alfstate[p] = #alfdukspark
+			alfanimn[p] = #alfdukspark_n
+			alfanimonce[p] = True
+			alfanimdone[p] = False
+			alfframe[p] = 0
+			newframe = 0
+			playerhitarea[p] = #hitlow
+			playerdamage[p] = 10.0
+			alffire2handled[p] = True
+			p_PlaySample (#soundmalekick1)
+		ElseIf Not (input & #inputdown)
+			alfstate[p] = #alfstaa
+			alfanimn[p] = #alfstaa_n
+			alfanimonce[p] = False
+			alfanimdone[p] = False
+			alfframe[p] = 0
+			newframe=0
+		ElseIf input & backwardjoy
+			alfdownblok[p] = True
+		Else
+			alfdownblok[p] = False
+		EndIf
+	Else
+		alfdownblok[p] = False
+	EndIf
+
+	if alfstate[p] = #alfsalto AND playerisflying[p]
+		if alfspeedy[p] > 0.0
+			if input & #inputbut2 AND alffire2handled[p] = False
+				alffire2handled[p] = True
+				alfstate[p] = #alfluftsp
+				alfanimn[p] = #alfluftsp_n
+				alfframe[p] = 0
+				alfanimonce[p] = True
+				alfanimdone[p] = False
+				alfanimtime[p] = 200	;slow animation
+				playerhitarea[p] = #hitair
+				playerdamage[p] = 10.0
+				p_PlaySample (#soundmalekick1)
+			ElseIf input &#inputbut1 AND alffire1handled[p] = False
+				alffire1handled[p] = True
+				alfstate[p] = #alfluftslaa
+				alfanimn[p] = #alfluftslaa_n
+				alfframe[p] = 0
+				alfanimonce[p] = True
+				alfanimdone[p] = False
+				alfanimtime[p] = 200	;slow animation
+				playerhitarea[p] = #hitair
+				playerdamage[p] = 10.0
+				p_PlaySample (#soundmalepunch1)
+			EndIf
+		EndIf
+	EndIf
+
+	if alfstate[p] = #alfsalto OR alfstate[p] = #alfhop OR alfstate[p] = #alfluftsp OR alfstate[p] = #alfluftslaa
+		if input & #inputleft
+			accx = -4.0
+		EndIf
+		If input & #inputright
+			accx = 4.0
+		EndIf
+	EndIf
+
+	if alfstate[p] = #alfstaa OR alfstate[p] = #alfgaa
+		Local done=False
+
+		if inputchainelements[p]>=3			; special moves! (Actually this could be increased to infinity...!)
+
+		if		inputchain[p][0]=#inputbut2 AND 		;back,forw,but2  =  shoot!
+				inputchain[p][1] = forwardjoy AND 
+				inputchain[p][2] = backwardjoy AND 
+				playerprojectileinair[p] = False
+
+			p_FlushInputChain(p)
+
+			alffire1handled[p] = True
+			alfstate[p] = #alf_violinwack
+			alfanimn[p] = #alf_violinwack_n
+			alfframe[p] = 0
+			alfanimonce[p] = True
+			alfanimdone[p] = False
+			alfspeedx[p] = 0.0
+			playerhitarea[p] = #hitprojectile
+			playerdamage[p] = 7.0
+			p_PlaySample (#soundviolinshoot)
+			done = True
+		EndIf
+
+		if inputchain[p][0] = #inputbut1 AND inputchain[p][1] =  forwardjoy AND inputchain[p][2] = forwardjoy
+
+			p_FlushInputChain(p)
+			alffire2handled[p] = True
+			alfstate[p] = #alf_violinpow
+			alfanimn[p] = #alf_violinpow_n
+			alfframe[p] = 0
+			alfanimonce[p] = True
+			alfanimdone[p] = False
+			;alfspeedx[p] = 0.0
+			playerhitarea[p] = #hitsuperpunch	;oh yeah...
+			playerdamage[p] = 25.0
+			;p_PlaySample (#soundmalesuperpunch)
+			p_PlaySample (#soundmalepunch1)
+			done = True
+		EndIf
+
+		if inputchain[p][0] = #inputbut2 AND inputchain[p][1] = #inputdown AND inputchain[p][2] = forwardjoy
+			p_FlushInputChain(p)
+			alfstate[p] = #alf_stem
+			alfanimn[p] = #alf_stem_n
+			alfanimonce[p] = True
+			alfanimdone[p] = False
+			alfframe[p] = 0
+			newframe = 0
+			playerhitarea[p] = #hithigh
+			playerdamage[p] = 15.0
+			alffire1handled[p] = True
+			done = True
+			p_PlaySample(#soundmalekick1)
+		EndIf
+
+		EndIf	; end of special moves
+
+		if input & #inputdown AND Not done AND inputchainelements[p] <= 2
+			alfstate[p] = #alfduk
+			alfanimn[p] = #alfduk_n
+			alfframe[p] = 0
+			alfanimonce[p] = True
+			alfanimdone[p] = False
+			alfspeedx[p] = 0.0
+			done = True
+		EndIf
+
+		if input & #inputup AND Not done
+			;playerisflying[p] = True
+			alfstate[p] = #alfhop
+			alfanimn[p] = #alfhop_n
+			alfframe[p] = 0
+			alfanimonce[p] = True
+			alfanimdone[p] = False
+		EndIf
+
+		if input & #inputleft And Not done
+			alfspeedx[p] = -2.0
+		ElseIf input & #inputright AND Not done
+			alfspeedx[p] = 2.0
+		Else
+			alfspeedx[p] = alfspeedx[p]*0.9
+		EndIf
+
+		if (input & #inputbut1) AND (alffire1handled[p] = False) AND Not done
+			if input & backwardjoy			;blocking
+				alfstate[p] = #alfblok
+				alfanimn[p] = #alfblok_n
+				alfframe[p] = 0
+				alfanimonce[p] = True
+				alfanimdone[p] = False
+			ElseIf input & forwardjoy
+				alfstate[p] = #alfslaa1		;alf only has one kind of punch
+				alfanimn[p] = #alfslaa1_n
+				alfframe[p] = 0
+				alfanimonce[p] = True
+				alfanimdone[p] = False
+				playerdamage[p] = 5.0
+				playerhitarea[p] = #hithigh
+				p_PlaySample (#soundmalepunch1)
+			Else
+				alfstate[p] = #alfslaa2
+				alfanimn[p] = #alfslaa2_n
+				alfframe[p] = 0
+				alfanimonce[p] = True
+				alfanimdone[p] = False
+				playerhitarea[p] = #hithigh
+				p_PlaySample (#soundmalepunch1)
+				playerdamage[p] = 5.0
+			EndIf
+			alffire1handled[p] = True
+		EndIf
+		if (input & #inputbut2) AND (alffire2handled[p] = False) AND Not done
+			if input & backwardjoy
+				alfstate[p] = #alfspark2
+				alfanimn[p] = #alfspark2_n
+				alfframe[p] = 0
+				alfanimonce[p] = True
+				alfanimdone[p] = False
+				playerhitarea[p] = #hithighkick
+				playerdamage[p] = 15.0
+				p_PlaySample (#soundmalekick1)
+
+			Else
+				alfstate[p] = #alfspark1
+				alfanimn[p] = #alfspark1_n
+				alfframe[p] = 0
+				alfanimonce[p] = True
+				alfanimdone[p] = False
+				playerhitarea[p] = #hitlow
+				playerdamage[p] = 3.0
+				p_PlaySample (#soundmalekick1)
+			EndIf				
+			alffire2handled[p] = True
+		EndIf
+	EndIf
+	EndIf
+
+;**Calculate motion
+	alfspeedx[p] = alfspeedx[p] + accx*timepassed1000
+	playerx[p] = playerx[p] + #pixprm*alfspeedx[p]*timepassed1000 + 0.5*#pixprm * accx * (timepassed1000^2)
+	;friction
+	alfspeedx[p] = alfspeedx[p]*0.8^timepassed1000	; *(1 - Abs(1/(Abs(alfspeedx[p])+1)))^timepassed1000
+	;if jumping
+	playery[p] = playery[p] + #pixprm*alfspeedy[p]*timepassed1000
+	;gravity
+	if playery[p] < #alfgroundy
+		alfspeedy[p] = alfspeedy[p] + 8.0*timepassed1000
+	EndIf
+	;projectile
+	if playerprojectileinair[p]
+		alfprojectilex[p] = alfprojectilex[p] + #pixprm*alfprojectilespeedx[p]*timepassed1000
+		if alfprojectilex[p] < -336 OR alfprojectilex[p] > #displaywidth
+			playerprojectileinair[p] = False
+
+			p_AlfRemoveProjectile(p)
+		EndIf
+	EndIf
+
+	;Limits
+	If playerx[p] >= #displaywidth
+		playerx[p] = #displaywidth - 1
+		alfspeedx[p] = -alfspeedx[p]
+		p_PlaySample (#soundboing1)
+	ElseIf playerx[p] <= 0
+		playerx[p] = 1
+		alfspeedx[p] = -alfspeedx[p]
+		p_PlaySample (#soundboing1)
+	EndIf
+	if (Not input) AND (Abs(alfspeedx[p]) < 1.0)
+		alfspeedx[p] = 0.0
+	EndIf
+
+	if alfstate[p] = #alffald
+		playerfalldelay[p] = playerfalldelay[p] - timepassed1000;
+		if playerfalldelay[p] <= 0.0
+			playerhasdied[p] = True
+			playerisdead[p] = True
+		EndIf
+	EndIf
+
+	if alfstate[p] = #alfgaa AND Abs(alfspeedx[p]) < 0.5
+		alfstate[p] = #alfstaa
+		alfanimn[p] = #alfstaa_n
+		alfframe[p] = 0
+	ElseIf alfstate[p] = #alfstaa AND Abs(alfspeedx[p]) > 0.5
+		alfstate[p] = #alfgaa
+		alfanimn[p] = #alfgaa_n
+		alfframe[p] = 0
+	EndIf
+
+	if playerisflying[p] AND playery[p]>=#alfgroundy AND Not (alfstate[p] = #alffald)
+		playerisflying[p] = False
+		playery[p] = #alfgroundy
+		alfstate[p] = #alfstaa  ;we have no 'land' anim :-(
+		alfanimn[p] = #alfstaa_n
+		alfframe[p] = 0
+		playerisflying[p] = False
+		alfspeedy[p] = 0.0
+		newframe = 0
+		alfanimtime[p] = 100
+		player_movementdone[p] = True
+	EndIf
+
+
+;**Animate character
+	if alfstate[p] = #alfgrabbed
+		playergrabandcrunchwait[p] = playergrabandcrunchwait[p] - timepassed
+		if playergrabandcrunchwait[p] <= 0.0
+			playergrabandcrunchwait[p] = 0.0
+
+			playerenergy[p] = playerenergy[p] - playerdamage[3-p]*playerhandicap[p]
+			p_UpdateEnergy(p, playerenergy[p])
+			playerdamage[3-p] = 0.0
+
+			alfhit[p] = True
+			alfanimonce[p] = True
+			alfanimdone[p] = False
+			alfframe[p] = 0
+			alfstate[p] = #alframned
+			alfanimn[p] = #alframned_n
+			alfspeedx[p] = -3.0*directionotherplayer[p]
+			p_PlaySample (#soundmalehit2)
+			player_movementdone[p] = True
+		EndIf
+	EndIf
+
+	if (alfstate[p] = #alfstaa OR alfstate[p] = #alfgaa) AND alfspeedx[p] < 7.0
+		Local turn = False
+		if (playerdir[p]* directionotherplayer[p]) = -1
+			turn = True
+		EndIf
+		if turn
+			alfstate[p] = #alfvend
+			alfanimn[p] = #alfvend_n
+			alfanimonce[p] = True
+			alfanimdone[p] = False
+			alfframe[p] = 0
+		EndIf
+	EndIf
+
+	if alfanimonce[p] AND alfanimdone[p] AND newframe
+		if alfstate[p] = #alfsejr
+			alfframe[p] = #alfsejr_n - 1
+			newframe = 0
+		ElseIf alfstate[p] = #alf_dies
+			alfframe[p] = #alf_dies_n - 1
+			newframe = 0
+			playerhasdied[p] = True
+		ElseIf alfstate[p] = #alfgrabbed
+			;do nothing...
+		ElseIf alfstate[p] = #alfduk
+			alfframe[p] = #alfduk_n - 1
+			newframe = 0
+		ElseIf alfstate[p] = #alfrluft
+			alfframe[p] = #alfrluft_n - 1
+			newframe = 0
+		ElseIf alfstate[p] = #alf_violinwack
+			alfstate[p] = #alfstaa
+			alfanimn[p] = #alfstaa_n
+			alfanimonce[p] = False
+			alfanimdone[p] = False
+			alfhit[p] = False
+			alfframe[p] = 0
+			alfanimtime[p] = 100
+			newframe=0
+			player_movementdone[p] = True
+
+			playerprojectileinair[p] = True
+			p_AlfShowProjectile(p)
+			alfprojectilex[p] = playerx[p] + #alfprojectileoffsetx*playerdir[p]-#alfprojectilecenterx+foreoffx
+			alfprojectiley[p] = playery[p] + #alfprojectileoffsety+foreoffy
+			alfprojectilespeedx[p] = playerdir[p]*15.0
+			alfprojectileframe[p] = 1
+			projectilehashit[p] = False
+		ElseIf alfstate[p] = #alfdukspark
+			alfstate[p] = #alfduk
+			alfanimn[p] = #alfduk_n-1
+			alfframe[p] = 0
+			alfanimonce[p] = True
+			alfanimdone[p] = False
+			alfspeedx[p] = 0.0
+			done = True
+		ElseIf (alfstate[p] = #alfluftsp OR alfstate[p] = #alfluftslaa) AND alfhit[p] = False
+			;alfframe[p] = #alfluftsp_n - 1
+			;newframe = 0
+
+			alfstate[p] = #alfsalto
+			alfanimn[p] = #alfsalto_n
+			alfanimonce[p] = False
+			alfframe[p] = 0
+			newframe = 0
+			playerisflying[p] = True
+			alfanimtime[p] = 40			
+		ElseIf alfstate[p] = #alfvend AND alfhit[p] = False
+			playerflipx[p] = Not playerflipx[p]
+			playerx[p] = playerx[p]
+			playerdir[p] = -playerdir[p]
+			alfstate[p] = #alfstaa
+			alfanimn[p] = #alfstaa_n
+			alfanimonce[p] = False
+			alfanimdone[p] = False
+			alfframe[p] = 0
+			alfanimtime[p] = 100
+			newframe=0
+		ElseIf (alfstate[p] = #alfhop) AND (alfhit[p]=False)
+			alfstate[p] = #alfsalto
+			alfanimn[p] = #alfsalto_n
+			alfanimonce[p] = False
+			alfframe[p] = 0
+			newframe = 0
+			playerisflying[p] = True
+			alfspeedy[p] = -8.0
+			alfanimtime[p] = 40
+		ElseIf alfhit[p]
+			if Not (playerisdead[p])
+			EndIf
+			;if you still have energy left...
+			if playerenergy[p] <= 0.0
+				playerisdead[p] = True
+				playerisflying[p] = False
+				alfstate[p] = #alf_dies
+				alfanimn[p] = #alf_dies_n
+				alfanimonce[p] = True
+				alfanimdone[p] = False
+				alfframe[p] = 0
+				alfspeedx[p] = 0.0
+				alfspeedy[p] = 0.0
+				playery[p] = #alfgroundy
+				newframe = 0
+				alfanimtime[p] = #deadanimtime
+				alfhit[p] = False
+			ElseIf playerenergy[p] <= 10.0
+				alfstate[p] = #alfding
+				alfanimn[p] = #alfding_n
+				alfanimonce[p] = False
+				alfhit[p] = False
+				alfframe[p] = 0
+				alfanimtime[p] = 200
+				alfspeedx[p] = 0.0
+				newframe = 0
+			Else
+				alfstate[p] = #alfstaa
+				alfanimn[p] = #alfstaa_n
+				alfanimonce[p] = False
+				alfanimdone[p] = False
+				alfhit[p] = False
+				alfframe[p] = 0
+				alfanimtime[p] = 100
+				newframe=0
+				player_movementdone[p] = True
+			EndIf
+		else
+			alfstate[p] = #alfstaa
+			alfanimn[p] = #alfstaa_n
+			alfanimonce[p] = False
+			alfanimdone[p] = False
+			alfframe[p] = 0
+			newframe=0
+			player_movementdone[p] = True
+		EndIf
+	EndIf
+	alfframe[p] = alfframe[p] + newframe
+	if alfanimonce[p]
+		if alfframe[p] >= alfanimn[p]-1
+			alfframe[p] = alfanimn[p]-1
+			alfanimdone[p] = True
+			player_movementdone[p] = True
+		EndIf
+	Else
+		alfframe[p] = alfframe[p] % alfanimn[p]
+	EndIf
+
+	if playerhasdied[3-p] AND Not (alfstate[p] = #alfsejr) ;victory!
+		if playerisdead[p]	;oops, I'm dead too!
+			;do smth
+		Else
+			alfstate[p] = #alfsejr
+			alfanimn[p] = #alfsejr_n
+			alfanimonce[p] = True
+			alfframe[p] = 0
+			playery[p] = #alfgroundy
+			alfspeedx[p] = 0.0
+			alfspeedy[p] = 0.0
+			alfanimtime[p] = #deadanimtime
+			p_PlaySample(#soundalfkil)
+			DisplayBrush(#alfwinbrush, #CENTER, #CENTER)
+		EndIf
+	EndIf
+
+;**Flip horizantally if necessary
+	Local dispframe = alfstate[p] + alfframe[p]
+	Local dispx = playerx[p] - #alfalignleft
+	if playerflipx[p]
+		dispframe = dispframe + #alfnumberofframes
+		dispx = playerx[p] + #alfalignleft
+	EndIf
+
+;**Projectile:
+	if playerprojectileinair[p]
+		if playerflipx[p] Then projframe = 2 Else projframe = 1
+		p_AlfDisplayProjectile(p, projframe)
+	EndIf
+
+;**Display sprite
+	;DisplaySprite (p, playerx[p], playery[p], dispframe)	
+	p_AlfDisplaySprite (p, dispx, dispframe)
+
+	playerframe[p] = dispframe
+
+;**For Debug:
+	;DisplayBrush(-123, playerx[p]-25, 50)
+EndFunction
+
+
+
+Function p_alfframeishot(frame)
+	return (alfframeishot[frame])
+EndFunction
+
+
+;****END OF CODE ***

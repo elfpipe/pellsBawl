@@ -9,14 +9,8 @@
 #include <QList>
 
 #include "fluffyWalk.h"
-
-struct Platform {
-    QRect rect;
-    bool isGround;
-
-    Platform(int x, int y, int w, int h, bool ground = false)
-        : rect(x, y, w, h), isGround(ground) {}
-};
+#include "fighterAI.h"
+#include "combo.h"
 
 struct Enemy {
     QRect rect;
@@ -75,13 +69,32 @@ private:
     void updatePlayerPosition();
     void checkCollisions();
     void loadPlatforms(const QString &filePath);
-void checkEnemyCollisions();
+    void checkEnemyCollisions();
 
+private:
+    void mt2KeyPress(QKeyEvent *event);
+    void mt2TestKeyPress(QKeyEvent *event);
+    void pellsBawlKeyPress(QKeyEvent *event);
+    void mt2KeyRelease(QKeyEvent *event);
+    void mt2TestKeyRelease(QKeyEvent *event);
+    void pellsBawlKeyRelease(QKeyEvent *event);
+
+    static int keyControl;
+
+private:
     // QPixmap playerPixmap;
     WalkerAnim playerAnim;
     QRectF playerRect;
     QList<Platform> platforms;
     QList<Enemy> enemies;
+
+
+    Fighter *fighter;
+    FighterAI *fighterAI;
+
+    SampleCommander *commander;
+
+    Combo combo;
 
     bool turningLeft = false;
 

@@ -1,0 +1,1198 @@
+{
+    "actions": {
+        "stand": {
+            "fps": 12,
+            "frames": [
+                {
+                    "dur": 120,
+                    "dx": 0,
+                    "dy": 0,
+                    "img": "alf800.png",
+                    "imgOffset": [
+                        0,
+                        0
+                    ],
+                    "rot": 0
+                },
+                {
+                    "dur": 120,
+                    "dx": 0,
+                    "dy": 0,
+                    "img": "alf801.png",
+                    "imgOffset": [
+                        -2,
+                        -1
+                    ],
+                    "rot": 0
+                },
+                {
+                    "dur": 120,
+                    "dx": 0,
+                    "dy": 0,
+                    "img": "alf802.png",
+                    "imgOffset": [
+                        -15,
+                        4
+                    ],
+                    "rot": 0
+                },
+                {
+                    "dur": 120,
+                    "dx": 0,
+                    "dy": 0,
+                    "img": "alf803.png",
+                    "imgOffset": [
+                        -2,
+                        -1
+                    ],
+                    "rot": 0
+                }
+            ],
+        "loop": false
+    },
+        "walk": {
+	        "fps" : 12,
+            "frames" : [
+                {
+                    "dur": 120,
+                    "dx": 0,
+                    "dy": 0,
+                    "img": "alf804.png",
+                    "imgOffset": [
+                        -27,
+                        -2
+                    ],
+                    "rot": 0
+                },
+                {
+                    "dur": 120,
+                    "dx": 0,
+                    "dy": 0,
+                    "img": "alf805.png",
+                    "imgOffset": [
+                        -21,
+                        -3
+                    ],
+                    "rot": 0
+                },
+                {
+                    "dur": 120,
+                    "dx": 0,
+                    "dy": 0,
+                    "img": "alf806.png",
+                    "imgOffset": [
+                        -26,
+                        -3
+                    ],
+                    "rot": 0
+                },
+                {
+                    "dur": 120,
+                    "dx": 0,
+                    "dy": 0,
+                    "img": "alf807.png",
+                    "imgOffset": [
+                        -43,
+                        -1
+                    ],
+                    "rot": 0
+                }
+            ],
+            "loop": true
+        },
+        "defeated": {
+            "fps": 8,
+            "frames": [
+                {
+                    "dur": 120,
+                    "dx": 0,
+                    "dy": 0,
+                    "img": "alf808.png",
+                    "imgOffset": [
+                        11,
+                        41
+                    ],
+                    "rot": 0
+                },
+                {
+                    "dur": 120,
+                    "dx": 0,
+                    "dy": 0,
+                    "img": "alf809.png",
+                    "imgOffset": [
+                        12,
+                        27
+                    ],
+                    "rot": 0
+                },
+                {
+                    "dur": 120,
+                    "dx": 0,
+                    "dy": 0,
+                    "img": "alf810.png",
+                    "imgOffset": [
+                        22,
+                        46
+                    ],
+                    "rot": 0
+                },
+                {
+                    "dur": 120,
+                    "dx": 0,
+                    "dy": 0,
+                    "img": "alf811.png",
+                    "imgOffset": [
+                        12,
+                        27
+                    ],
+                    "rot": 0
+                }
+            ],
+            "loop": false
+        },
+        "turn": {
+            "fps": 8,
+            "frames": [
+                {
+                    "dur": 120,
+                    "dx": 0,
+                    "dy": 0,
+                    "img": "alf812.png",
+                    "imgOffset": [
+                        -9,
+                        21
+                    ],
+                    "rot": 0
+                },
+                {
+                    "dur": 120,
+                    "dx": 0,
+                    "dy": 0,
+                    "img": "alf813.png",
+                    "imgOffset": [
+                        -7,
+                        22
+                    ],
+                    "rot": 0
+                },
+                {
+                    "dur": 120,
+                    "dx": 0,
+                    "dy": 0,
+                    "img": "alf814.png",
+                    "imgOffset": [
+                        11,
+                        22
+                    ],
+                    "rot": 0
+                }
+            ],
+            "loop": false
+        },
+        "crouch": {
+            "fps": 8,
+            "frames": [
+                {
+                    "dur": 120,
+                    "dx": 0,
+                    "dy": 0,
+                    "img": "alf815.png",
+                    "imgOffset": [
+                        -36,
+                        49
+                    ],
+                    "rot": 0
+                },
+                {
+                    "dur": 120,
+                    "dx": 0,
+                    "dy": 0,
+                    "img": "alf816.png",
+                    "imgOffset": [
+                        -51,
+                        136
+                    ],
+                    "rot": 0
+                },
+                {
+                    "dur": 120,
+                    "dx": 0,
+                    "dy": 0,
+                    "img": "alf817.png",
+                    "imgOffset": [
+                        -75,
+                        219
+                    ],
+                    "rot": 0
+                }
+            ],
+            "loop": false
+        },
+        "jump": {
+            "fps": 8,
+            "frames": [
+                {
+                    "dur": 120,
+                    "dx": 0,
+                    "dy": 0,
+                    "img": "alf818.png",
+                    "imgOffset": [
+                        -62,
+                        142
+                    ],
+                    "rot": 0
+                },
+                {
+                    "dur": 120,
+                    "dx": 0,
+                    "dy": 0,
+                    "img": "alf819.png",
+                    "imgOffset": [
+                        -78,
+                        117
+                    ],
+                    "rot": 0
+                },
+                {
+                    "dur": 120,
+                    "dx": 0,
+                    "dy": 0,
+                    "img": "alf820.png",
+                    "imgOffset": [
+                        -36,
+                        -63
+                    ],
+                    "rot": 0
+                },
+                {
+                    "dur": 120,
+                    "dx": 0,
+                    "dy": 0,
+                    "img": "alf821.png",
+                    "imgOffset": [
+                        -117,
+                        -87
+                    ],
+                    "rot": 0
+                }
+            ],
+            "loop": false
+        },
+        "salto": {
+            "fps": 8,
+            "frames": [
+                {
+                    "dur": 120,
+                    "dx": 0,
+                    "dy": 0,
+                    "img": "alf822.png",
+                    "imgOffset": [
+                        -98,
+                        -92
+                    ],
+                    "rot": 0
+                },
+                {
+                    "dur": 120,
+                    "dx": 0,
+                    "dy": 0,
+                    "img": "alf823.png",
+                    "imgOffset": [
+                        -67,
+                        -100
+                    ],
+                    "rot": 0
+                },
+                {
+                    "dur": 120,
+                    "dx": 0,
+                    "dy": 0,
+                    "img": "alf824.png",
+                    "imgOffset": [
+                        -97,
+                        -136
+                    ],
+                    "rot": 0
+                },
+                {
+                    "dur": 120,
+                    "dx": 0,
+                    "dy": 0,
+                    "img": "alf825.png",
+                    "imgOffset": [
+                        -41,
+                        -78
+                    ],
+                    "rot": 0
+                },
+                {
+                    "dur": 120,
+                    "dx": 0,
+                    "dy": 0,
+                    "img": "alf826.png",
+                    "imgOffset": [
+                        -90,
+                        -102
+                    ],
+                    "rot": 0
+                },
+                {
+                    "dur": 120,
+                    "dx": 0,
+                    "dy": 0,
+                    "img": "alf827.png",
+                    "imgOffset": [
+                        -69,
+                        -40
+                    ],
+                    "rot": 0
+                }
+            ],
+            "loop": false
+        },
+        "block": {
+            "fps": 8,
+            "frames": [
+                {
+                    "dur": 120,
+                    "dx": 0,
+                    "dy": 0,
+                    "img": "alf828.png",
+                    "imgOffset": [
+                        -11,
+                        36
+                    ],
+                    "rot": 0
+                },
+                {
+                    "dur": 120,
+                    "dx": 0,
+                    "dy": 0,
+                    "img": "alf829.png",
+                    "imgOffset": [
+                        -25,
+                        36
+                    ],
+                    "rot": 0
+                },
+                {
+                    "dur": 120,
+                    "dx": 0,
+                    "dy": 0,
+                    "img": "alf830.png",
+                    "imgOffset": [
+                        -19,
+                        52
+                    ],
+                    "rot": 0
+                }
+            ],
+            "loop": false
+        },
+        "victory": {
+            "fps": 8,
+            "frames": [
+                {
+                    "dur": 120,
+                    "dx": 0,
+                    "dy": 0,
+                    "img": "alf831.png",
+                    "imgOffset": [
+                        -18,
+                        21
+                    ],
+                    "rot": 0
+                },
+                {
+                    "dur": 120,
+                    "dx": 0,
+                    "dy": 0,
+                    "img": "alf832.png",
+                    "imgOffset": [
+                        -51,
+                        -13
+                    ],
+                    "rot": 0
+                },
+                {
+                    "dur": 120,
+                    "dx": 0,
+                    "dy": 0,
+                    "img": "alf833.png",
+                    "imgOffset": [
+                        -23,
+                        16
+                    ],
+                    "rot": 0
+                },
+                {
+                    "dur": 120,
+                    "dx": 0,
+                    "dy": 0,
+                    "img": "alf834.png",
+                    "imgOffset": [
+                        -39,
+                        58
+                    ],
+                    "rot": 0
+                },
+                {
+                    "dur": 120,
+                    "dx": 0,
+                    "dy": 0,
+                    "img": "alf835.png",
+                    "imgOffset": [
+                        -9,
+                        154
+                    ],
+                    "rot": 0
+                },
+                {
+                    "dur": 120,
+                    "dx": 0,
+                    "dy": 0,
+                    "img": "alf836.png",
+                    "imgOffset": [
+                        -39,
+                        58
+                    ],
+                    "rot": 0
+                },
+                {
+                    "dur": 120,
+                    "dx": 0,
+                    "dy": 0,
+                    "img": "alf837.png",
+                    "imgOffset": [
+                        -23,
+                        16
+                    ],
+                    "rot": 0
+                }
+            ],
+            "loop": false
+        },
+        "damage-down": {
+            "fps": 8,
+            "frames": [
+                {
+                    "dur": 120,
+                    "dx": 0,
+                    "dy": 0,
+                    "img": "alf838.png",
+                    "imgOffset": [
+                        -52,
+                        80
+                    ],
+                    "rot": 0
+                },
+                {
+                    "dur": 120,
+                    "dx": 0,
+                    "dy": 0,
+                    "img": "alf839.png",
+                    "imgOffset": [
+                        -68,
+                        100
+                    ],
+                    "rot": 0
+                }
+            ],
+            "loop": false
+        },
+        "damaged-up": {
+            "fps": 8,
+            "frames": [
+                {
+                    "dur": 120,
+                    "dx": 0,
+                    "dy": 0,
+                    "img": "alf840.png",
+                    "imgOffset": [
+                        -20,
+                        11
+                    ],
+                    "rot": 0
+                }
+            ],
+            "loop": false
+        },
+        "damaged-air": {
+            "fps": 8,
+            "frames": [
+                {
+                    "dur": 120,
+                    "dx": 0,
+                    "dy": 0,
+                    "img": "alf841.png",
+                    "imgOffset": [
+                        -33,
+                        44
+                    ],
+                    "rot": 0
+                }
+            ],
+            "loop": false
+        },
+        "punch": {
+            "fps": 8,
+            "frames": [
+                {
+                    "dur": 120,
+                    "dx": 0,
+                    "dy": 0,
+                    "img": "alf842.png",
+                    "imgOffset": [
+                        -25,
+                        -3
+                    ],
+                    "rot": 0
+                },
+                {
+                    "dur": 120,
+                    "dx": 0,
+                    "dy": 0,
+                    "img": "alf843.png",
+                    "imgOffset": [
+                        -99,
+                        2
+                    ],
+                    "rot": 0
+                },
+                {
+                    "dur": 120,
+                    "dx": 0,
+                    "dy": 0,
+                    "img": "alf844.png",
+                    "imgOffset": [
+                        -66,
+                        2
+                    ],
+                    "rot": 0
+                },
+                {
+                    "dur": 120,
+                    "dx": 0,
+                    "dy": 0,
+                    "img": "alf845.png",
+                    "imgOffset": [
+                        -25,
+                        -3
+                    ],
+                    "rot": 0
+                }
+            ],
+            "loop": false
+        },
+        "punch2": {
+            "fps": 8,
+            "frames": [
+                {
+                    "dur": 120,
+                    "dx": 0,
+                    "dy": 0,
+                    "img": "alf846.png",
+                    "imgOffset": [
+                        -39,
+                        6
+                    ],
+                    "rot": 0
+                },
+                {
+                    "dur": 120,
+                    "dx": 0,
+                    "dy": 0,
+                    "img": "alf847.png",
+                    "imgOffset": [
+                        -57,
+                        16
+                    ],
+                    "rot": 0
+                },
+                {
+                    "dur": 120,
+                    "dx": 0,
+                    "dy": 0,
+                    "img": "alf848.png",
+                    "imgOffset": [
+                        -82,
+                        8
+                    ],
+                    "rot": 0
+                },
+                {
+                    "dur": 120,
+                    "dx": 0,
+                    "dy": 0,
+                    "img": "alf849.png",
+                    "imgOffset": [
+                        -118,
+                        6
+                    ],
+                    "rot": 0
+                },
+                {
+                    "dur": 120,
+                    "dx": 0,
+                    "dy": 0,
+                    "img": "alf850.png",
+                    "imgOffset": [
+                        -82,
+                        8
+                    ],
+                    "rot": 0
+                },
+                {
+                    "dur": 120,
+                    "dx": 0,
+                    "dy": 0,
+                    "img": "alf851.png",
+                    "imgOffset": [
+                        -57,
+                        16
+                    ],
+                    "rot": 0
+                }
+            ],
+            "loop": false
+        },
+        "kick": {
+            "fps": 8,
+            "frames": [
+                {
+                    "dur": 120,
+                    "dx": 0,
+                    "dy": 0,
+                    "img": "alf852.png",
+                    "imgOffset": [
+                        -18,
+                        30
+                    ],
+                    "rot": 0
+                },
+                {
+                    "dur": 120,
+                    "dx": 0,
+                    "dy": 0,
+                    "img": "alf853.png",
+                    "imgOffset": [
+                        -102,
+                        67
+                    ],
+                    "rot": 0
+                },
+                {
+                    "dur": 120,
+                    "dx": 0,
+                    "dy": 0,
+                    "img": "alf854.png",
+                    "imgOffset": [
+                        -18,
+                        30
+                    ],
+                    "rot": 0
+                },
+                {
+                    "dur": 120,
+                    "dx": 0,
+                    "dy": 0,
+                    "img": "alf855.png",
+                    "imgOffset": [
+                        -42,
+                        21
+                    ],
+                    "rot": 0
+                }
+            ],
+            "loop": false
+        },
+        "kick2": {
+            "fps": 8,
+            "frames": [
+                {
+                    "dur": 120,
+                    "dx": 0,
+                    "dy": 0,
+                    "img": "alf856.png",
+                    "imgOffset": [
+                        -56,
+                        67
+                    ],
+                    "rot": 0
+                },
+                {
+                    "dur": 120,
+                    "dx": 0,
+                    "dy": 0,
+                    "img": "alf857.png",
+                    "imgOffset": [
+                        -136,
+                        133
+                    ],
+                    "rot": 0
+                },
+                {
+                    "dur": 120,
+                    "dx": 0,
+                    "dy": 0,
+                    "img": "alf858.png",
+                    "imgOffset": [
+                        -228,
+                        129
+                    ],
+                    "rot": 0
+                },
+                {
+                    "dur": 120,
+                    "dx": 0,
+                    "dy": 0,
+                    "img": "alf859.png",
+                    "imgOffset": [
+                        -226,
+                        127
+                    ],
+                    "rot": 0
+                },
+                {
+                    "dur": 120,
+                    "dx": 0,
+                    "dy": 0,
+                    "img": "alf860.png",
+                    "imgOffset": [
+                        -160,
+                        118
+                    ],
+                    "rot": 0
+                },
+                {
+                    "dur": 120,
+                    "dx": 0,
+                    "dy": 0,
+                    "img": "alf861.png",
+                    "imgOffset": [
+                        -33,
+                        72
+                    ],
+                    "rot": 0
+                },
+                {
+                    "dur": 120,
+                    "dx": 0,
+                    "dy": 0,
+                    "img": "alf862.png",
+                    "imgOffset": [
+                        -56,
+                        16
+                    ],
+                    "rot": 0
+                }
+            ],
+            "loop": false
+        },
+        "crouch-punch": {
+            "fps": 8,
+            "frames": [
+                {
+                    "dur": 120,
+                    "dx": 0,
+                    "dy": 0,
+                    "img": "alf863.png",
+                    "imgOffset": [
+                        -119,
+                        241
+                    ],
+                    "rot": 0
+                },
+                {
+                    "dur": 120,
+                    "dx": 0,
+                    "dy": 0,
+                    "img": "alf864.png",
+                    "imgOffset": [
+                        -223,
+                        243
+                    ],
+                    "rot": 0
+                },
+                {
+                    "dur": 120,
+                    "dx": 0,
+                    "dy": 0,
+                    "img": "alf865.png",
+                    "imgOffset": [
+                        -168,
+                        236
+                    ],
+                    "rot": 0
+                }
+            ],
+            "loop": false
+        },
+        "air-kick": {
+            "fps": 8,
+            "frames": [
+                {
+                    "dur": 120,
+                    "dx": 0,
+                    "dy": 0,
+                    "img": "alf866.png",
+                    "imgOffset": [
+                        -108,
+                        -58
+                    ],
+                    "rot": 0
+                },
+                {
+                    "dur": 120,
+                    "dx": 0,
+                    "dy": 0,
+                    "img": "alf867.png",
+                    "imgOffset": [
+                        -216,
+                        -140
+                    ],
+                    "rot": 0
+                },
+                {
+                    "dur": 120,
+                    "dx": 0,
+                    "dy": 0,
+                    "img": "alf868.png",
+                    "imgOffset": [
+                        -141,
+                        -80
+                    ],
+                    "rot": 0
+                }
+            ],
+            "loop": false
+        },
+        "air-punch": {
+            "fps": 8,
+            "frames": [
+                {
+                    "dur": 120,
+                    "dx": 0,
+                    "dy": 0,
+                    "img": "alf869.png",
+                    "imgOffset": [
+                        -142,
+                        -98
+                    ],
+                    "rot": 0
+                },
+                {
+                    "dur": 120,
+                    "dx": 0,
+                    "dy": 0,
+                    "img": "alf870.png",
+                    "imgOffset": [
+                        -51,
+                        136
+                    ],
+                    "rot": 0
+                },
+                {
+                    "dur": 120,
+                    "dx": 0,
+                    "dy": 0,
+                    "img": "alf871.png",
+                    "imgOffset": [
+                        -82,
+                        159
+                    ],
+                    "rot": 0
+                },
+                {
+                    "dur": 120,
+                    "dx": 0,
+                    "dy": 0,
+                    "img": "alf872.png",
+                    "imgOffset": [
+                        -75,
+                        61
+                    ],
+                    "rot": 0
+                },
+                {
+                    "dur": 120,
+                    "dx": 0,
+                    "dy": 0,
+                    "img": "alf873.png",
+                    "imgOffset": [
+                        -41,
+                        -118
+                    ],
+                    "rot": 0
+                },
+                {
+                    "dur": 120,
+                    "dx": 0,
+                    "dy": 0,
+                    "img": "alf874.png",
+                    "imgOffset": [
+                        -242,
+                        -59
+                    ],
+                    "rot": 0
+                },
+                {
+                    "dur": 120,
+                    "dx": 0,
+                    "dy": 0,
+                    "img": "alf875.png",
+                    "imgOffset": [
+                        -259,
+                        -53
+                    ],
+                    "rot": 0
+                },
+                {
+                    "dur": 120,
+                    "dx": 0,
+                    "dy": 0,
+                    "img": "alf876.png",
+                    "imgOffset": [
+                        -242,
+                        -59
+                    ],
+                    "rot": 0
+                },
+                {
+                    "dur": 120,
+                    "dx": 0,
+                    "dy": 0,
+                    "img": "alf877.png",
+                    "imgOffset": [
+                        -41,
+                        -118
+                    ],
+                    "rot": 0
+                },
+                {
+                    "dur": 120,
+                    "dx": 0,
+                    "dy": 0,
+                    "img": "alf878.png",
+                    "imgOffset": [
+                        -75,
+                        61
+                    ],
+                    "rot": 0
+                },
+                {
+                    "dur": 120,
+                    "dx": 0,
+                    "dy": 0,
+                    "img": "alf879.png",
+                    "imgOffset": [
+                        -82,
+                        159
+                    ],
+                    "rot": 0
+                },
+                {
+                    "dur": 120,
+                    "dx": 0,
+                    "dy": 0,
+                    "img": "alf880.png",
+                    "imgOffset": [
+                        -51,
+                        136
+                    ],
+                    "rot": 0
+                },
+                {
+                    "dur": 120,
+                    "dx": 0,
+                    "dy": 0,
+                    "img": "alf881.png",
+                    "imgOffset": [
+                        -6,
+                        30
+                    ],
+                    "rot": 0
+                },
+                {
+                    "dur": 120,
+                    "dx": 0,
+                    "dy": 0,
+                    "img": "alf882.png",
+                    "imgOffset": [
+                        -4,
+                        -16
+                    ],
+                    "rot": 0
+                },
+                {
+                    "dur": 120,
+                    "dx": 0,
+                    "dy": 0,
+                    "img": "alf883.png",
+                    "imgOffset": [
+                        -4,
+                        36
+                    ],
+                    "rot": 0
+                },
+                {
+                    "dur": 120,
+                    "dx": 0,
+                    "dy": 0,
+                    "img": "alf884.png",
+                    "imgOffset": [
+                        -11,
+                        30
+                    ],
+                    "rot": 0
+                },
+                {
+                    "dur": 120,
+                    "dx": 0,
+                    "dy": 0,
+                    "img": "alf885.png",
+                    "imgOffset": [
+                        -41,
+                        19
+                    ],
+                    "rot": 0
+                },
+                {
+                    "dur": 120,
+                    "dx": 0,
+                    "dy": 0,
+                    "img": "alf886.png",
+                    "imgOffset": [
+                        -133,
+                        37
+                    ],
+                    "rot": 0
+                },
+                {
+                    "dur": 120,
+                    "dx": 0,
+                    "dy": 0,
+                    "img": "alf887.png",
+                    "imgOffset": [
+                        -35,
+                        33
+                    ],
+                    "rot": 0
+                },
+                {
+                    "dur": 120,
+                    "dx": 0,
+                    "dy": 0,
+                    "img": "alf888.png",
+                    "imgOffset": [
+                        -12,
+                        20
+                    ],
+                    "rot": 0
+                },
+                {
+                    "dur": 120,
+                    "dx": 0,
+                    "dy": 0,
+                    "img": "alf889.png",
+                    "imgOffset": [
+                        -63,
+                        21
+                    ],
+                    "rot": 0
+                },
+                {
+                    "dur": 120,
+                    "dx": 0,
+                    "dy": 0,
+                    "img": "alf890.png",
+                    "imgOffset": [
+                        -174,
+                        46
+                    ],
+                    "rot": 0
+                },
+                {
+                    "dur": 120,
+                    "dx": 0,
+                    "dy": 0,
+                    "img": "alf891.png",
+                    "imgOffset": [
+                        -89,
+                        49
+                    ],
+                    "rot": 0
+                },
+                {
+                    "dur": 120,
+                    "dx": 0,
+                    "dy": 0,
+                    "img": "alf892.png",
+                    "imgOffset": [
+                        -68,
+                        38
+                    ],
+                    "rot": 0
+                },
+                {
+                    "dur": 120,
+                    "dx": 0,
+                    "dy": 0,
+                    "img": "alf893.png",
+                    "imgOffset": [
+                        -68,
+                        29
+                    ],
+                    "rot": 0
+                },
+                {
+                    "dur": 120,
+                    "dx": 0,
+                    "dy": 0,
+                    "img": "alf894.png",
+                    "imgOffset": [
+                        -3,
+                        138
+                    ],
+                    "rot": 0
+                },
+                {
+                    "dur": 120,
+                    "dx": 0,
+                    "dy": 0,
+                    "img": "alf895.png",
+                    "imgOffset": [
+                        -34,
+                        287
+                    ],
+                    "rot": 0
+                },
+                {
+                    "dur": 120,
+                    "dx": 0,
+                    "dy": 0,
+                    "img": "alf896.png",
+                    "imgOffset": [
+                        -30,
+                        293
+                    ],
+                    "rot": 0
+                }
+            ],
+            "loop": true
+        }
+    },
+    "meta": {
+        "defaultDurationMs": 120,
+        "name": "Converted Sprite",
+        "pivot": {
+            "x": 48,
+            "y": 400
+        },
+        "size": {
+            "h": 96,
+            "w": 96
+        },
+        "version": 3
+    }
+}

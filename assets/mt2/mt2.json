@@ -1,0 +1,843 @@
+{
+    "imagesBasePath": ":/assets/mt2/",
+    "actions": {
+        "air-kick": {
+            "fps": 12,
+            "frames": [
+                {
+                    "dur": 83,
+                    "dx": 0,
+                    "dy": 0,
+                    "img": "airkick_0.png",
+                    "imgOffset": [
+                        -213,
+                        -302
+                    ],
+                    "imgScale": 0.19035561382770538,
+                    "rot": 0
+                },
+                {
+                    "dur": 120,
+                    "dx": 0,
+                    "dy": 0,
+                    "img": "airkick_1.png",
+                    "imgOffset": [
+                        -243,
+                        -277
+                    ],
+                    "imgScale": 0.19987329840660095,
+                    "rot": 0
+                }
+            ],
+            "loop": false
+        },
+        "air-punch": {
+            "frames": [
+                {
+                    "dur": 120,
+                    "dx": 0,
+                    "dy": 0,
+                    "img": "airpunch_0.png",
+                    "imgOffset": [
+                        -228,
+                        -275
+                    ],
+                    "imgScale": 0.18129073083400726,
+                    "rot": 0
+                }
+            ],
+            "loop": true
+        },
+        "back-flip": {
+            "frames": [
+                {
+                    "dur": 120,
+                    "dx": 0,
+                    "dy": 0,
+                    "img": "backflip_0.png",
+                    "imgOffset": [
+                        -125,
+                        -169
+                    ],
+                    "imgScale": 0.19987300038337708,
+                    "rot": 0
+                },
+                {
+                    "dur": 120,
+                    "dx": 0,
+                    "dy": 0,
+                    "img": "backflip_1.png",
+                    "imgOffset": [
+                        -94,
+                        -178
+                    ],
+                    "imgScale": 0.19987301528453827,
+                    "rot": 0
+                },
+                {
+                    "dur": 120,
+                    "dx": 0,
+                    "dy": 0,
+                    "img": "backflip_2.png",
+                    "imgOffset": [
+                        -105,
+                        -378
+                    ],
+                    "imgScale": 0.20986665785312653,
+                    "rot": 0
+                },
+                {
+                    "dur": 120,
+                    "dx": 0,
+                    "dy": 0,
+                    "img": "backflip_3.png",
+                    "imgOffset": [
+                        -102,
+                        -475
+                    ],
+                    "imgScale": 0.19987300038337708,
+                    "rot": 0
+                },
+                {
+                    "dur": 120,
+                    "dx": 0,
+                    "dy": 0,
+                    "img": "backflip_4.png",
+                    "imgOffset": [
+                        -118,
+                        -455
+                    ],
+                    "imgScale": 0.19987300038337708,
+                    "rot": 0
+                },
+                {
+                    "dur": 120,
+                    "dx": 0,
+                    "dy": 0,
+                    "img": "backflip_5.png",
+                    "imgOffset": [
+                        -117,
+                        -457
+                    ],
+                    "imgScale": 0.19987300038337708,
+                    "rot": 0
+                },
+                {
+                    "dur": 120,
+                    "dx": 0,
+                    "dy": 0,
+                    "img": "backflip_6.png",
+                    "imgOffset": [
+                        -299,
+                        -354
+                    ],
+                    "imgScale": 0.22035998106002808,
+                    "rot": 0
+                },
+                {
+                    "dur": 120,
+                    "dx": 0,
+                    "dy": 0,
+                    "img": "backflip_7.png",
+                    "imgOffset": [
+                        -298,
+                        -386
+                    ],
+                    "imgScale": 0.22035996615886688,
+                    "rot": 0
+                },
+                {
+                    "dur": 120,
+                    "dx": 0,
+                    "dy": 0,
+                    "img": "backflip_8.png",
+                    "imgOffset": [
+                        -139,
+                        -255
+                    ],
+                    "imgScale": 0.19987301528453827,
+                    "rot": 0
+                },
+                {
+                    "dur": 120,
+                    "dx": 0,
+                    "dy": 0,
+                    "img": "backflip_9.png",
+                    "imgOffset": [
+                        -111,
+                        -177
+                    ],
+                    "imgScale": 0.20986664295196533,
+                    "rot": 0
+                },
+                {
+                    "dur": 120,
+                    "dx": 0,
+                    "dy": 0,
+                    "img": "backflip_10.png",
+                    "imgOffset": [
+                        -115,
+                        -186
+                    ],
+                    "imgScale": 0.19987300038337708,
+                    "rot": 0
+                },
+                {
+                    "dur": 120,
+                    "dx": 0,
+                    "dy": 0,
+                    "img": "backflip_11.png",
+                    "imgOffset": [
+                        -100,
+                        -242
+                    ],
+                    "imgScale": 0.19987301528453827,
+                    "rot": 0
+                }
+            ],
+            "loop": true
+        },
+        "crouch": {
+            "fps": 8,
+            "frames": [
+                {
+                    "dur": 120,
+                    "dx": 0,
+                    "dy": 0,
+                    "img": "crouch_2.png",
+                    "imgOffset": [
+                        -113,
+                        -215
+                    ],
+                    "imgScale": 0.1903553009033203,
+                    "rot": 0
+                },
+                {
+                    "dur": 120,
+                    "dx": 0,
+                    "dy": 0,
+                    "img": "crouch_1.png",
+                    "imgOffset": [
+                        -89,
+                        -224
+                    ],
+                    "imgScale": 0.1903553009033203,
+                    "rot": 0
+                },
+                {
+                    "dur": 125,
+                    "dx": 0,
+                    "dy": 6,
+                    "img": "crouch_0.png",
+                    "imgOffset": [
+                        -87,
+                        -256
+                    ],
+                    "imgScale": 0.19987304508686066,
+                    "rot": 0
+                }
+            ],
+            "loop": false
+        },
+        "crouch-punch": {
+            "fps": 12,
+            "frames": [
+                {
+                    "dur": 83,
+                    "dx": 0,
+                    "dy": 8,
+                    "img": "crouchpunch_0.png",
+                    "imgOffset": [
+                        -94,
+                        -221
+                    ],
+                    "imgScale": 0.1644361913204193,
+                    "rot": 0
+                },
+                {
+                    "dur": 120,
+                    "dx": 0,
+                    "dy": 0,
+                    "img": "crouchpunch_1.png",
+                    "imgOffset": [
+                        -93,
+                        -209
+                    ],
+                    "imgScale": 0.16443605720996857,
+                    "rot": 0
+                },
+                {
+                    "dur": 120,
+                    "dx": 0,
+                    "dy": 0,
+                    "img": "crouchpunch_2.png",
+                    "imgOffset": [
+                        -161,
+                        -194
+                    ],
+                    "imgScale": 0.17265789210796356,
+                    "rot": 0
+                },
+                {
+                    "dur": 120,
+                    "dx": 0,
+                    "dy": 0,
+                    "img": "crouchpunch_3.png",
+                    "imgOffset": [
+                        -221,
+                        -178
+                    ],
+                    "imgScale": 0.17265792191028595,
+                    "rot": 0
+                },
+                {
+                    "dur": 120,
+                    "dx": 0,
+                    "dy": 0,
+                    "img": "crouchpunch_4.png",
+                    "imgOffset": [
+                        -189,
+                        -278
+                    ],
+                    "imgScale": 0.19987304508686066,
+                    "rot": 0
+                }
+            ],
+            "loop": false
+        },
+        "jump": {
+            "fps": 10,
+            "frames": [
+                {
+                    "dur": 100,
+                    "dx": 0,
+                    "dy": -4,
+                    "img": "jump_0.png",
+                    "imgOffset": [
+                        -109,
+                        -107
+                    ],
+                    "imgScale": 0.14204609394073486,
+                    "rot": 0
+                }
+            ],
+            "loop": false
+        },
+        "kick": {
+            "fps": 12,
+            "frames": [
+                {
+                    "dur": 83,
+                    "dx": 0,
+                    "dy": 0,
+                    "img": "kick_0.png",
+                    "imgOffset": [
+                        -128,
+                        -368
+                    ],
+                    "imgScale": 0.18129077553749084,
+                    "rot": 0
+                },
+                {
+                    "dur": 83,
+                    "dx": 2,
+                    "dy": 0,
+                    "img": "kick_1.png",
+                    "imgOffset": [
+                        -154,
+                        -366
+                    ],
+                    "imgScale": 0.18129107356071472,
+                    "rot": 0
+                },
+                {
+                    "dur": 83,
+                    "dx": 4,
+                    "dy": 0,
+                    "img": "kick_2.png",
+                    "imgOffset": [
+                        -194,
+                        -336
+                    ],
+                    "imgScale": 0.17265784740447998,
+                    "rot": 0
+                },
+                {
+                    "dur": 83,
+                    "dx": 0,
+                    "dy": 0,
+                    "img": "kick_3.png",
+                    "imgOffset": [
+                        -203,
+                        -344
+                    ],
+                    "imgScale": 0.17265784740447998,
+                    "rot": 0
+                },
+                {
+                    "dur": 120,
+                    "dx": 0,
+                    "dy": 0,
+                    "img": "airkick_0.png",
+                    "imgOffset": [
+                        -201,
+                        -330
+                    ],
+                    "imgScale": 0.17265798151493073,
+                    "rot": 0
+                }
+            ],
+            "loop": false
+        },
+        "punch": {
+            "fps": 14,
+            "frames": [
+                {
+                    "dur": 71,
+                    "dx": 0,
+                    "dy": 0,
+                    "img": "punch_0.png",
+                    "imgOffset": [
+                        -100,
+                        -322
+                    ],
+                    "imgScale": 0.17265798151493073,
+                    "rot": 0
+                },
+                {
+                    "dur": 71,
+                    "dx": 2,
+                    "dy": 0,
+                    "img": "punch_1.png",
+                    "imgOffset": [
+                        -99,
+                        -337
+                    ],
+                    "imgScale": 0.17265784740447998,
+                    "rot": 0
+                },
+                {
+                    "dur": 71,
+                    "dx": 0,
+                    "dy": 0,
+                    "img": "punch_2.png",
+                    "imgOffset": [
+                        -95,
+                        -337
+                    ],
+                    "imgScale": 0.17265786230564117,
+                    "rot": 0
+                },
+                {
+                    "dur": 120,
+                    "dx": 0,
+                    "dy": 0,
+                    "img": "punch_3.png",
+                    "imgOffset": [
+                        -97,
+                        -338
+                    ],
+                    "imgScale": 0.17265786230564117,
+                    "rot": 0
+                },
+                {
+                    "dur": 120,
+                    "dx": 0,
+                    "dy": 0,
+                    "img": "punch_4.png",
+                    "imgOffset": [
+                        -98,
+                        -340
+                    ],
+                    "imgScale": 0.17265786230564117,
+                    "rot": 0
+                },
+                {
+                    "dur": 120,
+                    "dx": 0,
+                    "dy": 0,
+                    "img": "punch_5.png",
+                    "imgOffset": [
+                        -103,
+                        -339
+                    ],
+                    "imgScale": 0.17265799641609192,
+                    "rot": 0
+                },
+                {
+                    "dur": 120,
+                    "dx": 0,
+                    "dy": 0,
+                    "img": "punch_6.png",
+                    "imgOffset": [
+                        -104,
+                        -340
+                    ],
+                    "imgScale": 0.1726580709218979,
+                    "rot": 0
+                },
+                {
+                    "dur": 120,
+                    "dx": 0,
+                    "dy": 0,
+                    "img": "punch_7.png",
+                    "imgOffset": [
+                        -110,
+                        -341
+                    ],
+                    "imgScale": 0.17265808582305908,
+                    "rot": 0
+                },
+                {
+                    "dur": 120,
+                    "dx": 0,
+                    "dy": 0,
+                    "img": "punch_8.png",
+                    "imgOffset": [
+                        -144,
+                        -342
+                    ],
+                    "imgScale": 0.17265792191028595,
+                    "rot": 0
+                },
+                {
+                    "dur": 120,
+                    "dx": 0,
+                    "dy": 0,
+                    "img": "punch_9.png",
+                    "imgOffset": [
+                        -183,
+                        -341
+                    ],
+                    "imgScale": 0.17265792191028595,
+                    "rot": 0
+                },
+                {
+                    "dur": 120,
+                    "dx": 0,
+                    "dy": 0,
+                    "img": "punch_10.png",
+                    "imgOffset": [
+                        -283,
+                        -288
+                    ],
+                    "imgScale": 0.17265786230564117,
+                    "rot": 0
+                },
+                {
+                    "dur": 120,
+                    "dx": 0,
+                    "dy": 0,
+                    "img": "punch_11.png",
+                    "imgOffset": [
+                        -208,
+                        -293
+                    ],
+                    "imgScale": 0.16443607211112976,
+                    "rot": 0
+                }
+            ],
+            "loop": false
+        },
+        "special": {
+            "frames": [
+                {
+                    "dur": 120,
+                    "dx": 0,
+                    "dy": 0,
+                    "img": "special_2.png",
+                    "imgOffset": [
+                        -77,
+                        -355
+                    ],
+                    "imgScale": 0.1566057801246643,
+                    "rot": 0
+                },
+                {
+                    "dur": 120,
+                    "dx": 0,
+                    "dy": 0,
+                    "img": "special_3.png",
+                    "imgOffset": [
+                        -80,
+                        -354
+                    ],
+                    "imgScale": 0.1566057801246643,
+                    "rot": 0
+                },
+                {
+                    "dur": 120,
+                    "dx": 0,
+                    "dy": 0,
+                    "img": "special_4.png",
+                    "imgOffset": [
+                        -79,
+                        -355
+                    ],
+                    "imgScale": 0.1566057801246643,
+                    "rot": 0
+                },
+                {
+                    "dur": 120,
+                    "dx": 0,
+                    "dy": 0,
+                    "img": "special_5.png",
+                    "imgOffset": [
+                        -117,
+                        -358
+                    ],
+                    "imgScale": 0.1566057801246643,
+                    "rot": 0
+                },
+                {
+                    "dur": 120,
+                    "dx": 0,
+                    "dy": 0,
+                    "img": "special_6.png",
+                    "imgOffset": [
+                        -144,
+                        -356
+                    ],
+                    "imgScale": 0.1566057801246643,
+                    "rot": 0
+                },
+                {
+                    "dur": 120,
+                    "dx": 0,
+                    "dy": 0,
+                    "img": "special_7.png",
+                    "imgOffset": [
+                        -170,
+                        -357
+                    ],
+                    "imgScale": 0.1566057801246643,
+                    "rot": 0
+                },
+                {
+                    "dur": 120,
+                    "dx": 0,
+                    "dy": 0,
+                    "img": "special_8.png",
+                    "imgOffset": [
+                        -204,
+                        -358
+                    ],
+                    "imgScale": 0.1566057801246643,
+                    "rot": 0
+                },
+                {
+                    "dur": 120,
+                    "dx": 0,
+                    "dy": 0,
+                    "img": "special_9.png",
+                    "imgOffset": [
+                        -212,
+                        -354
+                    ],
+                    "imgScale": 0.1566057801246643,
+                    "rot": 0
+                },
+                {
+                    "dur": 120,
+                    "dx": 0,
+                    "dy": 0,
+                    "img": "special_10.png",
+                    "imgOffset": [
+                        -237,
+                        -363
+                    ],
+                    "imgScale": 0.1566057801246643,
+                    "rot": 0
+                },
+                {
+                    "dur": 120,
+                    "dx": 0,
+                    "dy": 0,
+                    "img": "special_11.png",
+                    "imgOffset": [
+                        -221,
+                        -357
+                    ],
+                    "imgScale": 0.1566058248281479,
+                    "rot": 0
+                }
+            ],
+            "loop": true
+        },
+        "stand": {
+            "fps": 6,
+            "frames": [
+                {
+                    "dur": 166,
+                    "dx": 0,
+                    "dy": 0,
+                    "img": "stand_0.png",
+                    "imgOffset": [
+                        -142,
+                        -357
+                    ],
+                    "imgScale": 0.6768397092819214,
+                    "rot": 0
+                },
+                {
+                    "dur": 166,
+                    "dx": 0,
+                    "dy": 0,
+                    "img": "stand_1.png",
+                    "imgOffset": [
+                        -157,
+                        -347
+                    ],
+                    "imgScale": 0.6768397092819214,
+                    "rot": 0
+                },
+                {
+                    "dur": 166,
+                    "dx": 0,
+                    "dy": 0,
+                    "img": "stand_2.png",
+                    "imgOffset": [
+                        -157,
+                        -353
+                    ],
+                    "imgScale": 0.6768397092819214,
+                    "rot": 0
+                },
+                {
+                    "dur": 166,
+                    "dx": 0,
+                    "dy": 0,
+                    "img": "stand_3.png",
+                    "imgOffset": [
+                        -150,
+                        -353
+                    ],
+                    "imgScale": 0.67684006690979,
+                    "rot": 0
+                }
+            ],
+            "loop": true
+        },
+        "victory": {
+            "fps": 6,
+            "frames": [
+                {
+                    "dur": 166,
+                    "dx": 0,
+                    "dy": 0,
+                    "img": "victory_0.png",
+                    "imgOffset": [
+                        -147,
+                        -444
+                    ],
+                    "imgScale": 0.17265786230564117,
+                    "rot": 0
+                },
+                {
+                    "dur": 166,
+                    "dx": 0,
+                    "dy": -2,
+                    "img": "victory_1.png",
+                    "imgOffset": [
+                        -131,
+                        -446
+                    ],
+                    "imgScale": 0.17265786230564117,
+                    "rot": 0
+                },
+                {
+                    "dur": 166,
+                    "dx": 0,
+                    "dy": -4,
+                    "img": "victory_2.png",
+                    "imgOffset": [
+                        -141,
+                        -444
+                    ],
+                    "imgScale": 0.17265784740447998,
+                    "rot": 0
+                },
+                {
+                    "dur": 166,
+                    "dx": 0,
+                    "dy": -2,
+                    "img": "victory_3.png",
+                    "imgOffset": [
+                        -143,
+                        -446
+                    ],
+                    "imgScale": 0.17265786230564117,
+                    "rot": 0
+                },
+                {
+                    "dur": 166,
+                    "dx": 0,
+                    "dy": 0,
+                    "img": "victory_4.png",
+                    "imgOffset": [
+                        -148,
+                        -447
+                    ],
+                    "imgScale": 0.17265784740447998,
+                    "rot": 0
+                }
+            ],
+            "loop": true
+        },
+        "walk": {
+            "fps": 8,
+            "frames": [
+                {
+                    "dur": 125,
+                    "dx": 0,
+                    "dy": 0,
+                    "img": "walk_0.png",
+                    "imgOffset": [
+                        -113,
+                        -364
+                    ],
+                    "imgScale": 0.19035540521144867,
+                    "rot": 0
+                },
+                {
+                    "dur": 125,
+                    "dx": 2,
+                    "dy": 0,
+                    "img": "walk_1.png",
+                    "imgOffset": [
+                        -112,
+                        -362
+                    ],
+                    "imgScale": 0.1903553009033203,
+                    "rot": 0
+                },
+                {
+                    "dur": 125,
+                    "dx": 4,
+                    "dy": -1,
+                    "img": "walk_2.png",
+                    "imgOffset": [
+                        -84,
+                        -362
+                    ],
+                    "imgScale": 0.1903553158044815,
+                    "rot": 0
+                }
+            ],
+            "loop": true
+        }
+    },
+    "meta": {
+        "defaultDurationMs": 120,
+        "name": "Placeholder Fighter",
+        "pivot": {
+            "x": 48,
+            "y": 72
+        },
+        "size": {
+            "h": 96,
+            "w": 96
+        },
+        "version": 3
+    }
+}

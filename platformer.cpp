@@ -8,6 +8,8 @@
 
 #include "fluffyWalk.h"
 
+#include <QDebug>
+
 Platformer::Platformer(QWidget *parent)
 #ifdef USE_OPENGL
 : QOpenGLWidget(parent)
@@ -21,6 +23,19 @@ Platformer::Platformer(QWidget *parent)
 
     // Load platforms from a JSON file
     loadPlatforms(":/assets/platforms.json");
+
+    fighter = new Fighter(this);
+    QString err;
+    fighter->loadFromJson(":/assets/mt2/mt2.json", &err);
+    qDebug() << "load status: " << err;
+
+    commander = new SampleCommander(this, fighter);
+
+    fighterAI = new FighterAI(this);
+    fighterAI->setCommander(commander);
+
+    // struct Intent i;
+    // commander->applyIntent(i);
 
     // Create enemies and assign them to platforms
     enemies.append(Enemy(110, 412, 40, 40));  // Example enemy 1 on platform
@@ -38,7 +53,68 @@ Platformer::Platformer(QWidget *parent)
 
 Platformer::~Platformer() {}
 
-void Platformer::keyPressEvent(QKeyEvent *event) {
+void Platformer::mt2KeyPress(QKeyEvent *event) {
+    // MT2
+    if (event->key() == Qt::Key_Left) {
+        combo.key(Combo::LEFT, m_lastMs);
+    }
+    if (event->key() == Qt::Key_Right) {
+        combo.key(Combo::RIGHT, m_lastMs);
+    }
+    if (event->key() == Qt::Key_Down) {
+        combo.key(Combo::DOWN, m_lastMs);
+    }
+    if (event->key() == Qt::Key_Up) {
+        combo.key(Combo::UP, m_lastMs);
+    }
+    if (event->key() == Qt::Key_Comma) {
+        combo.key(Combo::FIRE1, m_lastMs);
+    }
+    if (event->key() == Qt::Key_Period) {
+        combo.key(Combo::FIRE2, m_lastMs);
+    }
+
+    if(commander->applyCombo(combo.getCurrent())) combo.resetCurrent();
+}
+
+void Platformer::mt2TestKeyPress(QKeyEvent *event) {
+    if (event->key() == Qt::Key_S) {
+        commander->applyIntent({Action::Stand, turningLeft ? Dir::Left : Dir::Right});
+    }
+    if (event->key() == Qt::Key_Left) {
+        commander->applyIntent({Action::Walk, Dir::Left});
+    }
+    if (event->key() == Qt::Key_Right) {
+        commander->applyIntent({Action::Walk, Dir::Right});
+    }
+    if (event->key() == Qt::Key_Down) {
+        commander->applyIntent({Action::Crouch, turningLeft ? Dir::Left : Dir::Right});
+    }
+    if (event->key() == Qt::Key_Up) {
+        commander->applyIntent({Action::Jump, turningLeft ? Dir::Left : Dir::Right});
+    }
+    if (event->key() == Qt::Key_K) {
+        commander->applyIntent({Action::Kick, turningLeft ? Dir::Left : Dir::Right});
+    }
+    if (event->key() == Qt::Key_P) {
+        commander->applyIntent({Action::SlowPunch, turningLeft ? Dir::Left : Dir::Right});
+    }
+    if (event->key() == Qt::Key_J) {
+        commander->applyIntent({Action::CrouchPunch, turningLeft ? Dir::Left : Dir::Right});
+    }
+    if (event->key() == Qt::Key_A) {
+        commander->applyIntent({Action::AirKick, turningLeft ? Dir::Left : Dir::Right});
+    }
+    if (event->key() == Qt::Key_B) {
+        commander->applyIntent({Action::CrouchBackflipKick, turningLeft ? Dir::Left : Dir::Right});
+    }
+    if (event->key() == Qt::Key_V) {
+        commander->applyIntent({Action::Victory, turningLeft ? Dir::Left : Dir::Right});
+    }
+}
+
+void Platformer::pellsBawlKeyPress(QKeyEvent *event) {
+    // pöellsBawll
     if (event->key() == Qt::Key_Left) {
         isMovingLeft = true;
         turningLeft = true;
@@ -60,15 +136,63 @@ void Platformer::keyPressEvent(QKeyEvent *event) {
     if (event->key() == Qt::Key_S) {
         playerAnim.selectClip("jump_spin");
     }
-    if (event->key() == Qt::Key_Escape) close();
 }
 
-void Platformer::keyReleaseEvent(QKeyEvent *event) {
+void Platformer::mt2KeyRelease(QKeyEvent *event) {
+    // MT2
+    if (event->key() == Qt::Key_Left || event->key() == Qt::Key_Right || event->key() == Qt::Key_Down) {
+        fighter->stop();
+    }
+}
+
+void Platformer::mt2TestKeyRelease(QKeyEvent *event) {
+}
+
+void Platformer::pellsBawlKeyRelease(QKeyEvent *event) {
+    // pellsBawl
     if (event->key() == Qt::Key_Left) {
         isMovingLeft = false;
     }
     if (event->key() == Qt::Key_Right) {
         isMovingRight = false;
+    }
+}
+
+int Platformer::keyControl = 1;
+
+void Platformer::keyPressEvent(QKeyEvent *event) {
+    if (event->isAutoRepeat()) {
+        // Ignore auto-repeated key press events
+        return;
+    }
+
+    if (event->key() == Qt::Key_1) keyControl = 1;
+    if (event->key() == Qt::Key_2) keyControl = 2;
+    if (event->key() == Qt::Key_3) keyControl = 3;
+
+    switch(keyControl) {
+    case 1: mt2KeyPress(event); break;
+    case 2: mt2TestKeyPress(event); break;
+    case 3: pellsBawlKeyPress(event); break;
+    }
+
+    // Generic
+    if (event->key() == Qt::Key_G) {
+        qDebug() << "onGround : " << fighter->onGround();
+    }
+    if (event->key() == Qt::Key_Escape) close();
+}
+
+void Platformer::keyReleaseEvent(QKeyEvent *event) {
+    if (event->isAutoRepeat()) {
+        // Ignore auto-repeated key press events
+        return;
+    }
+
+    switch(keyControl) {
+    case 1: mt2KeyRelease(event); break;
+    case 2: mt2TestKeyRelease(event); break;
+    case 3: pellsBawlKeyRelease(event); break;
     }
 }
 
@@ -101,11 +225,18 @@ void Platformer::paintEvent(QPaintEvent *) {
     playerAnim.paintWalker(painter, playerRect, turningLeft, m_animTime); // Draw player character
     playerAnim.drawShadow(painter, QPointF(playerRect.left() + playerRect.width() / 2, 562), QSizeF(120, 17), 0.35);
 
+
+
+    // In your renderer (e.g. QGraphicsItem::paint or QWidget::paintEvent):
+    fighter->paint(&painter);
+
+
+
     // debug
-    // painter.setPen(QColor(255,255,255,180));
-    // painter.setFont(QFont("DejaVu", 10));
-    // painter.drawText(10, height()-10,
-    // QString("rate: %1x  %2").arg(m_playbackRate,0,'f',2).arg(m_paused? "paused":""));
+    painter.setPen(QColor(255,255,255,180));
+    painter.setFont(QFont("DejaVu", 10));
+    painter.drawText(10, height()-10,
+    QString("rate: %1x  %2").arg(m_playbackRate,0,'f',2).arg(m_paused? "paused":""));
 }
 
 void Platformer::checkEnemyCollisions() {
@@ -126,6 +257,36 @@ void Platformer::checkEnemyCollisions() {
     }
 }
 
+// struct ProjectileInfo {
+//     QPointF pos {0,0};
+//     QPointF vel {0,0};
+//     qreal radius = 6.0; // for simple collision prediction
+// };
+
+// struct OpponentSnapshot {
+//     QPointF pos {0,0};
+//     QPointF vel {0,0};
+//     bool onGround = true;
+//     bool isShooting = false; // transient when a shot is fired this frame
+//     Dir facing = Dir::Right;
+//     QList<ProjectileInfo> activeProjectiles; // cloud shots
+// };
+
+// struct SelfSnapshot {
+//     QPointF pos {0,0};
+//     QPointF vel {0,0};
+//     bool onGround = true;
+//     Dir facing = Dir::Right;
+//     qreal health = 100.0;
+//     qreal stamina = 100.0; // basic gating for specials
+// };
+
+// struct WorldSnapshot {
+//     qreal gravity = 1800.0;   // px/s^2; used for air-time heuristics
+//     QRectF walkableBounds;    // to avoid walking off-screen
+//     qreal timeSeconds = 0.0;  // world time for seeded randomness
+// };
+
 void Platformer::timerEvent(QTimerEvent *) {
     qint64 now = m_clock.elapsed();
     double dt = (now - m_lastMs) / 1000.0;
@@ -142,6 +303,29 @@ void Platformer::timerEvent(QTimerEvent *) {
     }
 
     updatePlayerPosition();
+
+    struct OpponentSnapshot os;
+    os.pos = playerRect.center();
+    os.vel = QPointF(velocityX, velocityY);
+    os.onGround = !isJumping;
+    os.facing = turningLeft ? Dir::Left : Dir::Right;
+
+    struct SelfSnapshot ss;
+    ss.pos = fighter->pos();
+    ss.vel = fighter->vel();
+    ss.onGround = fighter->onGround();
+    ss.facing = fighter->facing();
+
+    struct WorldSnapshot ws;
+    ws.timeSeconds = dt;
+    ws.walkableBounds = QRect(0, 0, 800, 600);
+
+    // fighterAI->sense(ss, os, ws);
+    // fighterAI->update();
+
+    // In your tick:
+    fighter->update(dt, platforms, QRect(0, 0, 800, 600));
+
     // move enemies
     checkCollisions();
     checkEnemyCollisions();
