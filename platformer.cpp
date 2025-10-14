@@ -10,6 +10,9 @@
 
 #include <QDebug>
 
+#include "QJoysticks.h"
+
+
 Platformer::Platformer(QWidget *parent)
 #ifdef USE_OPENGL
 : QOpenGLWidget(parent)
@@ -36,6 +39,31 @@ Platformer::Platformer(QWidget *parent)
 
     // struct Intent i;
     // commander->applyIntent(i);
+
+    auto js = QJoysticks::getInstance();
+    js->setVirtualJoystickEnabled(false);
+
+    QObject::connect(js, &QJoysticks::axisChanged, this, [&](int /*id*/, int axis, qreal value){
+        // X axis -> LEFT / RIGHT
+        if(axis == 0 && value < -0.35) combo.key(Combo::LEFT, m_lastMs);
+        if(axis == 0 && value > 0.35) combo.key(Combo::RIGHT, m_lastMs);
+        if(axis == 1 && value < -0.35) combo.key(Combo::UP, m_lastMs);
+        if(axis == 1 && value > 0.35) combo.key(Combo::DOWN, m_lastMs);
+        if(commander->applyCombo(combo.getCurrent())) combo.resetCurrent();
+        else if(axis == 0 && std::abs(value) < 0.25) fighter->stop();
+    });
+
+    QObject::connect(js, &QJoysticks::buttonChanged, this, [&](int /*id*/, int button, bool pressed){
+        qDebug() << "button:" << button;
+        if(button == 0 && pressed) combo.key(Combo::FIRE1, m_lastMs);
+        if(button == 1 && pressed) combo.key(Combo::FIRE2, m_lastMs);
+        if(button == 11 && pressed) combo.key(Combo::UP, m_lastMs);
+        if(button == 12 && pressed) combo.key(Combo::DOWN, m_lastMs);
+        if(button == 13 && pressed) combo.key(Combo::LEFT, m_lastMs);
+        if(button == 14 && pressed) combo.key(Combo::RIGHT, m_lastMs);
+        if(commander->applyCombo(combo.getCurrent())) combo.resetCurrent();
+        else if(button >= 11 && button <= 14 && !pressed) fighter->stop();
+    });
 
     // Create enemies and assign them to platforms
     enemies.append(Enemy(110, 412, 40, 40));  // Example enemy 1 on platform

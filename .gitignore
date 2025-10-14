@@ -7,3 +7,5 @@ qrc_*
 Makefile
 .qmake.stash
 *_plugin_import*
+external/build*
+*.dll
