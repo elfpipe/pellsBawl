@@ -1,7 +1,7 @@
 #include <QApplication>
 // #include <QSoundEffect>
 
-#include "platformer.h"
+#include "level1.h"
 #include "title.h"
 
 int main(int argc, char *argv[]) {
@@ -18,7 +18,7 @@ int main(int argc, char *argv[]) {
     title.show();
     title.activateWindow();
 
-    Platformer w;
+    Level1 w;
     w.setWindowTitle("Simple Platformer");
     w.setScreen(screen);
 

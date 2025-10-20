@@ -1,5 +1,5 @@
-#ifndef PLATFORMER_H
-#define PLATFORMER_H
+#ifndef LEVEL1_H
+#define LEVEL1_H
 
 #include <QOpenGLWidget>
 #include <QKeyEvent>
@@ -11,7 +11,7 @@
 #include "commander.h"
 #include "pellsBawl.h"
 #include "fighterAI.h"
-#include "combo.h"
+#include "joystick.h"
 
 struct Enemy {
     QRect rect;
@@ -47,7 +47,7 @@ struct Enemy {
 
 #define USE_OPENGL 1
 
-class Platformer
+class Level1
 #ifdef USE_OPENGL
 : public QOpenGLWidget
 #else
@@ -57,8 +57,8 @@ class Platformer
     Q_OBJECT
 
 public:
-    Platformer(QWidget *parent = nullptr);
-    ~Platformer();
+    Level1(QWidget *parent = nullptr);
+    ~Level1();
 
 protected:
     void keyPressEvent(QKeyEvent *event) override;
@@ -67,8 +67,6 @@ protected:
     void timerEvent(QTimerEvent *event) override; // Slot for handling the timer event
 
 private:
-    void updatePlayerPosition();
-    void checkCollisions();
     void loadPlatforms(const QString &filePath);
     void checkEnemyCollisions();
 
@@ -87,7 +85,6 @@ private:
 
 private:
 
-    // QPixmap playerPixmap;
     PellsBawl pellsBawl;
     QList<Enemy> enemies;
 
@@ -99,13 +96,13 @@ private:
     Fighter *fighter;
     FighterAI *fighterAI;
 
-    IJoystickCommander *joyCommander;
     IFighterCommander *enemyCommander;
 
-    Combo combo;
+    IJoystickCommander *joyCommander;
+    Joystick joystick;
 
     QElapsedTimer m_clock;
     qint64 m_lastMs = 0;           // for dt calc
 };
 
-#endif // PLATFORMER_H
+#endif // LEVEL1_H

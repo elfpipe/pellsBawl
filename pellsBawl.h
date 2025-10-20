@@ -127,10 +127,10 @@ public:
             // set the playback rate
             if (!isThrowing)
                 m_playbackRate = qAbs(velocityX/2);
-            else if (isThrowing)
+            if (isThrowing)
                 m_playbackRate = 2.0;
-            else
-                m_playbackRate = 0.0;
+            if (isJumping)
+                m_playbackRate = 1.0;
 
             // Apply gravity and jump velocity
             if (isJumping || isFalling) {
@@ -152,10 +152,12 @@ public:
                 //     playerRect.moveBottom(platform.rect.top());
                 if (isFalling) {
                     isJumping = false;
+                    canJump = true;
                     isFalling = false;
                     velocityY = 0;
                     onGround = true;
                     playerRect.moveBottom(platform.rect.top());
+                    selectClip("walk");
                 }
             }
         }
@@ -189,7 +191,7 @@ public:
             }
         }
 
-        if (m_animDone && m_returnToWalk) { selectClip("walk"); isThrowing = false; }
+        if (m_animDone && m_returnToWalk && !isLoop()) { selectClip("walk"); isThrowing = false; }
 
         for (auto btw : shots) btw->onTick();
     }
@@ -228,6 +230,10 @@ private:
     const Track* trackById(const QString& id) const {
         for (const auto& tr : m_tracks) if (tr.id == id) return &tr;
         return nullptr;
+    }
+
+    bool isLoop() const {
+        return m_clips[m_activeClipId].loop;
     }
 
     static QPointF readPoint(const QJsonValue& v) {
@@ -282,10 +288,19 @@ public:
         isFacingLeft = false;
     }
     void keyJump() {
-        if (!isJumping) {
-        isJumping = true;
-        velocityY = -jumpVelocity;
-        }}
+        if (canJump) {
+            if (isJumping) {
+                canJump = false;
+                isJumping = true;
+                velocityY -= doubleJumpVelocity;
+                selectClip("jump_spin");
+            } else {
+                isJumping = true;
+                velocityY = -jumpVelocity;
+                selectClip("jump_straight");
+            }
+        }
+    }
     void keyThrow() {
         btw = new BezierThrowWidget(this);
         QObject::connect(btw, &BezierThrowWidget::hasHit, this, [&](){
@@ -327,8 +342,10 @@ private:
     bool isFalling = false;
     bool isFacingLeft = false;
     bool isThrowing = false;
+    bool canJump = true;
 
     int jumpVelocity = 15.0;
+    int doubleJumpVelocity = 25.0;
     int gravity = 1.0;
     double velocityX = 0.0;
     double velocityY = 0.0;

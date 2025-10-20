@@ -94,7 +94,7 @@ static const char* kAnimJson = R"JSON(
         {
           "id": "body",
           "size": { "w": 220, "h": 220 },
-          "baseOffset": { "x": 0, "y": 0 },
+          "baseOffset": { "x": 0, "y": -50 },
           "properties": {
             "x": { "type": "const", "value": 0 },
             "y": { "type": "sine", "amp": 35, "phaseDeg": 90, "bias": -35 },
@@ -127,7 +127,7 @@ static const char* kAnimJson = R"JSON(
         {
           "id": "left_hand",
           "size": { "w": 100, "h": 80 },
-          "baseOffset": { "x": -80, "y": 10 },
+          "baseOffset": { "x": -50, "y": 10 },
           "properties": {
             "x": { "type": "const", "value": -80 },
             "y": { "type": "sine", "amp": 15, "phaseDeg": 90, "bias": -15 },
@@ -138,7 +138,7 @@ static const char* kAnimJson = R"JSON(
         {
           "id": "right_hand",
           "size": { "w": 100, "h": 80 },
-          "baseOffset": { "x": 80, "y": 10 },
+          "baseOffset": { "x": 50, "y": 10 },
           "properties": {
             "x": { "type": "const", "value": 80 },
             "y": { "type": "sine", "amp": 15, "phaseDeg": 90, "bias": -15 },
@@ -152,13 +152,13 @@ static const char* kAnimJson = R"JSON(
     {
       "id": "jump_spin",
       "durationSec": 1.0,
-      "loop": false,
+      "loop": true,
       "useFootCapsule": false,
       "tracks": [
         {
           "id": "body",
           "size": { "w": 220, "h": 220 },
-          "baseOffset": { "x": 0, "y": 0 },
+          "baseOffset": { "x": 0, "y": -50 },
           "properties": {
             "x": { "type": "const", "value": 0 },
             "y": { "type": "sine", "amp": 35, "phaseDeg": 90, "bias": -35 },
@@ -191,7 +191,7 @@ static const char* kAnimJson = R"JSON(
         {
           "id": "left_hand",
           "size": { "w": 100, "h": 80 },
-          "baseOffset": { "x": -95, "y": 0 },
+          "baseOffset": { "x": -65, "y": 0 },
           "properties": {
             "x": { "type": "const", "value": -95 },
             "y": { "type": "sine", "amp": 10, "phaseDeg": 90, "bias": -10 },
@@ -202,7 +202,7 @@ static const char* kAnimJson = R"JSON(
         {
           "id": "right_hand",
           "size": { "w": 100, "h": 80 },
-          "baseOffset": { "x": 95, "y": 0 },
+          "baseOffset": { "x": 65, "y": 0 },
           "properties": {
             "x": { "type": "const", "value": 95 },
             "y": { "type": "sine", "amp": 10, "phaseDeg": 90, "bias": -10 },

@@ -1,4 +1,4 @@
-#include "platformer.h"
+#include "level1.h"
 #include <QPainter>
 #include <QKeyEvent>
 #include <QFile>
@@ -10,9 +10,8 @@
 
 #include <QDebug>
 
-#include "QJoysticks.h"
 
-Platformer::Platformer(QWidget *parent)
+Level1::Level1(QWidget *parent)
 #ifdef USE_OPENGL
 : QOpenGLWidget(parent)
 #else
@@ -31,35 +30,7 @@ Platformer::Platformer(QWidget *parent)
     fighterAI = new FighterAI(this);
     fighterAI->setCommander(enemyCommander);
 
-    auto js = QJoysticks::getInstance();
-    js->setVirtualJoystickEnabled(false);
-
-    QObject::connect(js, &QJoysticks::axisChanged, this, [&](int /*id*/, int axis, qreal value){
-        // X axis -> LEFT / RIGHT
-        bool got = false;
-        static bool left = false, right = false;
-        if(axis == 0 && value < -0.35) { if (!left) { combo.key(Combo::LEFT, m_lastMs); got = true; } left = true; right = false; }
-        if(axis == 0 && value > 0.35) { if (!right) { combo.key(Combo::RIGHT, m_lastMs); got = true; } right = true; left = false; }
-        if(axis == 1 && value < -0.35) { combo.key(Combo::UP, m_lastMs); got = true; }
-        if(axis == 1 && value > 0.35) { combo.key(Combo::DOWN, m_lastMs); got = true; }
-        if(got && joyCommander->applyCombo(combo.getCurrent())) combo.resetCurrent();
-        if(axis == 0 && std::abs(value) < 0.25) { left = false; right = false; joyCommander->releaseLeftRight(); }
-    });
-
-    QObject::connect(js, &QJoysticks::buttonChanged, this, [&](int /*id*/, int button, bool pressed){
-        // qDebug() << "button:" << button;
-        bool got = false;
-        static bool powerDown = false;
-        if(button == 0 && pressed) { combo.key(Combo::FIRE1, m_lastMs); got = true; }
-        if(button == 1 && pressed) { if(!powerDown) { combo.key(Combo::FIRE2, m_lastMs); got = true; powerDown = true; } }
-        if(button == 1 && !pressed) { joyCommander->releasePowerButton(); powerDown = false; }
-        if(button == 11 && pressed) { combo.key(Combo::UP, m_lastMs); got = true; }
-        if(button == 12 && pressed) { combo.key(Combo::DOWN, m_lastMs); got = true; }
-        if(button == 13 && pressed) { combo.key(Combo::LEFT, m_lastMs); got = true; }
-        if(button == 14 && pressed) { combo.key(Combo::RIGHT, m_lastMs); got = true; }
-        if(got && joyCommander->applyCombo(combo.getCurrent())) combo.resetCurrent();
-        if((button == 13 || button == 14) && !pressed) joyCommander->releaseLeftRight();
-    });
+    joystick.setCommander(joyCommander);
 
     // Create enemies and assign them to platforms
     enemies.append(Enemy(110, 412, 40, 40));  // Example enemy 1 on platform
@@ -75,7 +46,7 @@ Platformer::Platformer(QWidget *parent)
     m_lastMs = m_clock.elapsed();
 }
 
-Platformer::~Platformer() {}
+Level1::~Level1() {}
 
 // void Platformer::mt2KeyPress(QKeyEvent *event) {
 //     // MT2
@@ -122,9 +93,9 @@ Platformer::~Platformer() {}
 // void Platformer::pellsBawlKeyRelease(QKeyEvent *event) {
 // }
 
-// int Platformer::keyControl = 1;
+// int Level1::keyControl = 1;
 
-void Platformer::keyPressEvent(QKeyEvent *event) {
+void Level1::keyPressEvent(QKeyEvent *event) {
 //     if (event->isAutoRepeat()) {
 //         // Ignore auto-repeated key press events
 //         return;
@@ -160,15 +131,16 @@ void Platformer::keyPressEvent(QKeyEvent *event) {
 //     }
 // }
 
-void Platformer::paintEvent(QPaintEvent *) {
+void Level1::paintEvent(QPaintEvent *) {
     QPainter painter(this);
 
     // Set the world rectangle (logical coordinates)
     painter.setWindow(world);
 
     // Optional: Set the viewport (physical coordinates)
-    painter.setViewport(world); //for now, otherwise 0, 0, width(), height()
+    painter.setViewport(0, 0, width(), height()); //for now, otherwise 0, 0, width(), height()
 
+    // Save state
     painter.save();
 
 #ifdef USE_OPENGL
@@ -193,21 +165,11 @@ void Platformer::paintEvent(QPaintEvent *) {
         }
     }
 
-    // for(auto btw : shots)
-    //     btw->paintInGameContents(painter);
-
-    // Draw player
-    // painter.drawPixmap(playerRect, playerPixmap); // Draw player character
+    // This includes shots and shadow
     pellsBawl.paintWalker(painter, ground); //, playerRect, turningLeft, m_animTime); // Draw player character
-    // playerAnim.drawShadow(painter, QPointF(playerRect.center().x(), ground + 12), QSizeF(120, 17), 0.35);
 
-
-
-    // In your renderer (e.g. QGraphicsItem::paint or QWidget::paintEvent):
+    // Fighter (MT2)
     fighter->paint(&painter);
-
-
-    // painter.drawRect(playerRect);
 
     // debug
     // painter.setPen(QColor(255,255,255,180));
@@ -218,7 +180,7 @@ void Platformer::paintEvent(QPaintEvent *) {
     painter.restore();
 }
 
-void Platformer::checkEnemyCollisions() {
+void Level1::checkEnemyCollisions() {
     QRectF rect = pellsBawl.playerRectangle();
     for (Enemy &enemy : enemies) {
         if (rect.intersects(enemy.rect)) {
@@ -267,15 +229,15 @@ void Platformer::checkEnemyCollisions() {
 //     qreal timeSeconds = 0.0;  // world time for seeded randomness
 // };
 
-void Platformer::timerEvent(QTimerEvent *) {
+void Level1::timerEvent(QTimerEvent *) {
     qint64 now = m_clock.elapsed();
     double dt = (now - m_lastMs) / 1000.0;
     m_lastMs = now;
 
+    joystick.updateTime(now);
+
     // pellsBawl
     pellsBawl.tick(dt);
-    // updatePlayerPosition();
-    // for (auto btw : shots) btw->onTick();
 
     // opponent AI
     struct OpponentSnapshot os;
@@ -307,40 +269,7 @@ void Platformer::timerEvent(QTimerEvent *) {
     update(); // Repaint the widget
 }
 
-void Platformer::updatePlayerPosition() {
-}
-
-// void Platformer::checkCollisions() {
-//     bool onGround = false;
-//     for (const Platform &platform : platforms) {
-//         if (playerRect.intersects(platform.rect)) {
-//             // Collision with ground or other platform
-//             // if (playerRect.bottom() <= platform.rect.top() && playerRect.bottom() >= platform.rect.top() - velocityY) {
-//             //     playerRect.moveBottom(platform.rect.top());
-//             if (isFalling) {
-//                 isJumping = false;
-//                 isFalling = false;
-//                 velocityY = 0;
-//                 onGround = true;
-//                 playerRect.moveBottom(platform.rect.top());
-//             }
-//         }
-//     }
-
-//     if (!onGround) {
-//         isFalling = true;
-//     }
-
-//     QRectF sceneRect = bounds; //rect();
-//     if (!sceneRect.contains(playerRect)) {
-//         playerRect.moveTop(qMax(sceneRect.top(), playerRect.top()));
-//         playerRect.moveBottom(qMin(sceneRect.bottom(), playerRect.bottom()));
-//         playerRect.moveLeft(qMax(sceneRect.left(), playerRect.left()));
-//         playerRect.moveRight(qMin(sceneRect.right(), playerRect.right()));
-//     }
-// }
-
-void Platformer::loadPlatforms(const QString &filePath) {
+void Level1::loadPlatforms(const QString &filePath) {
     QFile file(filePath);
     if (!file.open(QIODevice::ReadOnly)) {
         qWarning("Couldn't open platforms file.");
