@@ -15,7 +15,7 @@ public:
     };
 
 public:
-    explicit Combo(QObject *parent = nullptr, qreal resetTimer = 1000);
+    explicit Combo(QObject *parent = nullptr, quint64 resetTimer = 1000);
     void update(quint64 time) {
         currTime = time;
         if(time > stamp + reset) { current.clear(); stamp = time; emit currentReset(); }
@@ -23,8 +23,9 @@ public:
     void key(Key key, qreal time) {
         update(time);
         current.append(key);
-        qDebug() << "(" << time << ") : " << current;
+        // qDebug() << "(" << time << ") : " << current;
     }
+    void setReset(quint64 resetTimer) { reset = resetTimer; }
     QVector<Key> getCurrent() { return current; }
     void resetCurrent() { current.clear(); }
 

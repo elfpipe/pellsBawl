@@ -1,7 +1,7 @@
 #include <QtWidgets>
 #include <cmath>
 
-#include "fluffyWalk.h"
+#include "pellsBawl.h"
 
 static const char* kAnimJson = R"JSON(
 {
@@ -222,7 +222,7 @@ static const char* kAnimJson = R"JSON(
         {
           "id": "body",
           "size": { "w": 220, "h": 220 },
-          "baseOffset": { "x": 0, "y": 0 },
+          "baseOffset": { "x": 0, "y": -100 },
           "properties": {
             "x": { "type": "sine", "amp": 6, "phaseDeg": 270, "bias": 0 },
             "y": { "type": "sine", "amp": 12, "phaseDeg": 270, "bias": 4 },
@@ -233,7 +233,7 @@ static const char* kAnimJson = R"JSON(
         {
           "id": "left_foot",
           "size": { "w": 120, "h": 80 },
-          "baseOffset": { "x": -58, "y": 72 },
+          "baseOffset": { "x": -30, "y": 20 },
           "properties": {
             "x": { "type": "const", "value": -58 },
             "y": { "type": "sine", "amp": 4, "phaseDeg": 270, "bias": 2 },
@@ -244,7 +244,7 @@ static const char* kAnimJson = R"JSON(
         {
           "id": "right_foot",
           "size": { "w": 120, "h": 80 },
-          "baseOffset": { "x": 62, "y": 72 },
+          "baseOffset": { "x": 30, "y": 20 },
           "properties": {
             "x": { "type": "const", "value": 62 },
             "y": { "type": "sine", "amp": 6, "phaseDeg": 270, "bias": 3 },
@@ -255,7 +255,7 @@ static const char* kAnimJson = R"JSON(
         {
           "id": "left_hand",
           "size": { "w": 100, "h": 80 },
-          "baseOffset": { "x": -90, "y": 8 },
+          "baseOffset": { "x": -80, "y": -90 },
           "properties": {
             "x": { "type": "sine", "amp": 18, "phaseDeg": 270, "bias": -10 },
             "y": { "type": "sine", "amp": 8, "phaseDeg": 270, "bias": 0 },
@@ -266,7 +266,7 @@ static const char* kAnimJson = R"JSON(
         {
           "id": "right_hand",
           "size": { "w": 100, "h": 80 },
-          "baseOffset": { "x": 85, "y": 8 },
+          "baseOffset": { "x": 80, "y": -90 },
           "properties": {
             "x": { "type": "linear", "start": -30, "end": 100 },
             "y": { "type": "sine", "amp": 10, "phaseDeg": 270, "bias": -4 },
@@ -287,14 +287,17 @@ static const char* kAnimJson = R"JSON(
   }
 }
 )JSON";
+// "baseOffset": { "x": -90, "y": 8 },
+// "baseOffset": { "x": 85, "y": 8 },
 
-void WalkerAnim::paintWalker(QPainter &p, QRectF r, bool m_flipHorizontal, const double m_animTime) {
-    // QPainter p(this);
+void PellsBawl::paintWalker(QPainter &p, qreal ground) { //}, QRectF r, bool m_flipHorizontal, const double m_animTime) {
+    // shots
+    for(auto btw : shots)
+        btw->paintInGameContents(p);
+
     p.setRenderHints(QPainter::Antialiasing | QPainter::SmoothPixmapTransform, true);
-    // p.fillRect(rect(), QColor("#1b1e23"));
 
-    const QPointF center = r.center(); //rect().center();
-    // const double t = std::fmod(m_clock.elapsed()/1000.0, m_durationSec) * speedConst;
+    const QPointF center = playerRect.center();
     const double t = m_animTime;
 
     // compute animation in BODY-LOCAL space (origin = body center)
@@ -353,7 +356,7 @@ void WalkerAnim::paintWalker(QPainter &p, QRectF r, bool m_flipHorizontal, const
 
     // === global transform: translate to center, then scale the whole character ===
     p.save();
-    double flipX = m_flipHorizontal ? -1.0 : 1.0;
+    double flipX = isFacingLeft ? -1.0 : 1.0;
     p.translate(center);
     p.scale(flipX * m_globalScale, m_globalScale);
 
@@ -373,11 +376,13 @@ void WalkerAnim::paintWalker(QPainter &p, QRectF r, bool m_flipHorizontal, const
     // ground guide (unscaled world)
     p.setPen(QPen(QColor(255,255,255,40), 1, Qt::DashLine));
     p.drawLine(QPointF(0, center.y() + bodyBobY * m_globalScale + 70 * m_globalScale),
-               QPointF(r.width(), center.y() + bodyBobY * m_globalScale + 70 * m_globalScale));
+               QPointF(playerRect.width(), center.y() + bodyBobY * m_globalScale + 70 * m_globalScale));
+
+    drawShadow(p, QPointF(playerRect.center().x(), ground + 12), QSizeF(120, 17), 0.35);
 }
 
 
-void WalkerAnim::loadAnimation() {
+void PellsBawl::loadAnimation() {
     m_clips.clear();
     m_tracks.clear();
     m_pixById.clear();

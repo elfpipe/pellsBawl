@@ -1,11 +1,20 @@
 QT=widgets openglwidgets
-SOURCES=platformer.cpp fluffyWalk.cpp main.cpp \
-    combo.cpp
-HEADERS=platformer.h fluffyWalk.h \
+QT += multimedia
+SOURCES=platformer.cpp main.cpp \
+    combo.cpp \
+    fighter.cpp \
+    fighterAI.cpp \
+    pellsBawl.cpp \
+    title.cpp
+HEADERS=platformer.h \
+    bezier.h \
     combo.h \
+    commander.h \
     fighter.h \
     fighterAI.h \
-    platform.h
+    pellsBawl.h \
+    platform.h \
+    title.h
 RESOURCES=platformer.qrc
 CONFIG+=c++17
 

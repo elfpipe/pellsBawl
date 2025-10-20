@@ -8,7 +8,8 @@
 #include <QPixmap>
 #include <QList>
 
-#include "fluffyWalk.h"
+#include "commander.h"
+#include "pellsBawl.h"
 #include "fighterAI.h"
 #include "combo.h"
 
@@ -61,7 +62,7 @@ public:
 
 protected:
     void keyPressEvent(QKeyEvent *event) override;
-    void keyReleaseEvent(QKeyEvent *event) override;
+    // void keyReleaseEvent(QKeyEvent *event) override;
     void paintEvent(QPaintEvent *event) override;
     void timerEvent(QTimerEvent *event) override; // Slot for handling the timer event
 
@@ -71,49 +72,39 @@ private:
     void loadPlatforms(const QString &filePath);
     void checkEnemyCollisions();
 
-private:
-    void mt2KeyPress(QKeyEvent *event);
-    void mt2TestKeyPress(QKeyEvent *event);
-    void pellsBawlKeyPress(QKeyEvent *event);
-    void mt2KeyRelease(QKeyEvent *event);
-    void mt2TestKeyRelease(QKeyEvent *event);
-    void pellsBawlKeyRelease(QKeyEvent *event);
+// private:
+//     void mt2KeyPress(QKeyEvent *event);
+//     void mt2TestKeyPress(QKeyEvent *event);
+//     void pellsBawlKeyPress(QKeyEvent *event);
+//     void mt2KeyRelease(QKeyEvent *event);
+//     void mt2TestKeyRelease(QKeyEvent *event);
+//     void pellsBawlKeyRelease(QKeyEvent *event);
 
-    static int keyControl;
+//     static int keyControl;
+
+// public slots:
+//     void onCookieTarget(BezierThrowWidget *btw);
 
 private:
+
     // QPixmap playerPixmap;
-    WalkerAnim playerAnim;
-    QRectF playerRect;
-    QList<Platform> platforms;
+    PellsBawl pellsBawl;
     QList<Enemy> enemies;
 
+    QList<Platform> platforms;
+    QRect world;
+    QRect bounds;
+    qint32 ground;
 
     Fighter *fighter;
     FighterAI *fighterAI;
 
-    SampleCommander *commander;
+    IJoystickCommander *joyCommander;
+    IFighterCommander *enemyCommander;
 
     Combo combo;
 
-    bool turningLeft = false;
-
-    bool isJumping;
-    bool isMovingLeft;
-    bool isMovingRight;
-    bool isFalling;
-
-    int jumpVelocity;
-    int gravity;
-    double velocityX;
-    double velocityY;
-
     QElapsedTimer m_clock;
-
-    // in WalkerWidget:
-    double m_playbackRate = 1.0;   // 1.0 = normal speed
-    bool   m_paused = false;
-    double m_animTime = 0.0;       // current time within [0, durationSec)
     qint64 m_lastMs = 0;           // for dt calc
 };
 

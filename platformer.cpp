@@ -6,12 +6,11 @@
 #include <QJsonObject>
 #include <QJsonArray>
 
-#include "fluffyWalk.h"
+#include "pellsBawl.h"
 
 #include <QDebug>
 
 #include "QJoysticks.h"
-
 
 Platformer::Platformer(QWidget *parent)
 #ifdef USE_OPENGL
@@ -19,50 +18,47 @@ Platformer::Platformer(QWidget *parent)
 #else
 : QWidget(parent)
 #endif
-, isJumping(false), isMovingLeft(false), isMovingRight(false), isFalling(true), jumpVelocity(15), gravity(1), velocityX(0), velocityY(0) {
-    setFixedSize(800, 600);
-    // playerPixmap.load(":/assets/character.png"); // Load the character image
-    playerRect = QRect(100, 500, 50, 50); // Initial position of the player
-
+{
     // Load platforms from a JSON file
     loadPlatforms(":/assets/platforms.json");
 
     fighter = new Fighter(this);
-    QString err;
-    fighter->loadFromJson(":/assets/mt2/mt2.json", &err);
-    qDebug() << "load status: " << err;
+    fighter->loadFromJson(":/assets/mt2/mt2.json");
 
-    commander = new SampleCommander(this, fighter);
+    joyCommander = new PellsBawlCommander(this, &pellsBawl);
+    enemyCommander = new FighterCommander(this, fighter);
 
     fighterAI = new FighterAI(this);
-    fighterAI->setCommander(commander);
-
-    // struct Intent i;
-    // commander->applyIntent(i);
+    fighterAI->setCommander(enemyCommander);
 
     auto js = QJoysticks::getInstance();
     js->setVirtualJoystickEnabled(false);
 
     QObject::connect(js, &QJoysticks::axisChanged, this, [&](int /*id*/, int axis, qreal value){
         // X axis -> LEFT / RIGHT
-        if(axis == 0 && value < -0.35) combo.key(Combo::LEFT, m_lastMs);
-        if(axis == 0 && value > 0.35) combo.key(Combo::RIGHT, m_lastMs);
-        if(axis == 1 && value < -0.35) combo.key(Combo::UP, m_lastMs);
-        if(axis == 1 && value > 0.35) combo.key(Combo::DOWN, m_lastMs);
-        if(commander->applyCombo(combo.getCurrent())) combo.resetCurrent();
-        else if(axis == 0 && std::abs(value) < 0.25) fighter->stop();
+        bool got = false;
+        static bool left = false, right = false;
+        if(axis == 0 && value < -0.35) { if (!left) { combo.key(Combo::LEFT, m_lastMs); got = true; } left = true; right = false; }
+        if(axis == 0 && value > 0.35) { if (!right) { combo.key(Combo::RIGHT, m_lastMs); got = true; } right = true; left = false; }
+        if(axis == 1 && value < -0.35) { combo.key(Combo::UP, m_lastMs); got = true; }
+        if(axis == 1 && value > 0.35) { combo.key(Combo::DOWN, m_lastMs); got = true; }
+        if(got && joyCommander->applyCombo(combo.getCurrent())) combo.resetCurrent();
+        if(axis == 0 && std::abs(value) < 0.25) { left = false; right = false; joyCommander->releaseLeftRight(); }
     });
 
     QObject::connect(js, &QJoysticks::buttonChanged, this, [&](int /*id*/, int button, bool pressed){
-        qDebug() << "button:" << button;
-        if(button == 0 && pressed) combo.key(Combo::FIRE1, m_lastMs);
-        if(button == 1 && pressed) combo.key(Combo::FIRE2, m_lastMs);
-        if(button == 11 && pressed) combo.key(Combo::UP, m_lastMs);
-        if(button == 12 && pressed) combo.key(Combo::DOWN, m_lastMs);
-        if(button == 13 && pressed) combo.key(Combo::LEFT, m_lastMs);
-        if(button == 14 && pressed) combo.key(Combo::RIGHT, m_lastMs);
-        if(commander->applyCombo(combo.getCurrent())) combo.resetCurrent();
-        else if(button >= 11 && button <= 14 && !pressed) fighter->stop();
+        // qDebug() << "button:" << button;
+        bool got = false;
+        static bool powerDown = false;
+        if(button == 0 && pressed) { combo.key(Combo::FIRE1, m_lastMs); got = true; }
+        if(button == 1 && pressed) { if(!powerDown) { combo.key(Combo::FIRE2, m_lastMs); got = true; powerDown = true; } }
+        if(button == 1 && !pressed) { joyCommander->releasePowerButton(); powerDown = false; }
+        if(button == 11 && pressed) { combo.key(Combo::UP, m_lastMs); got = true; }
+        if(button == 12 && pressed) { combo.key(Combo::DOWN, m_lastMs); got = true; }
+        if(button == 13 && pressed) { combo.key(Combo::LEFT, m_lastMs); got = true; }
+        if(button == 14 && pressed) { combo.key(Combo::RIGHT, m_lastMs); got = true; }
+        if(got && joyCommander->applyCombo(combo.getCurrent())) combo.resetCurrent();
+        if((button == 13 || button == 14) && !pressed) joyCommander->releaseLeftRight();
     });
 
     // Create enemies and assign them to platforms
@@ -81,153 +77,102 @@ Platformer::Platformer(QWidget *parent)
 
 Platformer::~Platformer() {}
 
-void Platformer::mt2KeyPress(QKeyEvent *event) {
-    // MT2
-    if (event->key() == Qt::Key_Left) {
-        combo.key(Combo::LEFT, m_lastMs);
-    }
-    if (event->key() == Qt::Key_Right) {
-        combo.key(Combo::RIGHT, m_lastMs);
-    }
-    if (event->key() == Qt::Key_Down) {
-        combo.key(Combo::DOWN, m_lastMs);
-    }
-    if (event->key() == Qt::Key_Up) {
-        combo.key(Combo::UP, m_lastMs);
-    }
-    if (event->key() == Qt::Key_Comma) {
-        combo.key(Combo::FIRE1, m_lastMs);
-    }
-    if (event->key() == Qt::Key_Period) {
-        combo.key(Combo::FIRE2, m_lastMs);
-    }
+// void Platformer::mt2KeyPress(QKeyEvent *event) {
+//     // MT2
+//     if (event->key() == Qt::Key_Left) {
+//         combo.key(Combo::LEFT, m_lastMs);
+//     }
+//     if (event->key() == Qt::Key_Right) {
+//         combo.key(Combo::RIGHT, m_lastMs);
+//     }
+//     if (event->key() == Qt::Key_Down) {
+//         combo.key(Combo::DOWN, m_lastMs);
+//     }
+//     if (event->key() == Qt::Key_Up) {
+//         combo.key(Combo::UP, m_lastMs);
+//     }
+//     if (event->key() == Qt::Key_Comma) {
+//         combo.key(Combo::FIRE1, m_lastMs);
+//     }
+//     if (event->key() == Qt::Key_Period) {
+//         combo.key(Combo::FIRE2, m_lastMs);
+//     }
 
-    if(commander->applyCombo(combo.getCurrent())) combo.resetCurrent();
-}
+//     if(commander->applyCombo(combo.getCurrent())) combo.resetCurrent();
+// }
 
-void Platformer::mt2TestKeyPress(QKeyEvent *event) {
-    if (event->key() == Qt::Key_S) {
-        commander->applyIntent({Action::Stand, turningLeft ? Dir::Left : Dir::Right});
-    }
-    if (event->key() == Qt::Key_Left) {
-        commander->applyIntent({Action::Walk, Dir::Left});
-    }
-    if (event->key() == Qt::Key_Right) {
-        commander->applyIntent({Action::Walk, Dir::Right});
-    }
-    if (event->key() == Qt::Key_Down) {
-        commander->applyIntent({Action::Crouch, turningLeft ? Dir::Left : Dir::Right});
-    }
-    if (event->key() == Qt::Key_Up) {
-        commander->applyIntent({Action::Jump, turningLeft ? Dir::Left : Dir::Right});
-    }
-    if (event->key() == Qt::Key_K) {
-        commander->applyIntent({Action::Kick, turningLeft ? Dir::Left : Dir::Right});
-    }
-    if (event->key() == Qt::Key_P) {
-        commander->applyIntent({Action::SlowPunch, turningLeft ? Dir::Left : Dir::Right});
-    }
-    if (event->key() == Qt::Key_J) {
-        commander->applyIntent({Action::CrouchPunch, turningLeft ? Dir::Left : Dir::Right});
-    }
-    if (event->key() == Qt::Key_A) {
-        commander->applyIntent({Action::AirKick, turningLeft ? Dir::Left : Dir::Right});
-    }
-    if (event->key() == Qt::Key_B) {
-        commander->applyIntent({Action::CrouchBackflipKick, turningLeft ? Dir::Left : Dir::Right});
-    }
-    if (event->key() == Qt::Key_V) {
-        commander->applyIntent({Action::Victory, turningLeft ? Dir::Left : Dir::Right});
-    }
-}
 
-void Platformer::pellsBawlKeyPress(QKeyEvent *event) {
-    // pöellsBawll
-    if (event->key() == Qt::Key_Left) {
-        isMovingLeft = true;
-        turningLeft = true;
-    }
-    if (event->key() == Qt::Key_Right) {
-        isMovingRight = true;
-        turningLeft = false;
-    }
-    if (event->key() == Qt::Key_Space && !isJumping) {
-        isJumping = true;
-        velocityY = -jumpVelocity;
-    }
-    if (event->key() == Qt::Key_T) {
-        playerAnim.selectClip("throw");
-    }
-    if (event->key() == Qt::Key_J) {
-        playerAnim.selectClip("jump_straight");
-    }
-    if (event->key() == Qt::Key_S) {
-        playerAnim.selectClip("jump_spin");
-    }
-}
+// void Platformer::pellsBawlKeyPress(QKeyEvent *event) {
+// }
 
-void Platformer::mt2KeyRelease(QKeyEvent *event) {
-    // MT2
-    if (event->key() == Qt::Key_Left || event->key() == Qt::Key_Right || event->key() == Qt::Key_Down) {
-        fighter->stop();
-    }
-}
+// // void Platformer::onCookieTarget(BezierThrowWidget *btw) {
+// //     shots.removeAll(btw);
+// // }
 
-void Platformer::mt2TestKeyRelease(QKeyEvent *event) {
-}
+// void Platformer::mt2KeyRelease(QKeyEvent *event) {
+//     // MT2
+//     if (event->key() == Qt::Key_Left || event->key() == Qt::Key_Right || event->key() == Qt::Key_Down) {
+//         fighter->stop();
+//     }
+// }
 
-void Platformer::pellsBawlKeyRelease(QKeyEvent *event) {
-    // pellsBawl
-    if (event->key() == Qt::Key_Left) {
-        isMovingLeft = false;
-    }
-    if (event->key() == Qt::Key_Right) {
-        isMovingRight = false;
-    }
-}
+// void Platformer::mt2TestKeyRelease(QKeyEvent */*event*/) {
+// }
 
-int Platformer::keyControl = 1;
+// void Platformer::pellsBawlKeyRelease(QKeyEvent *event) {
+// }
+
+// int Platformer::keyControl = 1;
 
 void Platformer::keyPressEvent(QKeyEvent *event) {
-    if (event->isAutoRepeat()) {
-        // Ignore auto-repeated key press events
-        return;
-    }
+//     if (event->isAutoRepeat()) {
+//         // Ignore auto-repeated key press events
+//         return;
+//     }
 
-    if (event->key() == Qt::Key_1) keyControl = 1;
-    if (event->key() == Qt::Key_2) keyControl = 2;
-    if (event->key() == Qt::Key_3) keyControl = 3;
+//     if (event->key() == Qt::Key_1) keyControl = 1;
+//     if (event->key() == Qt::Key_2) keyControl = 2;
+//     if (event->key() == Qt::Key_3) keyControl = 3;
 
-    switch(keyControl) {
-    case 1: mt2KeyPress(event); break;
-    case 2: mt2TestKeyPress(event); break;
-    case 3: pellsBawlKeyPress(event); break;
-    }
+//     switch(keyControl) {
+//     case 1: mt2KeyPress(event); break;
+//     // case 2: mt2TestKeyPress(event); break;
+//     case 3: pellsBawlKeyPress(event); break;
+//     }
 
-    // Generic
-    if (event->key() == Qt::Key_G) {
-        qDebug() << "onGround : " << fighter->onGround();
-    }
+//     // Generic
+//     if (event->key() == Qt::Key_G) {
+//         qDebug() << "onGround : " << fighter->onGround();
+//     }
     if (event->key() == Qt::Key_Escape) close();
 }
 
-void Platformer::keyReleaseEvent(QKeyEvent *event) {
-    if (event->isAutoRepeat()) {
-        // Ignore auto-repeated key press events
-        return;
-    }
+// void Platformer::keyReleaseEvent(QKeyEvent *event) {
+//     if (event->isAutoRepeat()) {
+//         // Ignore auto-repeated key press events
+//         return;
+//     }
 
-    switch(keyControl) {
-    case 1: mt2KeyRelease(event); break;
-    case 2: mt2TestKeyRelease(event); break;
-    case 3: pellsBawlKeyRelease(event); break;
-    }
-}
+//     switch(keyControl) {
+//     case 1: mt2KeyRelease(event); break;
+//     case 2: mt2TestKeyRelease(event); break;
+//     case 3: pellsBawlKeyRelease(event); break;
+//     }
+// }
 
 void Platformer::paintEvent(QPaintEvent *) {
     QPainter painter(this);
+
+    // Set the world rectangle (logical coordinates)
+    painter.setWindow(world);
+
+    // Optional: Set the viewport (physical coordinates)
+    painter.setViewport(world); //for now, otherwise 0, 0, width(), height()
+
+    painter.save();
+
 #ifdef USE_OPENGL
-    //cls - this shouldn't be necessary, is probably an amiga thing
+    //cls
     painter.setBrush(Qt::white);
     painter.drawRect(rect());
 #endif
@@ -248,10 +193,13 @@ void Platformer::paintEvent(QPaintEvent *) {
         }
     }
 
+    // for(auto btw : shots)
+    //     btw->paintInGameContents(painter);
+
     // Draw player
     // painter.drawPixmap(playerRect, playerPixmap); // Draw player character
-    playerAnim.paintWalker(painter, playerRect, turningLeft, m_animTime); // Draw player character
-    playerAnim.drawShadow(painter, QPointF(playerRect.left() + playerRect.width() / 2, 562), QSizeF(120, 17), 0.35);
+    pellsBawl.paintWalker(painter, ground); //, playerRect, turningLeft, m_animTime); // Draw player character
+    // playerAnim.drawShadow(painter, QPointF(playerRect.center().x(), ground + 12), QSizeF(120, 17), 0.35);
 
 
 
@@ -259,17 +207,21 @@ void Platformer::paintEvent(QPaintEvent *) {
     fighter->paint(&painter);
 
 
+    // painter.drawRect(playerRect);
 
     // debug
-    painter.setPen(QColor(255,255,255,180));
-    painter.setFont(QFont("DejaVu", 10));
-    painter.drawText(10, height()-10,
-    QString("rate: %1x  %2").arg(m_playbackRate,0,'f',2).arg(m_paused? "paused":""));
+    // painter.setPen(QColor(255,255,255,180));
+    // painter.setFont(QFont("DejaVu", 10));
+    // painter.drawText(10, height()-10,
+    // QString("rate: %1x  %2").arg(m_playbackRate,0,'f',2).arg(m_paused? "paused":""));
+
+    painter.restore();
 }
 
 void Platformer::checkEnemyCollisions() {
+    QRectF rect = pellsBawl.playerRectangle();
     for (Enemy &enemy : enemies) {
-        if (playerRect.intersects(enemy.rect)) {
+        if (rect.intersects(enemy.rect)) {
             if (!enemy.isDefeated) {
                 // If the player collides with an enemy, mark it as defeated
                 enemy.isDefeated = true;
@@ -319,24 +271,18 @@ void Platformer::timerEvent(QTimerEvent *) {
     qint64 now = m_clock.elapsed();
     double dt = (now - m_lastMs) / 1000.0;
     m_lastMs = now;
-    const double m_durationSec = 1.0;
 
-    if (!m_paused) {
-        m_animTime += dt * m_playbackRate;
-        // keep in [0, duration)
-        if (m_durationSec > 0.0) {
-            m_animTime = std::fmod(m_animTime, m_durationSec);
-            if (m_animTime < 0) m_animTime += m_durationSec; // support reverse
-        }
-    }
+    // pellsBawl
+    pellsBawl.tick(dt);
+    // updatePlayerPosition();
+    // for (auto btw : shots) btw->onTick();
 
-    updatePlayerPosition();
-
+    // opponent AI
     struct OpponentSnapshot os;
-    os.pos = playerRect.center();
-    os.vel = QPointF(velocityX, velocityY);
-    os.onGround = !isJumping;
-    os.facing = turningLeft ? Dir::Left : Dir::Right;
+    os.pos = pellsBawl.playerRectangle().center();
+    os.vel = QPointF(pellsBawl.velX(), pellsBawl.velY());
+    os.onGround = !pellsBawl.jumping();
+    os.facing = pellsBawl.faceLeft() ? Dir::Left : Dir::Right;
 
     struct SelfSnapshot ss;
     ss.pos = fighter->pos();
@@ -346,73 +292,53 @@ void Platformer::timerEvent(QTimerEvent *) {
 
     struct WorldSnapshot ws;
     ws.timeSeconds = dt;
-    ws.walkableBounds = QRect(0, 0, 800, 600);
+    ws.walkableBounds = bounds;
 
     // fighterAI->sense(ss, os, ws);
     // fighterAI->update();
 
-    // In your tick:
-    fighter->update(dt, platforms, QRect(0, 0, 800, 600));
+    // Opponent movement
+    fighter->update(dt, platforms, bounds);
 
-    // move enemies
-    checkCollisions();
+    // Collisions
+    pellsBawl.checkCollisions(platforms, bounds);
     checkEnemyCollisions();
 
     update(); // Repaint the widget
 }
 
 void Platformer::updatePlayerPosition() {
-    // Handle horizontal movement
-    if (isMovingLeft) {
-        velocityX = -std::max(0.1, std::min(5.0, -velocityX * 1.25));
-    } else if (isMovingRight) {
-        velocityX = std::max(0.1, std::min(5.0, velocityX * 1.25));
-    } else {
-        velocityX *= 0.95;
-    }
-
-    m_playbackRate = qAbs(velocityX/2);
-
-    // Apply gravity and jump velocity
-    if (isJumping || isFalling) {
-        velocityY += gravity;
-    }
-    if(velocityY > 0) isFalling = true; else isFalling = false;
-
-    // Update player position
-    playerRect.moveLeft(playerRect.left() + velocityX);
-    playerRect.moveTop(playerRect.top() + velocityY);
 }
 
-void Platformer::checkCollisions() {
-    bool onGround = false;
-    for (const Platform &platform : platforms) {
-        if (playerRect.intersects(platform.rect)) {
-            // Collision with ground or other platform
-            // if (playerRect.bottom() <= platform.rect.top() && playerRect.bottom() >= platform.rect.top() - velocityY) {
-            //     playerRect.moveBottom(platform.rect.top());
-            if (isFalling) {
-                isJumping = false;
-                isFalling = false;
-                velocityY = 0;
-                onGround = true;
-                playerRect.moveBottom(platform.rect.top());
-            }
-        }
-    }
+// void Platformer::checkCollisions() {
+//     bool onGround = false;
+//     for (const Platform &platform : platforms) {
+//         if (playerRect.intersects(platform.rect)) {
+//             // Collision with ground or other platform
+//             // if (playerRect.bottom() <= platform.rect.top() && playerRect.bottom() >= platform.rect.top() - velocityY) {
+//             //     playerRect.moveBottom(platform.rect.top());
+//             if (isFalling) {
+//                 isJumping = false;
+//                 isFalling = false;
+//                 velocityY = 0;
+//                 onGround = true;
+//                 playerRect.moveBottom(platform.rect.top());
+//             }
+//         }
+//     }
 
-    if (!onGround) {
-        isFalling = true;
-    }
+//     if (!onGround) {
+//         isFalling = true;
+//     }
 
-    QRectF sceneRect = rect();
-    if (!sceneRect.contains(playerRect)) {
-        playerRect.moveTop(qMax(sceneRect.top(), playerRect.top()));
-        playerRect.moveBottom(qMin(sceneRect.bottom(), playerRect.bottom()));
-        playerRect.moveLeft(qMax(sceneRect.left(), playerRect.left()));
-        playerRect.moveRight(qMin(sceneRect.right(), playerRect.right()));
-    }
-}
+//     QRectF sceneRect = bounds; //rect();
+//     if (!sceneRect.contains(playerRect)) {
+//         playerRect.moveTop(qMax(sceneRect.top(), playerRect.top()));
+//         playerRect.moveBottom(qMin(sceneRect.bottom(), playerRect.bottom()));
+//         playerRect.moveLeft(qMax(sceneRect.left(), playerRect.left()));
+//         playerRect.moveRight(qMin(sceneRect.right(), playerRect.right()));
+//     }
+// }
 
 void Platformer::loadPlatforms(const QString &filePath) {
     QFile file(filePath);
@@ -423,18 +349,30 @@ void Platformer::loadPlatforms(const QString &filePath) {
 
     QByteArray data = file.readAll();
     QJsonDocument doc = QJsonDocument::fromJson(data);
-    QJsonArray platformArray = doc.object()["platforms"].toArray();
 
-    // Ground platform
-    platforms.append(Platform(0, height() - 50, width(), 50, true));
+    QJsonObject o = doc.object();
+    if(!o.empty()) {
+        QJsonArray a = o["world"].toArray();
+        world.setRect(a.at(0).toInt(), a.at(1).toInt(), a.at(2).toInt(), a.at(3).toInt());
 
-    // Read platforms from the JSON file
-    for (const QJsonValue &value : platformArray) {
-        QJsonObject obj = value.toObject();
-        int x = obj["x"].toInt();
-        int y = obj["y"].toInt();
-        int w = obj["width"].toInt();
-        int h = obj["height"].toInt();
-        platforms.append(Platform(x, y, w, h));
+        a = o["bounds"].toArray();
+        bounds.setRect(a.at(0).toInt(), a.at(1).toInt(), a.at(2).toInt(), a.at(3).toInt());
+
+        ground = o["ground"].toInt(550);
+
+        QJsonArray platformArray = o["platforms"].toArray();
+
+        // Ground platform
+        // platforms.append(Platform(0, height() - 50, width(), 50, true));
+
+        // Read platforms from the JSON file
+        for (const QJsonValue &value : platformArray) {
+            QJsonObject obj = value.toObject();
+            int x = obj["x"].toInt();
+            int y = obj["y"].toInt();
+            int w = obj["width"].toInt();
+            int h = obj["height"].toInt();
+            platforms.append(Platform(x, y, w, h));
+        }
     }
 }

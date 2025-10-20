@@ -182,5 +182,8 @@
         <file>assets/frame_3.png</file>
         <file>assets/frame_4.png</file>
         <file>assets/walk.json</file>
+        <file>assets/splash.png</file>
+        <file>assets/pellsBawl_intro_jingle.wav</file>
+        <file>assets/cookie.qml</file>
     </qresource>
 </RCC>

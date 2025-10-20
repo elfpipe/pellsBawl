@@ -1,8 +1,12 @@
 {
+    "world" : [ 0, 0, 800, 600],
+    "bounds" : [ 0, 0, 800, 600],
+    "ground" : 550,
     "platforms": [
         { "x": 100, "y": 450, "width": 150, "height": 20 },
         { "x": 300, "y": 350, "width": 100, "height": 20 },
         { "x": 500, "y": 250, "width": 200, "height": 20 },
-        { "x": 700, "y": 150, "width": 100, "height": 20 }
+        { "x": 700, "y": 150, "width": 100, "height": 20 },
+        { "x": 0, "y": 550, "width": 800, "height": 50}
     ]
 }
