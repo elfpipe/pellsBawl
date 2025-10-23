@@ -87,7 +87,7 @@ bool Fighter::loadFromJson(const QString& filePath, QString* err){
 }
 
 // ----- Simulation -----
-void Fighter::update(qreal dt, const QVector<Platform>& platforms, const QRectF& worldBounds){
+void Fighter::update(qreal dt, const QVector<Shape>& platforms, const QRectF& worldBounds){
     // Horizontal control
     const qreal speed = (m_action==Action::Crouch ? m_cfg.crouchSpeed : m_cfg.walkSpeed);
     const qreal control = m_onGround? 1.0 : m_cfg.airControl;
@@ -110,7 +110,7 @@ void Fighter::update(qreal dt, const QVector<Platform>& platforms, const QRectF&
     qreal nextFeetY = next.y();
     // Consider world ground as a platform at groundY
     landY = m_cfg.groundY;
-    for(const Platform& p : platforms){
+    for(const Shape& p : platforms){
         const QRectF& r = p.rect;
         // If horizontally over platform and moving down past its top
         if( (feetX+halfW) >= r.left() && (feetX-halfW) <= r.right() ){

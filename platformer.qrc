@@ -1,16 +1,7 @@
 <RCC>
     <qresource prefix="/">
-        <file>assets/character.png</file>
-        <file>assets/platforms.json</file>
-        <file>assets/frame_1.png</file>
-        <file>assets/frame_2.png</file>
         <file>assets/enemy_sad.png</file>
         <file>assets/enemy_happy.png</file>
-        <file>assets/right_hand.png</file>
-        <file>assets/right_foot.png</file>
-        <file>assets/left_hand.png</file>
-        <file>assets/left_foot.png</file>
-        <file>assets/body.png</file>
         <file>assets/alf/alf.hwi</file>
         <file>assets/alf/alf.json</file>
         <file>assets/alf/alf.sprite</file>
@@ -179,11 +170,20 @@
         <file>assets/mt2/victory_3.png</file>
         <file>assets/mt2/victory_4.png</file>
         <file>assets/mt2/wildcard_0.png</file>
-        <file>assets/frame_3.png</file>
+        <file>assets/test.json</file>
+        <file>assets/intro/intro_alt.png</file>
+        <file>assets/intro/pellsBawl_intro_jingle.wav</file>
+        <file>assets/intro/splash.png</file>
+        <file>assets/pb/body.png</file>
+        <file>assets/pb/left_foot.png</file>
+        <file>assets/pb/left_hand.png</file>
+        <file>assets/pb/pellsbawl_heart_cookie_master.png</file>
+        <file>assets/pb/right_foot.png</file>
+        <file>assets/pb/right_hand.png</file>
+        <file>assets/frame_2.png</file>
         <file>assets/frame_4.png</file>
-        <file>assets/walk.json</file>
-        <file>assets/splash.png</file>
-        <file>assets/pellsBawl_intro_jingle.wav</file>
-        <file>assets/cookie.qml</file>
+        <file>assets/parisbg.png</file>
+        <file>assets/parisfg.png</file>
+        <file>assets/parislightpost.png</file>
     </qresource>
 </RCC>

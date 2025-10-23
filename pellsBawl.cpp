@@ -293,7 +293,7 @@ static const char* kAnimJson = R"JSON(
 void PellsBawl::paintWalker(QPainter &p, qreal ground) { //}, QRectF r, bool m_flipHorizontal, const double m_animTime) {
     // shots
     for(auto btw : shots)
-        btw->paintInGameContents(p);
+        btw->paintCookies(p);
 
     p.setRenderHints(QPainter::Antialiasing | QPainter::SmoothPixmapTransform, true);
 
@@ -441,7 +441,7 @@ void PellsBawl::loadAnimation() {
 
     // --- Load PNGs once per part id -----------------------------------------
     for (const auto& id : allIds) {
-        QPixmap pm(":/assets/" + id + ".png");
+        QPixmap pm(":/assets/pb/" + id + ".png");
         m_pixById.insert(id, pm); // (may be null; we validate below)
     }
     m_allPixLoaded = true;

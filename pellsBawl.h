@@ -100,7 +100,9 @@ public:
         path.addEllipse(r);
         p.save(); p.setBrush(g); p.setPen(Qt::NoPen); p.drawPath(path); p.restore();
     }
-
+    void paintHUD(QPainter &p) {
+        if (btw && isCharging()) btw->drawPowerBar(p);
+    }
     bool selectClip(const QString& id) {
         auto it = m_clips.find(id);
         if (it == m_clips.end()) return false;
@@ -125,12 +127,16 @@ public:
             }
 
             // set the playback rate
-            if (!isThrowing)
+            if (std::fabs(velocityX) < 0.01)
+                m_playbackRate = 0.0;
+            else if (!isThrowing)
                 m_playbackRate = qAbs(velocityX/2);
             if (isThrowing)
                 m_playbackRate = 2.0;
             if (isJumping)
                 m_playbackRate = 1.0;
+            if (m_finishAnim)
+                m_playbackRate = 2.0;
 
             // Apply gravity and jump velocity
             if (isJumping || isFalling) {
@@ -143,7 +149,10 @@ public:
             playerRect.moveTop(playerRect.top() + velocityY);
         }
     }
-    bool checkCollisions(QList<Platform> platforms, QRect bounds) {
+
+    bool m_onGround = false;
+
+    bool checkCollisions(QList<Shape> platforms, QRect bounds) {
         bool onGround = false;
         for (auto platform : platforms) {
             if (playerRect.intersects(platform.rect)) {
@@ -154,10 +163,15 @@ public:
                     isJumping = false;
                     canJump = true;
                     isFalling = false;
+                    // isThrowing = false;
                     velocityY = 0;
                     onGround = true;
                     playerRect.moveBottom(platform.rect.top());
-                    selectClip("walk");
+                    // selectClip("walk");
+                    if (!m_onGround) {
+                        m_finishAnim = true;
+                        m_onGround = true;
+                    }
                 }
             }
         }
@@ -191,7 +205,7 @@ public:
             }
         }
 
-        if (m_animDone && m_returnToWalk && !isLoop()) { selectClip("walk"); isThrowing = false; }
+        if (m_animDone && (m_finishAnim || !isLoop())) { selectClip("walk"); isThrowing = false; isJumping = false; m_finishAnim = false; }
 
         for (auto btw : shots) btw->onTick();
     }
@@ -203,7 +217,7 @@ public:
     double velX() { return velocityX; }
     double velY() { return velocityY; }
     double jumping() { return isJumping; }
-    double faceLeft() { return isFacingLeft; }
+    bool faceLeft() { return isFacingLeft; }
     QRectF playerRectangle() { return playerRect; }
 private:
 
@@ -219,6 +233,8 @@ private:
     QString m_activeClipId;
     bool m_useFootCapsule = false;   // read from active clip
     QHash<QString, QPixmap> m_pixById; // loaded once per part id
+
+    bool m_finishAnim = false;
 
 private:
     QVector<Track> m_tracks;
@@ -281,34 +297,44 @@ public:
     // pöellsBawll
     void keyLeft() {
         isMovingLeft = true;
+        isMovingRight = false;
         isFacingLeft = true;
     }
     void keyRight() {
+        isMovingLeft = false;
         isMovingRight = true;
         isFacingLeft = false;
     }
     void keyJump() {
         if (canJump) {
+            m_onGround = false;
             if (isJumping) {
                 canJump = false;
-                isJumping = true;
                 velocityY -= doubleJumpVelocity;
                 selectClip("jump_spin");
             } else {
-                isJumping = true;
                 velocityY = -jumpVelocity;
                 selectClip("jump_straight");
             }
+            isJumping = true;
         }
     }
     void keyThrow() {
+        if (btw) { // must be thrown by release
+            shots.removeAll(btw);
+            btw = nullptr;
+        }
         btw = new BezierThrowWidget(this);
-        QObject::connect(btw, &BezierThrowWidget::hasHit, this, [&](){
-            shots.removeAll(sender());
-        });
-        shots.append(btw);
-        btw->handleSpaceDown();
+        if (btw) {
+            QObject::connect(btw, &BezierThrowWidget::hasHit, this, [&](){
+                shots.removeAll(sender());
+            });
+            shots.append(btw);
+            btw->handleSpaceDown();
+        }
     }
+    bool isCharging() { return btw && btw->isCharging(); }
+
     void release(){
         isMovingLeft = false;
         isMovingRight = false;

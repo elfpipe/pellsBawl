@@ -165,7 +165,7 @@ public:
     void victory(){ triggerOneShot(Action::Victory, 4000, false); }
 
     // ----- Simulation -----
-    void update(qreal dt, const QVector<Platform>& platforms, const QRectF& worldBounds);
+    void update(qreal dt, const QVector<Shape>& platforms, const QRectF& worldBounds);
     // ----- Painting -----
     void paint(QPainter* p) const;
 signals:

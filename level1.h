@@ -67,8 +67,10 @@ protected:
     void timerEvent(QTimerEvent *event) override; // Slot for handling the timer event
 
 private:
-    void loadPlatforms(const QString &filePath);
+    void loadWorld(const QString &filePath);
+    void doFighterSense(double dt);
     void checkEnemyCollisions();
+    void doScrolling(double dt);
 
 // private:
 //     void mt2KeyPress(QKeyEvent *event);
@@ -88,10 +90,16 @@ private:
     PellsBawl pellsBawl;
     QList<Enemy> enemies;
 
-    QList<Platform> platforms;
-    QRect world;
-    QRect bounds;
-    qint32 ground;
+    QList<Shape> shapes;
+    QList<Image> images;
+    QRectF world = {0, 0, 1800, 1200};
+    QRectF window = {0, 0, 800, 600};
+    QRectF bounds = {0, 0, 800, 600};
+    qint32 ground = 550;
+
+    qreal scrollAcc = 0.01;
+
+    QPixmap background, middleground, foreground;
 
     Fighter *fighter;
     FighterAI *fighterAI;

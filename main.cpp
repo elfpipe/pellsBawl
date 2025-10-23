@@ -14,7 +14,7 @@ int main(int argc, char *argv[]) {
 
     QScreen *screen = QApplication::screens().size() > 1 ? QApplication::screens().at(1) : QApplication::primaryScreen();
 
-    Title title(screen, QPixmap(":/assets/splash.png"));
+    Title title(screen, QPixmap(":/assets/intro/splash.png"));
     title.show();
     title.activateWindow();
 

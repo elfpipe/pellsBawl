@@ -33,12 +33,13 @@ public:
         resize(920, 560);
         setFocusPolicy(Qt::StrongFocus);
 
+#if 0
         // Load cookie image (optional). If not found, a procedural cookie is drawn.
-        m_cookie = QImage("pellsbawl_heart_cookie_master.png");
+        m_cookie = QImage(":/assets/pb/pellsbawl_heart_cookie_master.png");
         if (!m_cookie.isNull())
             m_cookie = m_cookie.scaled(int(m_spriteSize), int(m_spriteSize), Qt::KeepAspectRatio, Qt::SmoothTransformation);
         m_useImage = !m_cookie.isNull();
-
+#endif
         // Timer always on (drives charge + flight)
         // connect(&m_timer, &QTimer::timeout, this, &BezierThrowWidget::onTick);
         // m_timer.start(m_dtMs);
@@ -46,6 +47,8 @@ public:
         resetEndpoints();
         resetPose();
     }
+
+    bool isCharging() { return m_state == State::Charging; }
 
     void handleSpaceDown() {
         if (m_state == State::Idle) {
@@ -61,22 +64,23 @@ public:
         }
     }
 
-    void paintInGameContents(QPainter &p) {
-        // cookie sprite at m_pos with rotation m_angleDeg
-        p.save();
-        p.translate(m_origin);
-        if(m_facingLeft) p.scale(-1, 1);
-        p.translate(m_pos);
-         p.rotate(m_angleDeg);
-        // const QRectF dst(-m_spriteSize/2.0, -m_spriteSize/2.0, m_spriteSize, m_spriteSize);
-        //  p.drawRect(dst);
-        //  if (m_useImage) p.drawImage(dst, m_cookie);
-        //  else
-            drawHeartCookie(p, QSizeF(m_spriteSize, m_spriteSize));
-        p.restore();
-
+    void paintCookies(QPainter &p) {
+        if(m_state == State::Flying) {
+            // cookie sprite at m_pos with rotation m_angleDeg
+            p.save();
+            p.translate(m_origin);
+            if(m_facingLeft) p.scale(-1, 1);
+            p.translate(m_pos);
+             p.rotate(m_angleDeg);
+            // const QRectF dst(-m_spriteSize/2.0, -m_spriteSize/2.0, m_spriteSize, m_spriteSize);
+            //  p.drawRect(dst);
+            //  if (m_useImage) p.drawImage(dst, m_cookie);
+            //  else
+                drawHeartCookie(p, QSizeF(m_spriteSize, m_spriteSize));
+            p.restore();
+        }
         // Power bar
-        drawPowerBar(p);
+        // if (m_state == State::Charging) drawPowerBar(p);
     }
 
 protected:
@@ -336,10 +340,16 @@ private:
         p.restore();
     }
 
+public:
     void drawPowerBar(QPainter& p) {
-        const int x = 10, y = 50, w = 280, h = 16;
+        p.save();
+        p.resetTransform();
+
+        double scale = p.window().width() / 800.0;
+        const double x = 10.0 * scale, y = 50 * scale, w = 280 * scale, h = 16 * scale;
+
         // frame
-        p.setPen(QPen(QColor("#475569")));
+        p.setPen(QPen(QColor("#475569"), 1.0 * scale));
         p.setBrush(QColor(0,0,0,40));
         p.drawRoundedRect(QRectF(x, y, w, h), 4, 4);
 
@@ -361,9 +371,11 @@ private:
 
         // percent text
         p.setPen(QColor("#cbd5e1"));
-        p.setFont(QFont("Monospace", 9, QFont::DemiBold));
+        p.setFont(QFont("Monospace", 9 * scale, QFont::DemiBold));
         QString pct = QString("%1%").arg(int(std::round(fill01*100)));
         p.drawText(QRect(x, y-1, w, h), Qt::AlignCenter, pct);
+
+        p.restore();
     }
 
     // ---------------- tiny math utils ----------------

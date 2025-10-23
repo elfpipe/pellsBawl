@@ -279,18 +279,18 @@ public:
 
         if(onFace) onFace(i.dir);
         switch(i.action){
-        case Action::Stand: qDebug() << "Stand"; if(onStand) onStand(); break;
+        case Action::Stand: if(onStand) onStand(); break;
         case Action::Walk:  if(onWalk) onWalk(i.dir==Dir::Left? -1.0 : 1.0); break;
-        case Action::Crouch:qDebug() << "Crouch"; if(onCrouch) onCrouch(); break;
-        case Action::Jump:  qDebug() << "Jump"; if(onJump) onJump(); break;
-        case Action::Kick:  qDebug() << "Kick"; if(onKick) onKick(); break;
-        case Action::SlowPunch: qDebug() << "SlowPunch"; if(onSlowPunch) onSlowPunch(); break;
-        case Action::CrouchPunch: qDebug() << "CrouchPunch"; if(onCrouchPunch) onCrouchPunch(); break;
-        case Action::AirKick: qDebug() << "AirKick"; if(onAirKick) onAirKick(); break;
-        case Action::AirPunch: qDebug() << "AirPunch"; if(onAirPunch) onAirPunch(); break;
-        case Action::CrouchBackflipKick: qDebug() << "BackFlipKick"; if(onBackflipKick) onBackflipKick(); break;
-        case Action::Special: qDebug() << "Special"; if(onSpecial) onSpecial(); break;
-        case Action::Victory: qDebug() << "Victory"; if(onVictory) onVictory(); break;
+        case Action::Crouch: if(onCrouch) onCrouch(); break;
+        case Action::Jump:   if(onJump) onJump(); break;
+        case Action::Kick:   if(onKick) onKick(); break;
+        case Action::SlowPunch:  if(onSlowPunch) onSlowPunch(); break;
+        case Action::CrouchPunch: if(onCrouchPunch) onCrouchPunch(); break;
+        case Action::AirKick:  if(onAirKick) onAirKick(); break;
+        case Action::AirPunch:  if(onAirPunch) onAirPunch(); break;
+        case Action::CrouchBackflipKick:  if(onBackflipKick) onBackflipKick(); break;
+        case Action::Special:  if(onSpecial) onSpecial(); break;
+        case Action::Victory:  if(onVictory) onVictory(); break;
         }
     }
 
