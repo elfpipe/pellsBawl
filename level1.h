@@ -24,8 +24,8 @@ struct Enemy {
     Enemy(int x, int y, int w, int h)
         : rect(x, y, w, h), isDefeated(false), movingLeft(true), velocityX(2) {
         // Load the enemy images
-        alivePixmap.load(":/assets/enemy_sad.png");   // Image when alive
-        defeatedPixmap.load(":/assets/enemy_happy.png"); // Image when defeated
+        alivePixmap.load(":/assets/testlevel/enemy_sad.png");   // Image when alive
+        defeatedPixmap.load(":/assets/testlevel/enemy_happy.png"); // Image when defeated
         
     }
 
@@ -43,6 +43,13 @@ struct Enemy {
             }
         }
     }
+};
+
+struct ParallaxLayer {
+    QPixmap image;
+    QPointF off = {0.0, 0.0}, rate = {1.0,1.0};
+    double scale = 1.0;
+    int z = -2;
 };
 
 #define USE_OPENGL 1
@@ -67,11 +74,11 @@ protected:
     void timerEvent(QTimerEvent *event) override; // Slot for handling the timer event
 
 private:
-    void loadWorld(const QString &filePath);
+    void loadWorld(const QString &file, const QString &path);
     void doFighterSense(double dt);
     void checkEnemyCollisions();
     void doScrolling(double dt);
-
+    void drawAnimationLayer(QPainter &p, ParallaxLayer &l, QPointF &scrollOffset);
 // private:
 //     void mt2KeyPress(QKeyEvent *event);
 //     void mt2TestKeyPress(QKeyEvent *event);
@@ -99,7 +106,7 @@ private:
 
     qreal scrollAcc = 0.01;
 
-    QPixmap background, middleground, foreground;
+    QList<ParallaxLayer> animLayers;
 
     Fighter *fighter;
     FighterAI *fighterAI;

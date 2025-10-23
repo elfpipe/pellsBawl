@@ -1,0 +1,12 @@
+<RCC>
+    <qresource prefix="/">
+    <file>assets/testlevel/enemy_happy.png</file>
+    <file>assets/testlevel/enemy_sad.png</file>
+    <file>assets/testlevel/frame_2.png</file>
+    <file>assets/testlevel/frame_4.png</file>
+    <file>assets/testlevel/parisbg.png</file>
+    <file>assets/testlevel/parisfg.png</file>
+    <file>assets/testlevel/parislightpost.png</file>
+    <file>assets/testlevel/test.json</file>
+    </qresource>
+</RCC>

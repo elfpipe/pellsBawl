@@ -19,7 +19,7 @@ Level1::Level1(QWidget *parent)
 #endif
 {
     // Load platforms from a JSON file
-    loadWorld(":/assets/test.json");
+    loadWorld("test.json", ":/assets/testlevel/");
 
     fighter = new Fighter(this);
     fighter->loadFromJson(":/assets/mt2/mt2.json");
@@ -105,6 +105,12 @@ void drawImage(QPainter& p, const Image& s){
     p.restore();
 }
 
+void Level1::drawAnimationLayer(QPainter &p, ParallaxLayer &a, QPointF &scrollOffset) {
+    p.drawPixmap(a.scale == 0 ? window.toRect() : QRectF(QPointF(world.left() + a.off.x() - scrollOffset.x() * a.rate.x(),
+                                                                 world.bottom() - a.off.y() - scrollOffset.y() * a.rate.y() - a.image.rect().height() * a.scale),
+                                                         a.scale == 0.0 ? window.size() : a.image.rect().size() * a.scale).toRect(), a.image);
+}
+
 void Level1::paintEvent(QPaintEvent *) {
     QPainter painter(this);
 
@@ -124,9 +130,14 @@ void Level1::paintEvent(QPaintEvent *) {
 #endif
 
     // draw parallax bg
-    QPointF scrollOffset = (window.topLeft() - world.topLeft());
-    painter.drawPixmap(window, background, QRectF(background.rect().topLeft() + scrollOffset * 0.3, background.rect().size()));
-    painter.drawPixmap(window, middleground, QRectF(middleground.rect().topLeft() + scrollOffset * 0.7, middleground.rect().size()));
+    QPointF scrollOffset = window.topLeft() - world.topLeft();
+
+    for (auto b : animLayers) if (b.z <= -3) drawAnimationLayer(painter, b, scrollOffset);
+    for (auto b : animLayers) if (b.z <= -2) drawAnimationLayer(painter, b, scrollOffset);
+    for (auto b : animLayers) if (b.z <= -1) drawAnimationLayer(painter, b, scrollOffset);
+
+    // painter.drawPixmap(window, background, QRectF(bgScrollOff + scrollOffset * bgScrollRate, background.rect().size()));
+    // painter.drawPixmap(window, middleground, QRectF(mdScrollOff + scrollOffset * mdScrollRate, middleground.rect().size()));
 
     painter.setBrush(Qt::blue);
 
@@ -152,8 +163,8 @@ void Level1::paintEvent(QPaintEvent *) {
     // Draw foreground
     for (const auto& s : images) drawImage(painter, s);
 
-    // Draw very foreground artifacts
-    painter.drawPixmap(QRectF(QPointF(900.0 - scrollOffset.x() * 1.7, 400 - scrollOffset.y() * 1.1), 0.9 * foreground.rect().size() * world.height() / foreground.rect().height()), foreground, foreground.rect());
+    // Draw very foreground artifacts (parallax)
+    for (auto &b : animLayers) if (b.z > 0) drawAnimationLayer(painter, b, scrollOffset);
 
     // Draw HUD
     if (pellsBawl.isCharging()) pellsBawl.paintHUD(painter);
@@ -235,7 +246,7 @@ void Level1::doFighterSense(double dt) {
 
 void Level1::doScrolling(double dt) {
     QPointF center = fighter->pos() + (pellsBawl.playerRectangle().center() - fighter->pos()) / 2.0;
-    QPointF scrollV = (center - window.center()) * 1.0 * dt;
+    QPointF scrollV = (center - QPointF(window.center().x(), window.center().y() + window.height() / 3.0)) * 1.0 * dt;
     // window.moveTo(window.topLeft() + scrollV);
     window.moveCenter(window.center() + scrollV);
 
@@ -291,7 +302,7 @@ QList<Shape> loadShapes(const QJsonDocument& doc){
     return shapes;
 }
 
-QList<Image> loadImages(const QJsonDocument& doc){
+QList<Image> loadImages(const QJsonDocument& doc, const QString &path){
     QList<Image> images;
     QJsonObject root = doc.object();
     QString basePath = root.value("basePath").toString(":assets/");
@@ -304,14 +315,18 @@ QList<Image> loadImages(const QJsonDocument& doc){
         s.tf.rotation=o.value("rotation").toDouble(0);
         s.tf.scaleX=o.value("scaleX").toDouble(1.0);
         s.tf.scaleY=o.value("scaleY").toDouble(1.0);
-        if (!s.img.load(basePath + s.path)) if(!s.img.load(basePath + s.path.split("/").last())) s.img.load(s.path);
+        if (!s.img.load(basePath + s.path))
+            if(!s.img.load(basePath + s.path.split("/").last()))
+                if (!s.img.load(path + s.path))
+                    if(!s.img.load(path + s.path.split("/").last()))
+                        s.img.load(s.path);
         if (!s.img.isNull()) images.push_back(s);
     }
     return images;
 }
 
-void Level1::loadWorld(const QString &filePath) {
-    QFile file(filePath);
+void Level1::loadWorld(const QString &filename, const QString &path) {
+    QFile file(path + filename);
     if (!file.open(QIODevice::ReadOnly)) {
         qWarning("Couldn't open platforms file.");
         return;
@@ -325,15 +340,24 @@ void Level1::loadWorld(const QString &filePath) {
         auto i = root.value("interaction").toArray();
         if(!i.empty()) {
             shapes = loadShapes(doc);
-            images = loadImages(doc);
+            images = loadImages(doc, path);
 
             world = jsonToRect(root.value("world"));
             window = jsonToRect(root.value("window"));
             bounds = world;
 
-            background.load(":/assets/" + root.value("background").toString());
-            middleground.load(":/assets/" + root.value("middleground").toString());
-            foreground.load(":/assets/" + root.value("foreground").toString());
+
+            auto p = root.value("parallax").toArray();
+            for (auto l: p) {
+                ParallaxLayer g;
+                auto o = l.toObject();
+                g.image.load(path + o.value("image").toString());
+                auto a = o.value("off").toArray(); g.off = QPointF(a.at(0).toDouble(0.0), a.at(1).toDouble(0.0));
+                a = o.value("rate").toArray(); g.rate = QPointF(a.at(0).toDouble(0.0), a.at(1).toDouble(0.0));
+                g.scale = o.value("scale").toDouble();
+                g.z = o.value("z").toInt();
+                animLayers.append(g);
+            }
         } else { //legacy
             QJsonArray a = root["world"].toArray();
             world.setRect(a.at(0).toInt(), a.at(1).toInt(), a.at(2).toInt(), a.at(3).toInt());

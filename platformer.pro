@@ -19,7 +19,13 @@ HEADERS=\
     pellsBawl.h \
     platform.h \
     title.h
-RESOURCES=platformer.qrc
+RESOURCES=\
+    alf.qrc \
+    intro.qrc \
+    levelart.qrc \
+    levels.qrc \
+    mt2.qrc \
+    pb.qrc
 CONFIG+=c++17
 
 
