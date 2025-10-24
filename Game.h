@@ -1,5 +1,5 @@
-#ifndef LEVEL1_H
-#define LEVEL1_H
+#ifndef GAME_H
+#define GAME_H
 
 #include <QOpenGLWidget>
 #include <QKeyEvent>
@@ -8,6 +8,12 @@
 #include <QPixmap>
 #include <QList>
 
+#include "qevent.h"
+#include <QEventLoop>
+#include <QMediaPlayer>
+#include <QAudioOutput>
+
+#include <QScreen>
 #include "commander.h"
 #include "pellsBawl.h"
 #include "fighterAI.h"
@@ -54,7 +60,7 @@ struct ParallaxLayer {
 
 #define USE_OPENGL 1
 
-class Level1
+class Game
 #ifdef USE_OPENGL
 : public QOpenGLWidget
 #else
@@ -64,9 +70,21 @@ class Level1
     Q_OBJECT
 
 public:
-    Level1(QWidget *parent = nullptr);
-    ~Level1();
+    Game(QWidget *parent = nullptr);
+    ~Game();
 
+    void pause();
+    void unpause();
+    void level1();
+    void level2();
+    void level3();
+    void level4();
+    void clear(bool pb);
+    void displayGraphics(QPixmap pixmap, bool fill = false);
+    void playJingle(const QString jingle = QString(), bool repeat = false);
+    void stopJingle() { player->stop(); }
+    void playSfx(const QString &sfx);
+    bool waitForPushBlocking(int whichButton = 0, int timeoutMs =-1);
 protected:
     void keyPressEvent(QKeyEvent *event) override;
     // void keyReleaseEvent(QKeyEvent *event) override;
@@ -74,6 +92,7 @@ protected:
     void timerEvent(QTimerEvent *event) override; // Slot for handling the timer event
 
 private:
+
     void loadWorld(const QString &file, const QString &path);
     void doFighterSense(double dt);
     void checkEnemyCollisions();
@@ -89,12 +108,22 @@ private:
 
 //     static int keyControl;
 
-// public slots:
+public slots:
 //     void onCookieTarget(BezierThrowWidget *btw);
+        void action();
+private: signals:
+    void userClick();
 
 private:
+    int pauseId = -1;
 
-    PellsBawl pellsBawl;
+    QPixmap titleGraphics;
+    bool showTitle = false; bool showFullscreen = false;
+
+    QMediaPlayer* player;
+    QAudioOutput* audio;
+
+    PellsBawl *pellsBawl = nullptr;
     QList<Enemy> enemies;
 
     QList<Shape> shapes;
@@ -108,16 +137,16 @@ private:
 
     QList<ParallaxLayer> animLayers;
 
-    Fighter *fighter;
-    FighterAI *fighterAI;
+    Fighter *fighter = nullptr;
+    FighterAI *fighterAI = nullptr;
 
-    IFighterCommander *enemyCommander;
+    IFighterCommander *enemyCommander = nullptr;
 
-    IJoystickCommander *joyCommander;
-    Joystick joystick;
+    IJoystickCommander *joyCommander = nullptr;
+    GameJoystick *joystick;
 
     QElapsedTimer m_clock;
     qint64 m_lastMs = 0;           // for dt calc
 };
 
-#endif // LEVEL1_H
+#endif // GAME_H

@@ -339,8 +339,8 @@ public:
         }
         btw = new BezierThrowWidget(this);
         if (btw) {
-            QObject::connect(btw, &BezierThrowWidget::hasHit, this, [&](Shape *s){
-                qDebug() << "hit:" << (s ? s->id : "bounds");
+            QObject::connect(btw, &BezierThrowWidget::hasHit, this, [&](Shape */*s*/){
+                // qDebug() << "hit:" << (s ? s->id : "bounds");
                 shots.removeAll(sender());
             });
             shots.append(btw);

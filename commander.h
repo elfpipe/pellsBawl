@@ -11,7 +11,8 @@ public:
     virtual ~IJoystickCommander() = default;
     virtual bool applyCombo(QVector<Combo::Key> combo) = 0;
     virtual void releaseLeftRight() = 0;
-    virtual void releasePowerButton() {};
+    virtual void releasePowerButton() {}
+    virtual void releaseDownButton() {}
 };
 
 #endif // COMMANDER_H

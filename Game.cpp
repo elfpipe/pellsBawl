@@ -1,4 +1,4 @@
-#include "level1.h"
+#include "Game.h"
 #include <QPainter>
 #include <QKeyEvent>
 #include <QFile>
@@ -6,7 +6,11 @@
 #include <QJsonObject>
 #include <QJsonArray>
 
+#include <QSoundEffect>
+#include <QJoysticks.h>
+
 #include "pellsBawl.h"
+#include "title.h"
 
 #include <QDebug>
 
@@ -16,68 +20,122 @@
 ],
 #endif
 
-Level1::Level1(QWidget *parent)
+Game::Game(QWidget *parent)
 #ifdef USE_OPENGL
 : QOpenGLWidget(parent)
 #else
 : QWidget(parent)
 #endif
 {
+    audio = new QAudioOutput(this);
+    player = new QMediaPlayer(this);
+    player->setAudioOutput(audio);
+
+    joystick = new GameJoystick(this);
+
+    QTimer *oneShot = new QTimer(this);
+    oneShot->setSingleShot(true);
+    connect(oneShot, &QTimer::timeout, this, &Game::action);
+    oneShot->start(50);
+}
+
+void Game::displayGraphics(QPixmap pixmap, bool fill) {
+    pause(); titleGraphics = pixmap; showTitle = true; showFullscreen = fill; update();
+}
+
+void Game::playJingle(QString jingle, bool repeat) {
+    if(!jingle.isEmpty()) {
+        // Local file or qrc (see below)
+        player->setSource(QUrl(jingle));
+        audio->setVolume(0.8);                 // 0.0 .. 1.0
+        player->setLoops(repeat ? QMediaPlayer::Infinite : QMediaPlayer::Once);  // or QMediaPlayer::Infinite for bg music
+        player->play();
+    }
+}
+
+void Game::playSfx(const QString &sfx){
+    QSoundEffect fx;
+    fx.setSource(QUrl(sfx));
+    fx.setLoopCount(1);         // or QSoundEffect::Infinite
+    fx.setVolume(0.35f);
+}
+void Game::action() {
+    showFullScreen();
+    displayGraphics(QPixmap(":/assets/intro/splash.png"));
+    playJingle("qrc:/assets/intro/pellsBawl_intro_jingle.wav");
+    joystick->waitForPush();
+    showTitle = false;
+    level1();
+}
+
+void Game::level1()
+{
     // Load platforms from a JSON file
     loadWorld("level1.json", ":/assets/level1/");
 
-    fighter = new Fighter(this);
-    fighter->loadFromJson(":/assets/mt2/mt2.json");
-
-    joyCommander = new PellsBawlCommander(this, &pellsBawl);
-    enemyCommander = new FighterCommander(this, fighter);
-
-    fighterAI = new FighterAI(this);
-    fighterAI->setCommander(enemyCommander);
-
-    joystick.setCommander(joyCommander);
+    pellsBawl = new PellsBawl(this);
+    joyCommander = new PellsBawlCommander(this, pellsBawl);
+    joystick->setCommander(joyCommander);
 
     // Create enemies and assign them to platforms
     enemies.append(Enemy(110, 412, 40, 40));  // Example enemy 1 on platform
     enemies.append(Enemy(310, 312, 40, 40));  // Example enemy 2 on platform
 
-    // gameTimer = new QTimer(this);
-    // connect(gameTimer, &QTimer::timeout, this, &Platformer::doTimerEvent); // Connect the timer to the doTimerEvent slot
-    // gameTimer->start(16); // Approximately 60 FPS
+    unpause();
+}
 
-    startTimer(1000/60); // ~60 FPS
+void Game::level2()
+{
+    pause(); clear(false); // keep pb
+
+    //load artifacts for level 2...
+}
+
+void Game::level3()
+{
+    pause(); clear(false); // keep pb
+
+    // load level data.... (todo)
+
+    fighter = new Fighter(this);
+    fighter->loadFromJson(":/assets/mt2/mt2.json");
+
+    enemyCommander = new FighterCommander(this, fighter);
+
+    fighterAI = new FighterAI(this);
+    fighterAI->setCommander(enemyCommander);
+
+    unpause();
+}
+
+void Game::unpause() {
+    pauseId = startTimer(1000/60); // ~60 FPS
     m_clock.start();
 
     m_lastMs = m_clock.elapsed();
 }
 
-Level1::~Level1() {}
+void Game::pause() {
+    if (pauseId >= 0) killTimer(pauseId);
+}
 
-// void Platformer::mt2KeyPress(QKeyEvent *event) {
-//     // MT2
-//     if (event->key() == Qt::Key_Left) {
-//         combo.key(Combo::LEFT, m_lastMs);
-//     }
-//     if (event->key() == Qt::Key_Right) {
-//         combo.key(Combo::RIGHT, m_lastMs);
-//     }
-//     if (event->key() == Qt::Key_Down) {
-//         combo.key(Combo::DOWN, m_lastMs);
-//     }
-//     if (event->key() == Qt::Key_Up) {
-//         combo.key(Combo::UP, m_lastMs);
-//     }
-//     if (event->key() == Qt::Key_Comma) {
-//         combo.key(Combo::FIRE1, m_lastMs);
-//     }
-//     if (event->key() == Qt::Key_Period) {
-//         combo.key(Combo::FIRE2, m_lastMs);
-//     }
+void Game::clear(bool pb){
+    pause();
+    if (pb) delete pellsBawl;
+    if (fighter) delete fighter;
+    if (joyCommander) delete joyCommander;
+    if (enemyCommander) delete enemyCommander;
+    if (fighterAI) delete fighterAI;
+    enemies.clear();
+    shapes.clear();
+    images.clear();
 
-//     if(commander->applyCombo(combo.getCurrent())) combo.resetCurrent();
-// }
+    animLayers.clear();
+}
 
-void Level1::keyPressEvent(QKeyEvent *event) {
+Game::~Game() { clear(true); }
+
+void Game::keyPressEvent(QKeyEvent *event) {
     if (event->key() == Qt::Key_Escape) close();
 }
 
@@ -110,14 +168,20 @@ void drawImage(QPainter& p, const Image& s){
     p.restore();
 }
 
-void Level1::drawAnimationLayer(QPainter &p, ParallaxLayer &a, QPointF &scrollOffset) {
+void Game::drawAnimationLayer(QPainter &p, ParallaxLayer &a, QPointF &scrollOffset) {
     p.drawPixmap(a.scale == 0 ? window.toRect() : QRectF(QPointF(world.left() + a.off.x() - scrollOffset.x() * a.rate.x(),
                                                                  world.bottom() - a.off.y() - scrollOffset.y() * a.rate.y() - a.image.rect().height() * a.scale),
                                                          a.scale == 0.0 ? window.size() : a.image.rect().size() * a.scale).toRect(), a.image);
 }
 
-void Level1::paintEvent(QPaintEvent *) {
+void Game::paintEvent(QPaintEvent *) {
     QPainter painter(this);
+
+    if (showTitle) {
+        if (showFullscreen) painter.drawPixmap(painter.window(), titleGraphics);
+        else painter.drawPixmap((rect().bottomRight() - titleGraphics.rect().bottomRight()) / 2, titleGraphics);
+        return;
+    }
 
     // Set the world rectangle (logical coordinates)
     painter.setWindow(window.toRect()); //world
@@ -159,11 +223,10 @@ void Level1::paintEvent(QPaintEvent *) {
     }
 
     // This includes shots and shadow
-    pellsBawl.paintWalker(painter, ground); //, playerRect, turningLeft, m_animTime); // Draw player character
-
+    if (pellsBawl) pellsBawl->paintWalker(painter, ground); //, playerRect, turningLeft, m_animTime); // Draw player character
 
     // Fighter (MT2)
-    // fighter->paint(&painter);
+    if (fighter) fighter->paint(&painter);
 
     // Draw foreground
     for (const auto& s : images) drawImage(painter, s);
@@ -172,7 +235,7 @@ void Level1::paintEvent(QPaintEvent *) {
     for (auto &b : animLayers) if (b.z > 0) drawAnimationLayer(painter, b, scrollOffset);
 
     // Draw HUD
-    if (pellsBawl.isCharging()) pellsBawl.paintHUD(painter);
+    if (pellsBawl && pellsBawl->isCharging()) pellsBawl->paintHUD(painter);
 
     // debug
     // painter.setPen(QColor(255,255,255,180));
@@ -183,8 +246,8 @@ void Level1::paintEvent(QPaintEvent *) {
     painter.restore();
 }
 
-void Level1::checkEnemyCollisions() {
-    QRectF rect = pellsBawl.playerRectangle();
+void Game::checkEnemyCollisions() {
+    QRectF rect = pellsBawl->playerRectangle();
     for (Enemy &enemy : enemies) {
         if (rect.intersects(enemy.rect)) {
             if (!enemy.isDefeated) {
@@ -232,13 +295,13 @@ void Level1::checkEnemyCollisions() {
 //     qreal timeSeconds = 0.0;  // world time for seeded randomness
 // };
 
-void Level1::doFighterSense(double dt) {
+void Game::doFighterSense(double dt) {
     // Opponent AI
     struct OpponentSnapshot os;
-    os.pos = pellsBawl.playerRectangle().center();
-    os.vel = QPointF(pellsBawl.velX(), pellsBawl.velY());
-    os.onGround = !pellsBawl.jumping();
-    os.facing = pellsBawl.faceLeft() ? Dir::Left : Dir::Right;
+    os.pos = pellsBawl->playerRectangle().center();
+    os.vel = QPointF(pellsBawl->velX(), pellsBawl->velY());
+    os.onGround = !pellsBawl->jumping();
+    os.facing = pellsBawl->faceLeft() ? Dir::Left : Dir::Right;
 
     struct SelfSnapshot ss = { fighter->pos(), fighter->vel(), fighter->onGround(), fighter->facing() };
 
@@ -249,10 +312,9 @@ void Level1::doFighterSense(double dt) {
     fighterAI->sense(ss, os, ws);
 }
 
-void Level1::doScrolling(double dt, bool twoPlayer = false) {
-    QPointF center = twoPlayer ? fighter->pos() + (pellsBawl.playerRectangle().center() - fighter->pos()) / 2.0 : pellsBawl.playerRectangle().center();
+void Game::doScrolling(double dt, bool twoPlayer = false) {
+    QPointF center = twoPlayer ? fighter->pos() + (pellsBawl->playerRectangle().center() - fighter->pos()) / 2.0 : pellsBawl->playerRectangle().center();
     QPointF scrollV = (center - QPointF(window.center().x(), window.center().y() + window.height() / 3.0)) * 1.0 * dt;
-    // window.moveTo(window.topLeft() + scrollV);
     window.moveCenter(window.center() + scrollV);
 
     QRectF sceneRect = bounds; //rect();
@@ -264,27 +326,31 @@ void Level1::doScrolling(double dt, bool twoPlayer = false) {
     }
 }
 
-void Level1::timerEvent(QTimerEvent *) {
+void Game::timerEvent(QTimerEvent *) {
     qint64 now = m_clock.elapsed();
     double dt = (now - m_lastMs) / 1000.0;
     m_lastMs = now;
 
-    joystick.updateTime(now);
+    joystick->updateTime(now);
 
     // pellsBawl
-    pellsBawl.tick(dt);
+    if (pellsBawl) pellsBawl->tick(dt);
 
-    doFighterSense(dt);
-    fighterAI->update();
+    if (fighterAI) {
+        doFighterSense(dt);
+        fighterAI->update();
+    }
 
     // // Opponent movement
-    fighter->update(dt, shapes, bounds);
+    if (fighter) fighter->update(dt, shapes, bounds);
 
     // Collisions
-    pellsBawl.checkCollisions(shapes, bounds);
-    checkEnemyCollisions();
+    if (pellsBawl) {
+        pellsBawl->checkCollisions(shapes, bounds);
+        checkEnemyCollisions();
+    }
 
-    doScrolling(dt);
+    if (pellsBawl) doScrolling(dt);
 
     update(); // Repaint the widget
 }
@@ -330,7 +396,7 @@ QList<Image> loadImages(const QJsonDocument& doc, const QString &path){
     return images;
 }
 
-void Level1::loadWorld(const QString &filename, const QString &path) {
+void Game::loadWorld(const QString &filename, const QString &path) {
     QFile file(path + filename);
     if (!file.open(QIODevice::ReadOnly)) {
         qWarning("Couldn't open platforms file.");

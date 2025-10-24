@@ -1,24 +1,22 @@
 QT=widgets openglwidgets
 QT += multimedia
 SOURCES=main.cpp \
+    Game.cpp \
     combo.cpp \
     fighter.cpp \
     fighterAI.cpp \
     joystick.cpp \
-    level1.cpp \
-    pellsBawl.cpp \
-    title.cpp
+    pellsBawl.cpp
 HEADERS=\
+    Game.h \
     bezier.h \
     combo.h \
     commander.h \
     fighter.h \
     fighterAI.h \
     joystick.h \
-    level1.h \
     pellsBawl.h \
-    platform.h \
-    title.h
+    platform.h
 RESOURCES=\
     alf.qrc \
     intro.qrc \
