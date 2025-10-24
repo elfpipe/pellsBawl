@@ -1,0 +1,7 @@
+<RCC>
+    <qresource prefix="/">
+        <file>assets/level1/landscape.jpg</file>
+        <file>assets/level1/level1.json</file>
+        <file>assets/level1/platform1.png</file>
+    </qresource>
+</RCC>

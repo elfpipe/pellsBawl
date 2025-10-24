@@ -77,7 +77,7 @@ private:
     void loadWorld(const QString &file, const QString &path);
     void doFighterSense(double dt);
     void checkEnemyCollisions();
-    void doScrolling(double dt);
+    void doScrolling(double dt, bool twoPlayer);
     void drawAnimationLayer(QPainter &p, ParallaxLayer &l, QPointF &scrollOffset);
 // private:
 //     void mt2KeyPress(QKeyEvent *event);

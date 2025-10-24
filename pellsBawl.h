@@ -115,6 +115,8 @@ public:
         return true;
     }
 
+    void setGravity(double newGravity) { gravity = newGravity; }
+
     void updatePlayerPosition() {
         {
             // Handle horizontal movement
@@ -152,22 +154,30 @@ public:
 
     bool m_onGround = false;
 
-    bool checkCollisions(QList<Shape> platforms, QRect bounds) {
+    bool checkCollisions(QList<Shape> platforms, QRectF &bounds) {
         bool onGround = false;
         for (auto platform : platforms) {
             if (playerRect.intersects(platform.rect)) {
-                // Collision with ground or other platform
-                // if (playerRect.bottom() <= platform.rect.top() && playerRect.bottom() >= platform.rect.top() - velocityY) {
-                //     playerRect.moveBottom(platform.rect.top());
+                double groundX = platform.rect.top();
+                if (platform.shape == Shape::TriLeft) {
+                    QLineF slope = { platform.rect.bottomLeft(), platform.rect.topRight() };
+                    QLineF toPlayer = { platform.rect.bottomLeft(), QPointF(playerRect.center().x(), playerRect.bottom()) };
+                    if (slope.angle() < toPlayer.angle())
+                        continue;
+                    groundX = platform.rect.bottom() + (slope.dy()/slope.dx()) * (playerRect.center().x() - platform.rect.left());
+                }
+                if (platform.shape == Shape::TriRight) {
+                    QLineF slope = { platform.rect.topLeft(), platform.rect.bottomRight() };
+                    QLineF toPlayer = { platform.rect.topLeft(), QPointF(playerRect.center().x(), playerRect.bottom()) };
+                    if (slope.angle() < toPlayer.angle())
+                        continue;
+                    groundX = platform.rect.top() + (slope.dy()/slope.dx()) * (playerRect.center().x() - platform.rect.left());
+                }
                 if (isFalling) {
-                    isJumping = false;
-                    canJump = true;
-                    isFalling = false;
-                    // isThrowing = false;
+                    isJumping = false; canJump = true; isFalling = false;
                     velocityY = 0;
                     onGround = true;
-                    playerRect.moveBottom(platform.rect.top());
-                    // selectClip("walk");
+                    playerRect.moveBottom(groundX); //platform.rect.top());
                     if (!m_onGround) {
                         m_finishAnim = true;
                         m_onGround = true;
@@ -187,6 +197,9 @@ public:
             playerRect.moveLeft(qMax(sceneRect.left(), playerRect.left()));
             playerRect.moveRight(qMin(sceneRect.right(), playerRect.right()));
         }
+
+        for (auto btw : shots) btw->checkCollisions(bounds, platforms);
+
         return onGround;
     }
     void tick(double dt) {
@@ -326,7 +339,8 @@ public:
         }
         btw = new BezierThrowWidget(this);
         if (btw) {
-            QObject::connect(btw, &BezierThrowWidget::hasHit, this, [&](){
+            QObject::connect(btw, &BezierThrowWidget::hasHit, this, [&](Shape *s){
+                qDebug() << "hit:" << (s ? s->id : "bounds");
                 shots.removeAll(sender());
             });
             shots.append(btw);
@@ -351,14 +365,6 @@ public:
         }
     }
 
-    // if (event->key() == Qt::Key_J) {
-    //     playerAnim.selectClip("jump_straight");
-    // }
-    // if (event->key() == Qt::Key_S) {
-    //     playerAnim.selectClip("jump_spin");
-    // }
-
-
 private:
     QRectF playerRect;
 
@@ -370,9 +376,9 @@ private:
     bool isThrowing = false;
     bool canJump = true;
 
-    int jumpVelocity = 15.0;
-    int doubleJumpVelocity = 25.0;
-    int gravity = 1.0;
+    double jumpVelocity = 15.0;
+    double doubleJumpVelocity = 25.0;
+    double gravity = 0.7;
     double velocityX = 0.0;
     double velocityY = 0.0;
 

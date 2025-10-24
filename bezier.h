@@ -4,6 +4,7 @@
 #include <QtWidgets>
 #include <cmath>
 
+#include "platform.h"
 // =========================== Bézier helpers ===========================
 static inline QPointF bezierPoint(double t, const QPointF& P0, const QPointF& P1, const QPointF& P2) {
     const double u = 1.0 - t;
@@ -48,6 +49,8 @@ public:
         resetPose();
     }
 
+    void setGlobalScale(double globalScale = 1.0) { m_globalScale = globalScale; }
+
     bool isCharging() { return m_state == State::Charging; }
 
     void handleSpaceDown() {
@@ -71,12 +74,8 @@ public:
             p.translate(m_origin);
             if(m_facingLeft) p.scale(-1, 1);
             p.translate(m_pos);
-             p.rotate(m_angleDeg);
-            // const QRectF dst(-m_spriteSize/2.0, -m_spriteSize/2.0, m_spriteSize, m_spriteSize);
-            //  p.drawRect(dst);
-            //  if (m_useImage) p.drawImage(dst, m_cookie);
-            //  else
-                drawHeartCookie(p, QSizeF(m_spriteSize, m_spriteSize));
+            p.rotate(m_angleDeg);
+            drawHeartCookie(p, QSizeF(m_spriteSize, m_spriteSize));
             p.restore();
         }
         // Power bar
@@ -152,7 +151,7 @@ protected:
     }
 
 signals:
-    void hasHit();
+    void hasHit(Shape *p);
 
 // private slots:
 public:
@@ -170,18 +169,13 @@ public:
             // optional pulse while charging
             m_chargePulse = std::fmod(m_chargePulse + dt*2.0, 1.0);
             updateTrajectoryPreviewFromCharge();
-            update();
+            // update();
             break;
         }
 
         case State::Flying: {
             m_t += dt / m_durationSec;
-            if (m_t >= 1.0) {
-                m_t = 1.0;
-                m_state = State::Idle;
 
-                emit hasHit();
-            }
             m_pos = bezierPoint(m_t, m_P0, m_P1, m_P2);
 
             if (m_alignToPath) {
@@ -190,12 +184,26 @@ public:
             } else {
                 m_angleDeg += m_angularSpeedDegPerSec * dt;
             }
-            update();
             break;
         }
         }
     }
 
+    void checkCollisions(QRectF &bounds, QList<Shape> &platforms) {
+        QPointF pos = m_origin + (m_facingLeft ? -m_pos : m_pos);
+        for (auto &p : platforms) {
+            switch (p.shape) {
+            case Shape::Rect:
+                if (p.rect.contains(pos))
+                    emit hasHit(&p);
+                break;
+            case Shape::TriLeft:
+            case Shape::TriRight:
+                break;
+            }
+        }
+        if (!bounds.contains(m_origin + m_pos)) emit hasHit(0);
+    }
 private:
     // ---------------- state + behavior ----------------
     enum class State { Idle, Charging, Flying };
@@ -237,9 +245,9 @@ private:
         const double charge01 = m_charge;
 
         // Horizontal reach (pixels)
-        const double minDx = 280.0;
+        const double minDx = 400.0;
         // const double maxDx = std::min<double>(width() - 160, 780.0);
-        const double maxDx = 780.0;
+        const double maxDx = 1100.0;
         const double dx = minDx + (maxDx - minDx) * easeOutQuad(charge01);
 
         // End Y: a bit higher for stronger throws (optional)
@@ -304,7 +312,7 @@ private:
         p.restore();
     }
 
-    static void drawHeartCookie(QPainter& p, const QSizeF& dst) {
+    void drawHeartCookie(QPainter& p, const QSizeF& dst) {
         p.save();
         p.setRenderHint(QPainter::Antialiasing, true);
 
@@ -313,16 +321,8 @@ private:
         const QColor chip(77,50,35);
 
         QPainterPath heart;
-        // QTransform T;
-        // T.translate(dst.center().x(), dst.center().y());
-        // T.scale(dst.width()/100.0, dst.height()/100.0);
-        // p.setTransform(p.transform() * T);
-        // p.translate(dst.center().x(), dst.center().y());
-        p.scale(dst.width()/100.0, dst.height()/100.0);
+        p.scale(m_globalScale * dst.width()/100.0, m_globalScale * dst.height()/100.0);
 
-        // heart.moveTo(0, 30);
-        // heart.cubicTo(-50, -30, -50, 40, 0, 70);
-        // heart.cubicTo(50, 40, 50, -30, 0, 30);
         heart.moveTo(0, -20);
         heart.cubicTo(-50, -80, -50, -10, 0, 20);
         heart.cubicTo(50, -10, 50, -80, 0, -20);
@@ -406,6 +406,8 @@ private:
     double  m_spriteSize = 64.0;            // render size
     double  m_angleDeg = 0.0;
     double  m_angularSpeedDegPerSec = 1200.0;
+
+    double m_globalScale = 1.0 / 0.7;
 
     // timing
     QTimer  m_timer;

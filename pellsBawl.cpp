@@ -11,7 +11,7 @@ static const char* kAnimJson = R"JSON(
     "unit": "px",
     "coordinateSpace": "body-local",
     "defaultClip": "walk",
-    "globalScale": 0.7
+    "globalScale": 1.0
   },
   "rig": {
     "body":       { "pivot": "center", "sizeHintPx": 220 },

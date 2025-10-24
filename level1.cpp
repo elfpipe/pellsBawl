@@ -10,6 +10,11 @@
 
 #include <QDebug>
 
+#if 0
+"parallax" : [
+                 { "image" : "landscape.jpg", "off" : [ 0, 0 ], "rate" : [0, 0], "scale" : 0.0 , "z" : -3}
+],
+#endif
 
 Level1::Level1(QWidget *parent)
 #ifdef USE_OPENGL
@@ -19,7 +24,7 @@ Level1::Level1(QWidget *parent)
 #endif
 {
     // Load platforms from a JSON file
-    loadWorld("test.json", ":/assets/testlevel/");
+    loadWorld("level1.json", ":/assets/level1/");
 
     fighter = new Fighter(this);
     fighter->loadFromJson(":/assets/mt2/mt2.json");
@@ -141,8 +146,8 @@ void Level1::paintEvent(QPaintEvent *) {
 
     painter.setBrush(Qt::blue);
 
-    // Draw platforms
-    for (const auto& it : shapes) drawShape(painter, it);
+    // Draw shapes (for debug?)
+    // for (const auto& it : shapes) drawShape(painter, it);
 
     // Draw enemies with the correct animation based on their state
     for (const Enemy &enemy : enemies) {
@@ -158,7 +163,7 @@ void Level1::paintEvent(QPaintEvent *) {
 
 
     // Fighter (MT2)
-    fighter->paint(&painter);
+    // fighter->paint(&painter);
 
     // Draw foreground
     for (const auto& s : images) drawImage(painter, s);
@@ -244,8 +249,8 @@ void Level1::doFighterSense(double dt) {
     fighterAI->sense(ss, os, ws);
 }
 
-void Level1::doScrolling(double dt) {
-    QPointF center = fighter->pos() + (pellsBawl.playerRectangle().center() - fighter->pos()) / 2.0;
+void Level1::doScrolling(double dt, bool twoPlayer = false) {
+    QPointF center = twoPlayer ? fighter->pos() + (pellsBawl.playerRectangle().center() - fighter->pos()) / 2.0 : pellsBawl.playerRectangle().center();
     QPointF scrollV = (center - QPointF(window.center().x(), window.center().y() + window.height() / 3.0)) * 1.0 * dt;
     // window.moveTo(window.topLeft() + scrollV);
     window.moveCenter(window.center() + scrollV);
@@ -272,11 +277,11 @@ void Level1::timerEvent(QTimerEvent *) {
     doFighterSense(dt);
     fighterAI->update();
 
-    // Opponent movement
+    // // Opponent movement
     fighter->update(dt, shapes, bounds);
 
     // Collisions
-    pellsBawl.checkCollisions(shapes, bounds.toRect());
+    pellsBawl.checkCollisions(shapes, bounds);
     checkEnemyCollisions();
 
     doScrolling(dt);
@@ -333,25 +338,32 @@ void Level1::loadWorld(const QString &filename, const QString &path) {
     }
 
     QByteArray data = file.readAll();
+    qDebug() << "data:" << data.size();
     QJsonDocument doc = QJsonDocument::fromJson(data);
 
     QJsonObject root = doc.object();
+    qDebug() << root.isEmpty();
     if(!root.empty()) {
         auto i = root.value("interaction").toArray();
+        qDebug() << i.isEmpty();
         if(!i.empty()) {
             shapes = loadShapes(doc);
+            qDebug() << "shapes:" << shapes.size();
             images = loadImages(doc, path);
+            qDebug() << "images:" << images.size();
 
             world = jsonToRect(root.value("world"));
+            qDebug() << "world:" << world;
             window = jsonToRect(root.value("window"));
+            qDebug() << "window:" << window;
             bounds = world;
-
 
             auto p = root.value("parallax").toArray();
             for (auto l: p) {
                 ParallaxLayer g;
                 auto o = l.toObject();
                 g.image.load(path + o.value("image").toString());
+                qDebug() << g.image.rect();
                 auto a = o.value("off").toArray(); g.off = QPointF(a.at(0).toDouble(0.0), a.at(1).toDouble(0.0));
                 a = o.value("rate").toArray(); g.rate = QPointF(a.at(0).toDouble(0.0), a.at(1).toDouble(0.0));
                 g.scale = o.value("scale").toDouble();

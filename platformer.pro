@@ -22,6 +22,7 @@ HEADERS=\
 RESOURCES=\
     alf.qrc \
     intro.qrc \
+    level1.qrc \
     levelart.qrc \
     levels.qrc \
     mt2.qrc \
