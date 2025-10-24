@@ -39,8 +39,8 @@ Game::Game(QWidget *parent)
     oneShot->start(50);
 }
 
-void Game::displayGraphics(QPixmap pixmap, bool fill) {
-    pause(); titleGraphics = pixmap; showTitle = true; showFullscreen = fill; update();
+void Game::displayGraphics(QPixmap pixmap, const QColor &color, bool full) {
+    pause(); titleGraphics = pixmap; showTitle = true; showFullscreen = full; titleBg = color; update();
 }
 
 void Game::playJingle(QString jingle, bool repeat) {
@@ -61,7 +61,7 @@ void Game::playSfx(const QString &sfx){
 }
 void Game::action() {
     showFullScreen();
-    displayGraphics(QPixmap(":/assets/intro/splash.png"));
+    displayGraphics(QPixmap(":/assets/intro/splash.png"), QColor(0, 200, 50));
     playJingle("qrc:/assets/intro/pellsBawl_intro_jingle.wav");
     joystick->waitForPush();
     showTitle = false;
@@ -179,7 +179,9 @@ void Game::paintEvent(QPaintEvent *) {
 
     if (showTitle) {
         if (showFullscreen) painter.drawPixmap(painter.window(), titleGraphics);
-        else painter.drawPixmap((rect().bottomRight() - titleGraphics.rect().bottomRight()) / 2, titleGraphics);
+        else {
+            painter.setBrush(titleBg); painter.drawRect(rect());
+            painter.drawPixmap((rect().bottomRight() - titleGraphics.rect().bottomRight()) / 2, titleGraphics); }
         return;
     }
 

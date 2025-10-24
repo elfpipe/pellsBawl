@@ -80,7 +80,7 @@ public:
     void level3();
     void level4();
     void clear(bool pb);
-    void displayGraphics(QPixmap pixmap, bool fill = false);
+    void displayGraphics(QPixmap pixmap, const QColor &color = Qt::white, bool fill = false);
     void playJingle(const QString jingle = QString(), bool repeat = false);
     void stopJingle() { player->stop(); }
     void playSfx(const QString &sfx);
@@ -119,6 +119,7 @@ private:
 
     QPixmap titleGraphics;
     bool showTitle = false; bool showFullscreen = false;
+    QColor titleBg = Qt::white;
 
     QMediaPlayer* player;
     QAudioOutput* audio;
