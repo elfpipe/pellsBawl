@@ -316,7 +316,7 @@ void Game::doFighterSense(double dt) {
 
 void Game::doScrolling(double dt, bool twoPlayer = false) {
     QPointF center = twoPlayer ? fighter->pos() + (pellsBawl->playerRectangle().center() - fighter->pos()) / 2.0 : pellsBawl->playerRectangle().center();
-    QPointF scrollV = (center - QPointF(window.center().x(), window.center().y() + window.height() / 3.0)) * 1.0 * dt;
+    QPointF scrollV = (center - QPointF(window.center().x(), window.center().y() + window.height() / 5.0)) * 1.5 * dt;
     window.moveCenter(window.center() + scrollV);
 
     QRectF sceneRect = bounds; //rect();

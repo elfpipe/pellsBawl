@@ -202,7 +202,7 @@ public:
                 break;
             }
         }
-        if (!bounds.contains(m_origin + m_pos)) emit hasHit(0);
+        if (!bounds.contains(pos)) emit hasHit(0);
     }
 private:
     // ---------------- state + behavior ----------------

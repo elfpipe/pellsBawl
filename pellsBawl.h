@@ -159,29 +159,43 @@ public:
         for (auto platform : platforms) {
             if (playerRect.intersects(platform.rect)) {
                 double groundX = platform.rect.top();
+                QLineF slope;
                 if (platform.shape == Shape::TriLeft) {
-                    QLineF slope = { platform.rect.bottomLeft(), platform.rect.topRight() };
+                    slope = { platform.rect.bottomLeft(), platform.rect.topRight() };
                     QLineF toPlayer = { platform.rect.bottomLeft(), QPointF(playerRect.center().x(), playerRect.bottom()) };
                     if (slope.angle() < toPlayer.angle())
                         continue;
                     groundX = platform.rect.bottom() + (slope.dy()/slope.dx()) * (playerRect.center().x() - platform.rect.left());
                 }
                 if (platform.shape == Shape::TriRight) {
-                    QLineF slope = { platform.rect.topLeft(), platform.rect.bottomRight() };
+                    slope = { platform.rect.topLeft(), platform.rect.bottomRight() };
                     QLineF toPlayer = { platform.rect.topLeft(), QPointF(playerRect.center().x(), playerRect.bottom()) };
                     if (slope.angle() < toPlayer.angle())
                         continue;
                     groundX = platform.rect.top() + (slope.dy()/slope.dx()) * (playerRect.center().x() - platform.rect.left());
                 }
-                if (isFalling) {
-                    isJumping = false; canJump = true; isFalling = false;
+
+                if (platform.shape == Shape::TriLeft || platform.shape == Shape::TriRight) {
+                    QPointF vel = { velocityX, velocityY };
+                    QLineF normal = slope.normalVector().unitVector();
+                    QPointF acc = (normal.p2() - normal.p1()) * std::sqrt(vel.x()*vel.x() + vel.y()*vel.y());
+                    vel += acc;
+                    velocityX = vel.x();
+                    velocityY = vel.y();
+
+                    onAngularSurface = true;
+                } else {
                     velocityY = 0;
-                    onGround = true;
-                    playerRect.moveBottom(groundX); //platform.rect.top());
-                    if (!m_onGround) {
-                        m_finishAnim = true;
-                        m_onGround = true;
-                    }
+                    onAngularSurface = false;
+                }
+
+                isJumping = false; canJump = true; isFalling = false;
+
+                onGround = true;
+                playerRect.moveBottom(groundX); //platform.rect.top());
+                if (!m_onGround) {
+                    m_finishAnim = true;
+                    m_onGround = true;
                 }
             }
         }
@@ -381,6 +395,8 @@ private:
     double gravity = 0.7;
     double velocityX = 0.0;
     double velocityY = 0.0;
+
+    bool onAngularSurface = false;
 
     QVector<BezierThrowWidget *> shots;
     BezierThrowWidget *btw = nullptr;
