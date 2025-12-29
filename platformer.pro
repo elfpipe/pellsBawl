@@ -21,6 +21,7 @@ RESOURCES=\
     alf.qrc \
     intro.qrc \
     level1.qrc \
+    level2.qrc \
     levelart.qrc \
     levels.qrc \
     mt2.qrc \

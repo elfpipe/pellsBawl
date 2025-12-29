@@ -40,6 +40,24 @@ Game::Game(QWidget *parent)
 }
 
 void Game::displayGraphics(QPixmap pixmap, const QColor &color, bool full) {
+    auto *ctx = QOpenGLContext::currentContext();
+    if (!ctx) {
+      qDebug() << "No current OpenGL context!";
+      return;
+    }
+
+    QOpenGLFunctions *f = ctx->functions();
+    const char *vendor   = reinterpret_cast<const char*>(f->glGetString(GL_VENDOR));
+    const char *renderer = reinterpret_cast<const char*>(f->glGetString(GL_RENDERER));
+    const char *version  = reinterpret_cast<const char*>(f->glGetString(GL_VERSION));
+    const char *slVer    = reinterpret_cast<const char*>(f->glGetString(GL_SHADING_LANGUAGE_VERSION));
+
+    qDebug().noquote()
+      << "GL_VENDOR  :" << (vendor ? vendor : "(null)") << "\n"
+      << "GL_RENDERER:" << (renderer ? renderer : "(null)") << "\n"
+      << "GL_VERSION :" << (version ? version : "(null)") << "\n"
+      << "GLSL       :" << (slVer ? slVer : "(null)");
+
     pause(); titleGraphics = pixmap; showTitle = true; showFullscreen = full; titleBg = color; update();
 }
 
@@ -71,7 +89,7 @@ void Game::action() {
 void Game::level1()
 {
     // Load platforms from a JSON file
-    loadWorld("level1.json", ":/assets/level1/");
+    loadWorld("level2.json", ":/assets/level2/");
 
     pellsBawl = new PellsBawl(this);
     joyCommander = new PellsBawlCommander(this, pellsBawl);
@@ -174,7 +192,11 @@ void Game::drawAnimationLayer(QPainter &p, ParallaxLayer &a, QPointF &scrollOffs
                                                          a.scale == 0.0 ? window.size() : a.image.rect().size() * a.scale).toRect(), a.image);
 }
 
+#ifdef USE_OPENGL
+void Game::paintGL() {
+#else
 void Game::paintEvent(QPaintEvent *) {
+#endif
     QPainter painter(this);
 
     if (showTitle) {
@@ -197,7 +219,7 @@ void Game::paintEvent(QPaintEvent *) {
 #ifdef USE_OPENGL
     //cls
     painter.setBrush(Qt::white);
-    painter.drawRect(rect());
+    painter.drawRect(0, 0, width(), height());
 #endif
 
     // draw parallax bg
@@ -315,8 +337,11 @@ void Game::doFighterSense(double dt) {
 }
 
 void Game::doScrolling(double dt, bool twoPlayer = false) {
+  qreal scrollSpeed = 1.5;
+    if (pellsBawl->slopeRiding()) { scrollSpeed = 10.0; }
+
     QPointF center = twoPlayer ? fighter->pos() + (pellsBawl->playerRectangle().center() - fighter->pos()) / 2.0 : pellsBawl->playerRectangle().center();
-    QPointF scrollV = (center - QPointF(window.center().x(), window.center().y() + window.height() / 5.0)) * 1.5 * dt;
+    QPointF scrollV = (center - QPointF(window.center().x(), window.center().y() + window.height() / 5.0)) * scrollSpeed * dt;
     window.moveCenter(window.center() + scrollV);
 
     QRectF sceneRect = bounds; //rect();

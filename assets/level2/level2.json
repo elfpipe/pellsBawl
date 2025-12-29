@@ -1,0 +1,644 @@
+{
+    "graphics": [
+        {
+            "id": "5f4c36e8-3687-4f74-ba1a-61ddec47b0ec",
+            "path": "/home/alfkil/repos/PellsBawl/assets/level2/platform1.png",
+            "pos": {
+                "x": 230.64318847656244,
+                "y": 306.1268310546875
+            },
+            "rotation": 0,
+            "scaleX": 1.2405295993970789,
+            "scaleY": 0.5427609278150827,
+            "z": 0
+        },
+        {
+            "id": "7a9c25b9-51de-4695-8477-25bcadaa0160",
+            "path": "/home/alfkil/repos/PellsBawl/assets/level2/platform1.png",
+            "pos": {
+                "x": 515.7647705078125,
+                "y": 168.37145996093744
+            },
+            "rotation": 0,
+            "scaleX": 0.33516062860903534,
+            "scaleY": 0.2779994996126033,
+            "z": 0
+        },
+        {
+            "id": "bc74563c-37de-4c3c-a2fb-4612eeeb5759",
+            "path": "/home/alfkil/repos/PellsBawl/assets/level2/platform1.png",
+            "pos": {
+                "x": 704.7779541015625,
+                "y": 304.5250244140625
+            },
+            "rotation": 0,
+            "scaleX": 0.7617287013841711,
+            "scaleY": 0.4368563565340909,
+            "z": 0
+        },
+        {
+            "id": "e6d00e2f-e291-44a9-bc18-b49e6eaa210a",
+            "path": "/home/alfkil/repos/PellsBawl/assets/level2/platform1.png",
+            "pos": {
+                "x": 863.3568115234375,
+                "y": 385.416259765625
+            },
+            "rotation": 69.84698251249335,
+            "scaleX": 0.6137356965438182,
+            "scaleY": 0.42361828512396693,
+            "z": 0
+        },
+        {
+            "id": "fdbcdace-7f84-4a10-bcf3-91a457084d6c",
+            "path": "/home/alfkil/repos/PellsBawl/assets/level2/platform1.png",
+            "pos": {
+                "x": 1139.6684570312502,
+                "y": 648.9134521484375
+            },
+            "rotation": 0,
+            "scaleX": 0.23504771356997284,
+            "scaleY": 0.33095178525309915,
+            "z": 0
+        },
+        {
+            "id": "193da1d7-8679-4aa3-822f-da7900ecfa9a",
+            "path": "/home/alfkil/repos/PellsBawl/assets/level2/platform1.png",
+            "pos": {
+                "x": 1493.6677246093752,
+                "y": 409.443359375
+            },
+            "rotation": 0,
+            "scaleX": 0.45268448539402173,
+            "scaleY": 0.397142142303719,
+            "z": 0
+        },
+        {
+            "id": "c3ac724e-b16d-4bdc-ab36-777a0c62683f",
+            "path": "/home/alfkil/repos/PellsBawl/assets/level2/platform1.png",
+            "pos": {
+                "x": 1575.3598632812502,
+                "y": 282.0997314453125
+            },
+            "rotation": 0,
+            "scaleX": 0.45268448539402173,
+            "scaleY": 0.383904070893595,
+            "z": 0
+        },
+        {
+            "id": "b0ba32c9-d0fb-47ca-9a25-5cbff8881cb1",
+            "path": "/home/alfkil/repos/PellsBawl/assets/level2/platform1.png",
+            "pos": {
+                "x": 1711.5134277343752,
+                "y": 163.56604003906244
+            },
+            "rotation": 0,
+            "scaleX": 0.5223282523777174,
+            "scaleY": 0.410380213713843,
+            "z": 0
+        },
+        {
+            "id": "5129babf-35cf-485a-ba72-98dcdcde89b5",
+            "path": "/home/alfkil/repos/PellsBawl/assets/level2/platform1.png",
+            "pos": {
+                "x": 933.8363037109376,
+                "y": 529.578857421875
+            },
+            "rotation": 56.065775800577114,
+            "scaleX": 0.4396262790845794,
+            "scaleY": 0.397142142303719,
+            "z": 0
+        },
+        {
+            "id": "76977a25-2a4f-4c85-87c0-6eeabae22e46",
+            "path": "/home/alfkil/repos/PellsBawl/assets/level2/platform1.png",
+            "pos": {
+                "x": 1029.1437988281252,
+                "y": 616.8773193359375
+            },
+            "rotation": 30.14397474322749,
+            "scaleX": 0.34821883491847855,
+            "scaleY": 0.2779994996126033,
+            "z": 0
+        },
+        {
+            "id": "2afe8fb3-9a8c-4202-b1b0-663c34cebc81",
+            "path": "/home/alfkil/repos/PellsBawl/assets/level2/platform1.png",
+            "pos": {
+                "x": 1234.1750488281252,
+                "y": 628.0899658203125
+            },
+            "rotation": 338.4408237954473,
+            "scaleX": 0.31339695142663043,
+            "scaleY": 0.2779994996126033,
+            "z": 0
+        },
+        {
+            "id": "a2094233-7e22-4c01-8b14-6ed3dfa9c3cf",
+            "path": "/home/alfkil/repos/PellsBawl/assets/level2/platform1.png",
+            "pos": {
+                "x": 1324.6771240234377,
+                "y": 556.0086669921875
+            },
+            "rotation": 297.75854060106,
+            "scaleX": 0.4222153373386549,
+            "scaleY": 0.33095178525309915,
+            "z": 0
+        },
+        {
+            "id": "6d2893f3-5cd5-4321-8969-05f2db6aeefa",
+            "path": "/home/alfkil/repos/PellsBawl/assets/level2/platform1.png",
+            "pos": {
+                "x": 2035.7833528767142,
+                "y": 227.35220602136437
+            },
+            "rotation": 7.3523651890960195,
+            "scaleX": 1.2909806932291088,
+            "scaleY": 0.9725668487318548,
+            "z": 0
+        },
+        {
+            "id": "d2d3ffa1-822f-4dd7-b926-32043e90333e",
+            "path": "/home/alfkil/repos/PellsBawl/assets/level2/platform1.png",
+            "pos": {
+                "x": 2096.8647464538362,
+                "y": 239.00591684554723
+            },
+            "rotation": 0,
+            "scaleX": 0.23504771356997284,
+            "scaleY": 0.06619035705061983,
+            "z": 0
+        },
+        {
+            "id": "478ec9ab-3a40-4421-a0c3-187d0cea2483",
+            "path": "/home/alfkil/repos/PellsBawl/assets/level2/platform1.png",
+            "pos": {
+                "x": 2315.5113528991487,
+                "y": 255.02398325179723
+            },
+            "rotation": 23.330886526784507,
+            "scaleX": 0.33516062860903534,
+            "scaleY": 0.5162847849948347,
+            "z": 0
+        },
+        {
+            "id": "9beb7b33-eadc-4d2a-a0c3-23d950da3de2",
+            "path": "/home/alfkil/repos/PellsBawl/assets/level2/platform1.png",
+            "pos": {
+                "x": 2737.5874027038367,
+                "y": 389.5757410642973
+            },
+            "rotation": 10.029479116107758,
+            "scaleX": 2.338671367444091,
+            "scaleY": 1.289507775626859,
+            "z": 0
+        },
+        {
+            "id": "1a987340-6af8-48f6-b037-c1b419951509",
+            "path": "/home/alfkil/repos/PellsBawl/assets/level2/platform1.png",
+            "pos": {
+                "x": 3438.3778079772746,
+                "y": 547.35369516586
+            },
+            "rotation": 14.873663797048453,
+            "scaleX": 2.076254803201428,
+            "scaleY": 1.3238071410123973,
+            "z": 0
+        },
+        {
+            "id": "254136bc-46c8-4c11-9dad-a108ac5316ef",
+            "path": "/home/alfkil/repos/PellsBawl/assets/level2/platform1.png",
+            "pos": {
+                "x": 3910.109863641337,
+                "y": 685.1090662596101
+            },
+            "rotation": 25.579088430517874,
+            "scaleX": 0.9924236795176631,
+            "scaleY": 1.2443787125516539,
+            "z": 0
+        },
+        {
+            "id": "2a458f39-1a6c-4dbe-a58f-5156fb936871",
+            "path": "/home/alfkil/repos/PellsBawl/assets/level2/platform1.png",
+            "pos": {
+                "x": 4304.154297235087,
+                "y": 978.2396814939852
+            },
+            "rotation": 37.028538069744116,
+            "scaleX": 2.071902067764946,
+            "scaleY": 1.6944731404958677,
+            "z": 0
+        },
+        {
+            "id": "c28aff59-6a8e-46da-804e-b3b0d48cbc07",
+            "path": "/home/alfkil/repos/PellsBawl/assets/level2/platform1.png",
+            "pos": {
+                "x": 4842.361328485087,
+                "y": 1476.4015467283602
+            },
+            "rotation": 47.03616620219009,
+            "scaleX": 2.298244310461959,
+            "scaleY": 1.7209492833161157,
+            "z": 0
+        },
+        {
+            "id": "c9e11a8e-1def-4068-b6a7-e00e5fe79dbf",
+            "path": "/home/alfkil/repos/PellsBawl/assets/level2/platform1.png",
+            "pos": {
+                "x": 5381.3692630554,
+                "y": 2109.916073095548
+            },
+            "rotation": 54.364715101729416,
+            "scaleX": 2.7726924730383855,
+            "scaleY": 1.4164736408832663,
+            "z": 0
+        },
+        {
+            "id": "3fae3815-653b-4653-a2c3-171e2d6f8ea9",
+            "path": "/home/alfkil/repos/PellsBawl/assets/level2/platform1.png",
+            "pos": {
+                "x": 5788.8864606270945,
+                "y": 2610.2234734637027
+            },
+            "rotation": 48.10196752819334,
+            "scaleX": 0.9097217062245244,
+            "scaleY": 1.0193314985795454,
+            "z": 0
+        },
+        {
+            "id": "bc19e284-1b3c-47bc-a778-f49aa05e9a8f",
+            "path": "/home/alfkil/repos/PellsBawl/assets/level2/platform1.png",
+            "pos": {
+                "x": 6109.231510626749,
+                "y": 2821.8286419404035
+            },
+            "rotation": 21.943925470766324,
+            "scaleX": 1.3449952498726223,
+            "scaleY": 0.9531411415289256,
+            "z": 0
+        },
+        {
+            "id": "5d79733b-5945-4be1-8447-57024987ee29",
+            "path": "/home/alfkil/repos/PellsBawl/assets/level2/platform1.png",
+            "pos": {
+                "x": 6600.803179259077,
+                "y": 2931.219012994814
+            },
+            "rotation": 9.14101468707976,
+            "scaleX": 1.5931011697520405,
+            "scaleY": 0.7280939275568182,
+            "z": 0
+        },
+        {
+            "id": "93a8669a-4be3-43db-8bd9-590f36a7aed5",
+            "path": "/home/alfkil/repos/PellsBawl/assets/level2/platform1.png",
+            "pos": {
+                "x": 7071.433504025118,
+                "y": 2972.0650823307515
+            },
+            "rotation": 0,
+            "scaleX": 0.9314853834069293,
+            "scaleY": 0.7148558561466942,
+            "z": 0
+        },
+        {
+            "id": "6a883f49-36e6-4453-93d5-ba257351575f",
+            "path": "/home/alfkil/repos/PellsBawl/assets/level2/platform1.png",
+            "pos": {
+                "x": 7854.255688856024,
+                "y": 2851.7814191249495
+            },
+            "rotation": 699.3961146588626,
+            "scaleX": 3.210233659751142,
+            "scaleY": 2.2632036458043703,
+            "z": 0
+        },
+        {
+            "id": "dd3e5a66-335c-431d-b773-ba772bb6e674",
+            "path": "/home/alfkil/repos/PellsBawl/assets/level2/platform1.png",
+            "pos": {
+                "x": 8690.625468346643,
+                "y": 2300.4921949350983
+            },
+            "rotation": 669.5823441905872,
+            "scaleX": 2.045018064272565,
+            "scaleY": 1.811522059662129,
+            "z": 0
+        }
+    ],
+    "interaction": [
+        {
+            "id": "dbcdabdd-51f4-40d1-ae2e-9991a412895a",
+            "is_wall": false,
+            "rect": {
+                "h": 25.62890625,
+                "w": 459.89648437500006,
+                "x": -0.9355468750001705,
+                "y": 272.099609375
+            },
+            "shape": "rect"
+        },
+        {
+            "id": "1ae3d45b-9236-469f-8bad-dab60314b6bb",
+            "is_wall": false,
+            "rect": {
+                "h": 25.62890625,
+                "w": 284.765625,
+                "x": 561.4765625,
+                "y": 273.5234375
+            },
+            "shape": "rect"
+        },
+        {
+            "id": "7cdc728d-2673-4c92-97c2-5be6573639a1",
+            "is_wall": false,
+            "rect": {
+                "h": 11.390625,
+                "w": 126.72070312500011,
+                "x": 451.8417968749999,
+                "y": 148.22656249999994
+            },
+            "shape": "rect"
+        },
+        {
+            "id": "b89858f3-6af0-4eb0-9560-abd14808cd8d",
+            "is_wall": false,
+            "rect": {
+                "h": 180.826171875,
+                "w": 62.6484375,
+                "x": 846.2421875,
+                "y": 274.947265625
+            },
+            "shape": "tri_right"
+        },
+        {
+            "id": "473b4e7b-2d17-45c7-84a9-951fa2f45048",
+            "is_wall": false,
+            "rect": {
+                "h": 118.177734375,
+                "w": 81.158203125,
+                "x": 908.890625,
+                "y": 455.7734375
+            },
+            "shape": "tri_right"
+        },
+        {
+            "id": "f9c99ec0-81c2-479e-89a4-338d75591e8f",
+            "is_wall": false,
+            "rect": {
+                "h": 56.953125000000114,
+                "w": 102.515625,
+                "x": 990.048828125,
+                "y": 573.951171875
+            },
+            "shape": "tri_right"
+        },
+        {
+            "id": "b8573566-1723-4880-88a1-89507f86ccbb",
+            "is_wall": false,
+            "rect": {
+                "h": 15.662109375,
+                "w": 89.701171875,
+                "x": 1092.564453125,
+                "y": 630.9042968750001
+            },
+            "shape": "rect"
+        },
+        {
+            "id": "d32a2167-1b67-47e7-9e1a-7db497045772",
+            "is_wall": false,
+            "rect": {
+                "h": 38.443359375000114,
+                "w": 101.09179687500023,
+                "x": 1180.841796875,
+                "y": 595.30859375
+            },
+            "shape": "tri_left"
+        },
+        {
+            "id": "9429e897-b781-44aa-a039-3d95370df60e",
+            "is_wall": false,
+            "rect": {
+                "h": 119.6015625,
+                "w": 64.072265625,
+                "x": 1281.9335937500002,
+                "y": 475.70703125
+            },
+            "shape": "tri_left"
+        },
+        {
+            "id": "cfc9b3ed-8e45-4df1-bdd1-1b5afe912821",
+            "is_wall": false,
+            "rect": {
+                "h": 17.0859375,
+                "w": 166.587890625,
+                "x": 1408.6542968750002,
+                "y": 384.58203125
+            },
+            "shape": "rect"
+        },
+        {
+            "id": "9060e75e-9b27-4c19-ad61-b1de07b0df9e",
+            "is_wall": false,
+            "rect": {
+                "h": 12.814453125,
+                "w": 168.189697265625,
+                "x": 1491.9482421875002,
+                "y": 257.50537109374994
+            },
+            "shape": "rect"
+        },
+        {
+            "id": "36288063-4002-42c5-a31e-e74efb1a3616",
+            "is_wall": false,
+            "rect": {
+                "h": 14.416259765625,
+                "w": 195.42041015625,
+                "x": 1612.0837402343752,
+                "y": 137.3698730468749
+            },
+            "shape": "rect"
+        },
+        {
+            "id": "6acc2b37-6c1c-42d0-94f6-3ed8b89213ff",
+            "is_wall": false,
+            "rect": {
+                "h": 70.27926635742193,
+                "w": 468.5284423828125,
+                "x": 1809.4328918457036,
+                "y": 138.88821411132807
+            },
+            "shape": "tri_right"
+        },
+        {
+            "id": "942a3773-4180-4848-a6e6-69adf8e9bfa9",
+            "is_wall": false,
+            "rect": {
+                "h": 41.446746826171875,
+                "w": 93.7056884765625,
+                "x": 2277.961334228516,
+                "y": 209.16748046875
+            },
+            "shape": "tri_right"
+        },
+        {
+            "id": "fa16717d-29df-405f-84ac-5734e5cef6a4",
+            "is_wall": false,
+            "rect": {
+                "h": 144.16259765625006,
+                "w": 773.0719299316411,
+                "x": 2371.6670227050786,
+                "y": 247.01016235351562
+            },
+            "shape": "tri_right"
+        },
+        {
+            "id": "5dcf46f2-eed7-4815-8822-92a2b39489b6",
+            "is_wall": false,
+            "rect": {
+                "h": 160.38088989257807,
+                "w": 634.3154296875,
+                "x": 3144.7389526367197,
+                "y": 391.1727600097657
+            },
+            "shape": "tri_right"
+        },
+        {
+            "id": "5034a009-ac39-4302-bf7f-e0e598a8b750",
+            "is_wall": false,
+            "rect": {
+                "h": 142.360565185547,
+                "w": 311.7516174316406,
+                "x": 3779.0543823242197,
+                "y": 551.5536499023438
+            },
+            "shape": "tri_right"
+        },
+        {
+            "id": "9e5d5cfe-28ed-469d-b4c5-9c46cfb78e7e",
+            "is_wall": false,
+            "rect": {
+                "h": 403.6552734375001,
+                "w": 538.8077087402344,
+                "x": 4089.003967285157,
+                "y": 693.9142150878907
+            },
+            "shape": "tri_right"
+        },
+        {
+            "id": "989bda23-3d65-4315-b886-c5e58f39c543",
+            "is_wall": false,
+            "rect": {
+                "h": 616.295104980469,
+                "w": 573.0463256835947,
+                "x": 4627.8116760253915,
+                "y": 1097.5694885253909
+            },
+            "shape": "tri_right"
+        },
+        {
+            "id": "60607670-f412-4247-85f0-a41bbf4dd43a",
+            "is_wall": false,
+            "rect": {
+                "h": 720.81298828125,
+                "w": 520.7873840332031,
+                "x": 5199.055969238283,
+                "y": 1713.8645935058598
+            },
+            "shape": "tri_right"
+        },
+        {
+            "id": "8a681da9-a133-4dc4-a47d-62494bbb23fa",
+            "is_wall": false,
+            "rect": {
+                "h": 252.2845458984375,
+                "w": 230.66015625,
+                "x": 5706.919841594996,
+                "y": 2435.054618366063
+            },
+            "shape": "tri_right"
+        },
+        {
+            "id": "9c798c97-ab69-4f1d-a338-df8a8930341a",
+            "is_wall": false,
+            "rect": {
+                "h": 163.98495483398438,
+                "w": 416.2695007324219,
+                "x": 5927.11844263971,
+                "y": 2685.5371317937975
+            },
+            "shape": "tri_right"
+        },
+        {
+            "id": "088b5c73-89ce-4055-a440-cb1b08d7bd72",
+            "is_wall": false,
+            "rect": {
+                "h": 82.89349365234375,
+                "w": 556.8280334472656,
+                "x": 6338.699403323235,
+                "y": 2850.606561735273
+            },
+            "shape": "tri_right"
+        },
+        {
+            "id": "10a3a676-f037-4864-b015-5f8dd3bac12c",
+            "is_wall": false,
+            "rect": {
+                "h": 43.248779296875,
+                "w": 345.990234375,
+                "x": 6885.783438928427,
+                "y": 2932.782498024404
+            },
+            "shape": "rect"
+        },
+        {
+            "id": "aea25bc7-3d54-4a02-a2fa-f6c4fdb473cb",
+            "is_wall": false,
+            "rect": {
+                "h": 420.4989577733668,
+                "w": 1122.7110221314015,
+                "x": 7222.029675461354,
+                "y": 2517.689637663147
+            },
+            "shape": "tri_left"
+        },
+        {
+            "id": "f10f3978-1f44-4f00-bc87-64bcd2c0c555",
+            "is_wall": false,
+            "rect": {
+                "h": 606.4372015062258,
+                "w": 511.4530615112744,
+                "x": 8354.527742210663,
+                "y": 1924.208871108946
+            },
+            "shape": "tri_left"
+        }
+    ],
+    "parallax": [
+        {
+            "image": "landscape.jpg",
+            "off": [
+                0,
+                0
+            ],
+            "rate": [
+                0,
+                0
+            ],
+            "scale": 0,
+            "wrap": false,
+            "z": -1
+        }
+    ],
+    "window": {
+        "h": 600,
+        "w": 800,
+        "x": 0,
+        "y": 0
+    },
+    "world": {
+        "h": 5399.088047333998,
+        "w": 11705.054165118627,
+        "x": -6.728880401424476,
+        "y": -6.5679356339740025
+    }
+}

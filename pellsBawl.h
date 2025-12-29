@@ -83,7 +83,7 @@ class PellsBawl : public QWidget {
     Q_OBJECT
 public:
     PellsBawl(QWidget *parent = nullptr) : QWidget(parent) {
-        playerRect = QRect(100, 500, 50, 50); // Initial position of the player
+        playerRect = QRect(100, 0, 50, 50); // Initial position of the player
 
         loadAnimation();
         selectClip("walk");
@@ -117,73 +117,127 @@ public:
 
     void setGravity(double newGravity) { gravity = newGravity; }
 
+    bool m_onGround = false;
+
+    qreal slopeGravityScale = 1.5;
+    qreal  groundFriction = 0.05;
+    qreal airFriction = 0.01;
+    qreal maxSlopeSpeed = 40.0;
+    qreal onSlopeSpeedup = 1.1;
+    bool isSlopeRiding = false;
+
+  public:
+    bool slopeRiding() {return isSlopeRiding;}
     void updatePlayerPosition() {
-        {
-            // Handle horizontal movement
+      {
+          // Handle horizontal movement
+        if (m_onGround) {
+          if (onAngularSurface) {
+
+          }
+          else if (!isSlopeRiding) {
             if (isMovingLeft) {
                 velocityX = -std::max(0.1, std::min(5.0, -velocityX * 1.25));
             } else if (isMovingRight) {
                 velocityX = std::max(0.1, std::min(5.0, velocityX * 1.25));
-            } else {
-                velocityX *= 0.95;
+            } else { //break
+                velocityX *= 1.0 - groundFriction;
             }
-
-            // set the playback rate
-            if (std::fabs(velocityX) < 0.01)
-                m_playbackRate = 0.0;
-            else if (!isThrowing)
-                m_playbackRate = qAbs(velocityX/2);
-            if (isThrowing)
-                m_playbackRate = 2.0;
-            if (isJumping)
-                m_playbackRate = 1.0;
-            if (m_finishAnim)
-                m_playbackRate = 2.0;
-
-            // Apply gravity and jump velocity
-            if (isJumping || isFalling) {
-                velocityY += gravity;
-            }
-            if(velocityY > 0) isFalling = true; else isFalling = false;
-
-            // Update player position
-            playerRect.moveLeft(playerRect.left() + velocityX);
-            playerRect.moveTop(playerRect.top() + velocityY);
+          }
+        } else {
+          if (isMovingLeft) {
+            velocityX = -std::max(0.1, std::min(5.0, -velocityX * 1.25));
+          } else if (isMovingRight) {
+            velocityX = std::max(0.1, std::min(5.0, velocityX * 1.25));
+          } else { //break
+            velocityX *= 1.0 - airFriction;
+          }
         }
-    }
 
-    bool m_onGround = false;
+        if (std::abs(velocityX) <= 5.0) isSlopeRiding = false;
+
+               // set the playback rate
+        if (std::fabs(velocityX) < 0.01)
+            m_playbackRate = 0.0;
+        else if (!isThrowing)
+            m_playbackRate = qAbs(velocityX/2);
+        if (isThrowing)
+            m_playbackRate = 2.0;
+        if (isJumping)
+            m_playbackRate = 1.0;
+        if (m_finishAnim)
+            m_playbackRate = 2.0;
+
+        // Apply gravity and jump velocity
+        if (isJumping || isFalling) {
+            velocityY += gravity;
+        }
+        if(velocityY > 0) isFalling = true; else isFalling = false;
+
+        // Update player position
+        playerRect.moveLeft(playerRect.left() + velocityX);
+        playerRect.moveTop(playerRect.top() + velocityY);
+      }
+    }
 
     bool checkCollisions(QList<Shape> platforms, QRectF &bounds) {
         bool onGround = false;
         for (auto platform : platforms) {
             if (playerRect.intersects(platform.rect)) {
-                double groundX = platform.rect.top();
+                double groundY = platform.rect.top();
                 QLineF slope;
-                if (platform.shape == Shape::TriLeft) {
+                                if (platform.shape == Shape::TriLeft) {
                     slope = { platform.rect.bottomLeft(), platform.rect.topRight() };
-                    QLineF toPlayer = { platform.rect.bottomLeft(), QPointF(playerRect.center().x(), playerRect.bottom()) };
-                    if (slope.angle() < toPlayer.angle())
-                        continue;
-                    groundX = platform.rect.bottom() + (slope.dy()/slope.dx()) * (playerRect.center().x() - platform.rect.left());
+                    // QLineF toPlayer = { platform.rect.bottomLeft(), QPointF(playerRect.center().x(), playerRect.bottom()) };
+                    // if (slope.angle() < toPlayer.angle())
+                    //     continue;
+                    groundY = platform.rect.bottom() + (slope.dy()/slope.dx()) * (playerRect.center().x() - platform.rect.left());
                 }
                 if (platform.shape == Shape::TriRight) {
                     slope = { platform.rect.topLeft(), platform.rect.bottomRight() };
-                    QLineF toPlayer = { platform.rect.topLeft(), QPointF(playerRect.center().x(), playerRect.bottom()) };
-                    if (slope.angle() < toPlayer.angle())
-                        continue;
-                    groundX = platform.rect.top() + (slope.dy()/slope.dx()) * (playerRect.center().x() - platform.rect.left());
+                    // QLineF toPlayer = { platform.rect.topLeft(), QPointF(playerRect.center().x(), playerRect.bottom()) };
+                    // if (slope.angle() < toPlayer.angle())
+                    //     continue;
+                    groundY = platform.rect.top() + (slope.dy()/slope.dx()) * (playerRect.center().x() - platform.rect.left());
                 }
 
-                if (platform.shape == Shape::TriLeft || platform.shape == Shape::TriRight) {
+                if (platform.shape == Shape::TriLeft || platform.shape == Shape::TriRight) {                  
+                  if (playerRect.bottom() > groundY - 6) {
                     QPointF vel = { velocityX, velocityY };
-                    QLineF normal = slope.normalVector().unitVector();
-                    QPointF acc = (normal.p2() - normal.p1()) * std::sqrt(vel.x()*vel.x() + vel.y()*vel.y());
-                    vel += acc;
-                    velocityX = vel.x();
-                    velocityY = vel.y();
+                    qreal norm = std::sqrt(vel.x()*vel.x() + vel.y()*vel.y());
 
-                    onAngularSurface = true;
+                    if (((velocityX > 0 && platform.shape == Shape::TriLeft) || (velocityX < 0 && platform.shape == Shape::TriRight)) && norm > 5.0) {
+                      QLineF u = slope.unitVector();
+                      QPointF vel2 = (platform.shape == Shape::TriLeft ? (u.p2() - u.p1()) : (u.p1() - u.p2())) * std::sqrt(velocityX*velocityX + velocityY*velocityY) * 1.01;
+                      velocityX = vel2.x(); velocityY = vel2.y();
+
+                      onAngularSurface = true;
+                      isSlopeRiding = true;
+                    } else {
+                      QLineF normal = slope.normalVector().unitVector();
+                      QPointF acc = (normal.p2() - normal.p1()) * gravity * (normal.y1() - normal.y2());
+
+                      if (vel.x() > 0.0) {
+                        if (isMovingRight) {
+                          acc *= onSlopeSpeedup;
+                        }
+                        else if (isMovingLeft)
+                          acc /= onSlopeSpeedup;
+                      } else if (vel.x() < 0.0) {
+                        if (isMovingLeft)
+                          acc *= onSlopeSpeedup;
+                        else if (isMovingRight)
+                          acc /= onSlopeSpeedup;
+                      }
+
+                      vel += acc;
+                      velocityX = norm > maxSlopeSpeed ? vel.x() * (maxSlopeSpeed / norm) : vel.x();
+                      velocityY = norm > maxSlopeSpeed ? vel.y() * (maxSlopeSpeed / norm) : vel.y();
+
+                      onAngularSurface = true;
+                      isSlopeRiding = true;
+                    }
+                  } else continue;
                 } else {
                     velocityY = 0;
                     onAngularSurface = false;
@@ -192,7 +246,7 @@ public:
                 isJumping = false; canJump = true; isFalling = false;
 
                 onGround = true;
-                playerRect.moveBottom(groundX); //platform.rect.top());
+                playerRect.moveBottom(groundY); //platform.rect.top());
                 if (!m_onGround) {
                     m_finishAnim = true;
                     m_onGround = true;
@@ -202,6 +256,7 @@ public:
 
         if (!onGround) {
             isFalling = true;
+          onAngularSurface = false;
         }
 
         QRectF sceneRect = bounds; //rect();

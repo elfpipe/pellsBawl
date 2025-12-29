@@ -50,6 +50,7 @@ void GameJoystick::waitForPush() {
     unsetGameMode();
     QEventLoop loop;
     auto js = QJoysticks::getInstance();
+    js->setVirtualJoystickEnabled(true);
     auto a = QObject::connect(js, &QJoysticks::buttonChanged, this, [&](int /*id*/, int button, bool pressed){
         if((button == 0 || button == 1 || button == 2 || button == 3) && pressed) loop.quit();
     });

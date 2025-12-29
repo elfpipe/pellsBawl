@@ -1,6 +1,7 @@
 #ifndef GAME_H
 #define GAME_H
 
+#include <QWidget>
 #include <QOpenGLWidget>
 #include <QKeyEvent>
 #include <QTimer>
@@ -88,7 +89,11 @@ public:
 protected:
     void keyPressEvent(QKeyEvent *event) override;
     // void keyReleaseEvent(QKeyEvent *event) override;
+#ifdef USE_OPENGL
+    void paintGL() override;
+#else
     void paintEvent(QPaintEvent *event) override;
+#endif
     void timerEvent(QTimerEvent *event) override; // Slot for handling the timer event
 
 private:
