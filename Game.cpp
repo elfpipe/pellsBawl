@@ -89,7 +89,7 @@ void Game::action() {
 void Game::level1()
 {
     // Load platforms from a JSON file
-    loadWorld("level2.json", ":/assets/level2/");
+    loadWorld("level1.json", ":/assets/level1/");
 
     pellsBawl = new PellsBawl(this);
     joyCommander = new PellsBawlCommander(this, pellsBawl);
@@ -107,6 +107,15 @@ void Game::level2()
     pause(); clear(false); // keep pb
 
     //load artifacts for level 2...
+
+           // Load platforms from a JSON file
+    loadWorld("level2.json", ":/assets/level2/");
+
+    pellsBawl = new PellsBawl(this);
+    joyCommander = new PellsBawlCommander(this, pellsBawl);
+    joystick->setCommander(joyCommander);
+
+    unpause();
 }
 
 void Game::level3()
@@ -114,6 +123,13 @@ void Game::level3()
     pause(); clear(false); // keep pb
 
     // load level data.... (todo)
+
+    // Load platforms from a JSON file
+    loadWorld("test.json", ":/assets/testlevel/");
+
+    pellsBawl = new PellsBawl(this);
+    joyCommander = new PellsBawlCommander(this, pellsBawl);
+    joystick->setCommander(joyCommander);
 
     fighter = new Fighter(this);
     fighter->loadFromJson(":/assets/mt2/mt2.json");
@@ -186,10 +202,72 @@ void drawImage(QPainter& p, const Image& s){
     p.restore();
 }
 
-void Game::drawAnimationLayer(QPainter &p, ParallaxLayer &a, QPointF &scrollOffset) {
-    p.drawPixmap(a.scale == 0 ? window.toRect() : QRectF(QPointF(world.left() + a.off.x() - scrollOffset.x() * a.rate.x(),
-                                                                 world.bottom() - a.off.y() - scrollOffset.y() * a.rate.y() - a.image.rect().height() * a.scale),
-                                                         a.scale == 0.0 ? window.size() : a.image.rect().size() * a.scale).toRect(), a.image);
+// void Game::drawAnimationLayer(QPainter &p, ParallaxLayer &a, QPointF &scrollOffset) {
+//     p.drawPixmap(a.scale == 0 ? window.toRect() : QRectF(QPointF(world.left() + a.off.x() - scrollOffset.x() * a.rate.x(),
+//                                                                  world.top() + a.off.y() - scrollOffset.y() * a.rate.y() /*- a.image.rect().height() * a.scale*/),
+//                                                          a.scale == 0.0 ? window.size() : a.image.rect().size() * a.scale).toRect(), a.image, );
+// }
+
+void Game::drawAnimationLayer(QPainter& p, ParallaxLayer& L, QPointF &m_camera) {
+  p.save();
+  p.setRenderHint(QPainter::SmoothPixmapTransform, true);
+
+  const qreal m_zoom = 1.0; //p.window().height() / p.viewport().height();
+  const QPixmap &px = L.image;
+  const QSizeF imgSize = px.size() * L.scale;
+
+         // layer origin in WORLD space:
+         // worldPos = off - camera * rate
+  const QPointF origin = QPointF(m_camera.x() * L.rate.x(), m_camera.y() * L.rate.y());
+  const QPointF layerOriginWorld =
+    L.off - origin;
+
+         // convert to SCREEN space
+  QPointF originScreen = layerOriginWorld * m_zoom;
+
+  const QRectF vp(0, 0, width(), height());
+  const double w = std::max(1.0, imgSize.width()  * m_zoom);
+  const double h = std::max(1.0, imgSize.height() * m_zoom);
+
+  if (L.scale == 0.0) {
+    p.drawPixmap(window.toRect(), px);
+
+    p.restore();
+    return;
+  }
+
+  if (!L.wrap) {
+    // Draw a single instance only
+    QRectF target(originScreen, QSizeF(w, h));
+    p.drawPixmap(target.toRect(), px);
+
+    p.restore();
+    return;
+  }
+
+         // Wrap/tiling mode: repeat to cover viewport
+  auto mod = [](double a, double m)->double {
+    if (m <= 0.0) return a;
+    double r = std::fmod(a, m);
+    if (r < 0) r += m;
+    return r;
+  };
+
+         // Keep origin inside one tile for stable tiling math
+  originScreen.setX(mod(originScreen.x(), w));
+  originScreen.setY(mod(originScreen.y(), h));
+
+         // Start at negative one tile so we cover edges
+  const int xTiles = int(std::ceil(vp.width()  / w)) + 2;
+  const int yTiles = int(std::ceil(vp.height() / h)) + 2;
+
+  for (int yy = -1; yy < yTiles; ++yy) {
+    for (int xx = -1; xx < xTiles; ++xx) {
+      const QPointF pos(originScreen.x() + xx * w, originScreen.y() + yy * h);
+      QRectF target(pos, QSizeF(w, h));
+      p.drawPixmap(target.toRect(), px);
+    }
+  }
 }
 
 #ifdef USE_OPENGL
@@ -219,7 +297,7 @@ void Game::paintEvent(QPaintEvent *) {
 #ifdef USE_OPENGL
     //cls
     painter.setBrush(Qt::white);
-    painter.drawRect(0, 0, width(), height());
+    painter.drawRect(painter.window());
 #endif
 
     // draw parallax bg
@@ -261,7 +339,9 @@ void Game::paintEvent(QPaintEvent *) {
     // Draw HUD
     if (pellsBawl && pellsBawl->isCharging()) pellsBawl->paintHUD(painter);
 
-    // debug
+    // const qreal m_playbackRate = 1.0;
+    // const bool m_paused = false;
+    // // debug
     // painter.setPen(QColor(255,255,255,180));
     // painter.setFont(QFont("DejaVu", 10));
     // painter.drawText(10, height()-10,
@@ -461,6 +541,7 @@ void Game::loadWorld(const QString &filename, const QString &path) {
                 a = o.value("rate").toArray(); g.rate = QPointF(a.at(0).toDouble(0.0), a.at(1).toDouble(0.0));
                 g.scale = o.value("scale").toDouble();
                 g.z = o.value("z").toInt();
+                g.wrap = o.value("wrap").toBool();
                 animLayers.append(g);
             }
         } else { //legacy

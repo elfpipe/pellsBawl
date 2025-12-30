@@ -54,9 +54,10 @@ struct Enemy {
 
 struct ParallaxLayer {
     QPixmap image;
-    QPointF off = {0.0, 0.0}, rate = {1.0,1.0};
+    QPointF off = {0.0, 0.0}, rate = {0.0,0.0};
     double scale = 1.0;
     int z = -2;
+    bool wrap = false;
 };
 
 #define USE_OPENGL 1

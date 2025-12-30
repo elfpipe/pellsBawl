@@ -206,7 +206,7 @@ public:
                     QPointF vel = { velocityX, velocityY };
                     qreal norm = std::sqrt(vel.x()*vel.x() + vel.y()*vel.y());
 
-                    if (((velocityX > 0 && platform.shape == Shape::TriLeft) || (velocityX < 0 && platform.shape == Shape::TriRight)) && norm > 5.0) {
+                    if (((velocityX > 0 && platform.shape == Shape::TriLeft) || (velocityX < 0 && platform.shape == Shape::TriRight)) && std::abs(velocityX) > 5.0) {
                       QLineF u = slope.unitVector();
                       QPointF vel2 = (platform.shape == Shape::TriLeft ? (u.p2() - u.p1()) : (u.p1() - u.p2())) * std::sqrt(velocityX*velocityX + velocityY*velocityY) * 1.01;
                       velocityX = vel2.x(); velocityY = vel2.y();

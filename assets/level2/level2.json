@@ -621,11 +621,11 @@
                 0
             ],
             "rate": [
-                0,
-                0
+                2,
+                2
             ],
-            "scale": 0,
-            "wrap": false,
+            "scale": 2,
+            "wrap": true,
             "z": -1
         }
     ],
