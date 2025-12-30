@@ -41,3 +41,6 @@ win32:mingw {
     # QMAKE_POST_LINK += $$QMAKE_COPY \"$$SDL2_MSYS/bin/SDL2.dll\" \"$$OUT_PWD/\"
     DEFINES += SDL_MAIN_HANDLED
 }
+
+DISTFILES += \
+    TODO-VISION.md
