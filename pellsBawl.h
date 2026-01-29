@@ -186,7 +186,7 @@ public:
             if (playerRect.intersects(platform.rect)) {
                 double groundY = platform.rect.top();
                 QLineF slope;
-                                if (platform.shape == Shape::TriLeft) {
+                if (platform.shape == Shape::TriLeft) {
                     slope = { platform.rect.bottomLeft(), platform.rect.topRight() };
                     // QLineF toPlayer = { platform.rect.bottomLeft(), QPointF(playerRect.center().x(), playerRect.bottom()) };
                     // if (slope.angle() < toPlayer.angle())
@@ -213,6 +213,8 @@ public:
 
                       onAngularSurface = true;
                       isSlopeRiding = true;
+
+                      onGround = true;
                     } else {
                       QLineF normal = slope.normalVector().unitVector();
                       QPointF acc = (normal.p2() - normal.p1()) * gravity * (normal.y1() - normal.y2());
@@ -236,16 +238,18 @@ public:
 
                       onAngularSurface = true;
                       isSlopeRiding = true;
+
+                      onGround = true;
                     }
                   } else continue;
                 } else {
                     velocityY = 0;
                     onAngularSurface = false;
+
+                    onGround = true;
                 }
 
-                isJumping = false; canJump = true; isFalling = false;
 
-                onGround = true;
                 playerRect.moveBottom(groundY); //platform.rect.top());
                 if (!m_onGround) {
                     m_finishAnim = true;
@@ -254,8 +258,10 @@ public:
             }
         }
 
-        if (!onGround) {
-            isFalling = true;
+        if (onGround) {
+          isJumping = false; canJump = true; canDoubleJump = false; isFalling = false;
+        }  else {
+          isFalling = true;
           onAngularSurface = false;
         }
 
@@ -267,7 +273,7 @@ public:
             playerRect.moveRight(qMin(sceneRect.right(), playerRect.right()));
         }
 
-        for (auto btw : shots) btw->checkCollisions(bounds, platforms);
+        foreach (auto btw, shots) btw->checkCollisions(bounds, platforms);
 
         return onGround;
     }
@@ -289,7 +295,7 @@ public:
 
         if (m_animDone && (m_finishAnim || !isLoop())) { selectClip("walk"); isThrowing = false; isJumping = false; m_finishAnim = false; }
 
-        for (auto btw : shots) btw->onTick();
+        foreach (auto btw, shots) btw->onTick();
     }
 
     double durationSec() {
@@ -389,9 +395,8 @@ public:
     }
     void keyJump() {
         if (canJump) {
-            m_onGround = false;
-            if (isJumping) {
-                canJump = false;
+            if (canDoubleJump) {
+                canJump = false;  canDoubleJump = false;
                 velocityY -= doubleJumpVelocity;
                 selectClip("jump_spin");
             } else {
@@ -400,20 +405,23 @@ public:
             }
             isJumping = true;
         }
+        if (m_onGround) canDoubleJump = true;
+        m_onGround = false;
     }
     void keyThrow() {
         if (btw) { // must be thrown by release
+        // qDebug() << "Yikes!";
             shots.removeAll(btw);
             btw = nullptr;
         }
         btw = new BezierThrowWidget(this);
         if (btw) {
-            QObject::connect(btw, &BezierThrowWidget::hasHit, this, [&](Shape */*s*/){
+            QObject::connect(btw, &BezierThrowWidget::hasHit, this, [&](Shape *s){
                 // qDebug() << "hit:" << (s ? s->id : "bounds");
                 shots.removeAll(sender());
             });
             shots.append(btw);
-            btw->handleSpaceDown();
+            btw->handleSpaceDown(playerRect.center());
         }
     }
     bool isCharging() { return btw && btw->isCharging(); }
@@ -444,6 +452,7 @@ private:
     bool isFacingLeft = false;
     bool isThrowing = false;
     bool canJump = true;
+    bool canDoubleJump = false;
 
     double jumpVelocity = 15.0;
     double doubleJumpVelocity = 25.0;

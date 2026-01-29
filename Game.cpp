@@ -83,7 +83,7 @@ void Game::action() {
     playJingle("qrc:/assets/intro/pellsBawl_intro_jingle.wav");
     joystick->waitForPush();
     showTitle = false;
-    level2();
+    level1();
 }
 
 void Game::level1()

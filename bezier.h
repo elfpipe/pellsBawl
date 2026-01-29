@@ -53,7 +53,8 @@ public:
 
     bool isCharging() { return m_state == State::Charging; }
 
-    void handleSpaceDown() {
+    void handleSpaceDown(QPointF startingPoint) {
+        m_origin = startingPoint;
         if (m_state == State::Idle) {
             beginCharge();
         }
@@ -119,33 +120,34 @@ protected:
     // --- drawing ---
     void paintEvent(QPaintEvent*) override {
         QPainter p(this);
-        p.setRenderHint(QPainter::Antialiasing, true);
-        p.fillRect(rect(), QColor("#0e1116"));
+        if (m_state == State::Flying) {
+          p.setRenderHint(QPainter::Antialiasing, true);
+          p.fillRect(rect(), QColor(0x0e1116));
 
-        // curve preview
-        QPen curvePen(QColor("#334155")); curvePen.setWidth(2);
-        p.setPen(curvePen);
-        QPainterPath path; path.moveTo(m_P0); path.quadTo(m_P1, m_P2); p.drawPath(path);
+          // curve preview
+          QPen curvePen(QColor(0x334155)); curvePen.setWidth(2);
+          p.setPen(curvePen);
+          QPainterPath path; path.moveTo(m_P0); path.quadTo(m_P1, m_P2); p.drawPath(path);
 
-        // control points
-        drawPoint(p, m_P0, QColor("#6ae3ff"), "P0");
-        drawPoint(p, m_P1, QColor("#ffd166"), "P1");
-        drawPoint(p, m_P2, QColor("#90ee90"), "P2");
+          // control points
+          drawPoint(p, m_P0, QColor(0x6ae3ff), "P0");
+          drawPoint(p, m_P1, QColor(0xffd166), "P1");
+          drawPoint(p, m_P2, QColor(0x90ee90), "P2");
 
-        // cookie sprite at m_pos with rotation m_angleDeg
-        p.save();
-        p.translate(m_pos);
-        p.rotate(m_angleDeg);
-        const QRectF dst(-m_spriteSize/2.0, -m_spriteSize/2.0, m_spriteSize, m_spriteSize);
-        // if (m_useImage) p.drawImage(dst, m_cookie); else drawHeartCookie(p, dst);
-        p.restore();
+          // cookie sprite at m_pos with rotation m_angleDeg
+          p.save();
+          p.translate(m_pos);
+          p.rotate(m_angleDeg);
+          const QRectF dst(-m_spriteSize/2.0, -m_spriteSize/2.0, m_spriteSize, m_spriteSize);
+          // if (m_useImage) p.drawImage(dst, m_cookie); else drawHeartCookie(p, dst);
+          p.restore();
 
-        // HUD text
-        p.setPen(QColor("#cbd5e1"));
-        p.setFont(QFont("Monospace", 10));
-        p.drawText(10, 18, "Hold SPACE to charge, release to throw   |   R: toggle spin vs. path-align   |   ESC: quit");
-        p.drawText(10, 36, QString("Mode: %1").arg(m_alignToPath ? "Align to path" : "Constant spin"));
-
+          // HUD text
+          p.setPen(QColor(0xcbd5e1));
+          p.setFont(QFont("Monospace", 10));
+          p.drawText(10, 18, "Hold SPACE to charge, release to throw   |   R: toggle spin vs. path-align   |   ESC: quit");
+          p.drawText(10, 36, QString("Mode: %1").arg(m_alignToPath ? "Align to path" : "Constant spin"));
+        }
         // Power bar
         drawPowerBar(p);
     }
@@ -165,7 +167,7 @@ public:
 
         case State::Charging: {
             // grow charge smoothly (with slight ease-in)
-            m_charge = std::min(1.0, m_charge + dt / m_chargeTimeSec);
+            m_charge = std::min(1.0, m_charge + (double)dt / m_chargeTimeSec);
             // optional pulse while charging
             m_chargePulse = std::fmod(m_chargePulse + dt*2.0, 1.0);
             updateTrajectoryPreviewFromCharge();
@@ -306,7 +308,7 @@ private:
         p.setPen(Qt::black);
         const QRectF r(c.x()-5, c.y()-5, 10, 10);
         p.drawEllipse(r);
-        p.setPen(QColor("#cbd5e1"));
+        p.setPen(QColor(0xcbd5e1));
         p.setBrush(Qt::NoBrush);
         p.drawText(c + QPointF(8, -8), label);
         p.restore();
@@ -349,7 +351,7 @@ public:
         const double x = 10.0 * scale, y = 50 * scale, w = 280 * scale, h = 16 * scale;
 
         // frame
-        p.setPen(QPen(QColor("#475569"), 1.0 * scale));
+        p.setPen(QPen(QColor(0x475569), 1.0 * scale));
         p.setBrush(QColor(0,0,0,40));
         p.drawRoundedRect(QRectF(x, y, w, h), 4, 4);
 
@@ -359,7 +361,7 @@ public:
         const double fw = (w - 2*innerPad) * fill01;
         QRectF fillRect(x + innerPad, y + innerPad, fw, h - 2*innerPad);
 
-        QColor bar = QColor("#22c55e");            // green
+        QColor bar = QColor(0x22c55e);            // green
         if (m_state == State::Charging) {
             // slight pulsing while charging
             double pulse = 0.5 + 0.5*std::sin(m_chargePulse*2*M_PI);
@@ -370,7 +372,7 @@ public:
         p.drawRoundedRect(fillRect, 3, 3);
 
         // percent text
-        p.setPen(QColor("#cbd5e1"));
+        p.setPen(QColor(0xcbd5e1));
         p.setFont(QFont("Monospace", 9 * scale, QFont::DemiBold));
         QString pct = QString("%1%").arg(int(std::round(fill01*100)));
         p.drawText(QRect(x, y-1, w, h), Qt::AlignCenter, pct);
