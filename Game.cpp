@@ -5,6 +5,7 @@
 #include <QJsonDocument>
 #include <QJsonObject>
 #include <QJsonArray>
+#include <QProcess>
 
 #include <QSoundEffect>
 #include <QJoysticks.h>
@@ -13,6 +14,13 @@
 #include "title.h"
 
 #include <QDebug>
+
+#ifdef Q_OS_WIN
+#include <windows.h>
+#elif defined(Q_OS_MACOS)
+#include <IOKit/pwr_mgt/IOPMLib.h>
+#include <CoreFoundation/CoreFoundation.h>
+#endif
 
 #if 0
 "parallax" : [
@@ -37,6 +45,46 @@ Game::Game(QWidget *parent)
     oneShot->setSingleShot(true);
     connect(oneShot, &QTimer::timeout, this, &Game::action);
     oneShot->start(50);
+
+    setScreenSleepBlock(true);
+}
+
+void Game::setScreenSleepBlock(bool enable) {
+    if (enable == m_screenSleepBlocked) return;
+    m_screenSleepBlocked = enable;
+
+#ifdef Q_OS_WIN
+    if (enable) {
+        SetThreadExecutionState(ES_CONTINUOUS | ES_DISPLAY_REQUIRED | ES_SYSTEM_REQUIRED);
+    } else {
+        SetThreadExecutionState(ES_CONTINUOUS);
+    }
+#elif defined(Q_OS_MACOS)
+    if (enable) {
+        if (m_powerAssertionId == kIOPMNullAssertionID) {
+            CFStringRef reason = CFSTR("PellsBawl active");
+            IOPMAssertionCreateWithName(kIOPMAssertPreventUserIdleDisplaySleep,
+                                        kIOPMAssertionLevelOn,
+                                        reason,
+                                        &m_powerAssertionId);
+        }
+    } else {
+        if (m_powerAssertionId != kIOPMNullAssertionID) {
+            IOPMAssertionRelease(m_powerAssertionId);
+            m_powerAssertionId = kIOPMNullAssertionID;
+        }
+    }
+#else
+    if (enable) {
+        if (!QProcess::startDetached("xdg-screensaver", QStringList{"suspend", QString::number((quintptr)winId()), "PellsBawl"})) {
+            qDebug() << "xdg-screensaver suspend failed";
+        }
+    } else {
+        if (!QProcess::startDetached("xdg-screensaver", QStringList{"resume", QString::number((quintptr)winId())})) {
+            qDebug() << "xdg-screensaver resume failed";
+        }
+    }
+#endif
 }
 
 void Game::displayGraphics(QPixmap pixmap, const QColor &color, bool full) {
@@ -62,16 +110,15 @@ void Game::displayGraphics(QPixmap pixmap, const QColor &color, bool full) {
 }
 
 void Game::playJingle(QString jingle, bool repeat) {
-    if(!jingle.isEmpty()) {
-        // Local file or qrc (see below)
+    if (!jingle.isEmpty()) {
         player->setSource(QUrl(jingle));
-        audio->setVolume(0.8);                 // 0.0 .. 1.0
-        player->setLoops(repeat ? QMediaPlayer::Infinite : QMediaPlayer::Once);  // or QMediaPlayer::Infinite for bg music
+        audio->setVolume(0.8);
+        player->setLoops(repeat ? QMediaPlayer::Infinite : QMediaPlayer::Once);
         player->play();
     }
 }
 
-void Game::playSfx(const QString &sfx){
+void Game::playSfx(const QString &sfx) {
     QSoundEffect fx;
     fx.setSource(QUrl(sfx));
     fx.setLoopCount(1);         // or QSoundEffect::Infinite
@@ -268,6 +315,8 @@ void Game::drawAnimationLayer(QPainter& p, ParallaxLayer& L, QPointF &m_camera) 
       p.drawPixmap(target.toRect(), px);
     }
   }
+
+  p.restore();
 }
 
 #ifdef USE_OPENGL
