@@ -42,5 +42,8 @@ win32:mingw {
     DEFINES += SDL_MAIN_HANDLED
 }
 
+unix: LIBS += -L/usr/local/lib -lQJoysticks
+
 DISTFILES += \
-    TODO-VISION.md
+    TODO-VISION.md \
+    joystick.md
