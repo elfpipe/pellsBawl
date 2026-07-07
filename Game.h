@@ -60,7 +60,7 @@ struct ParallaxLayer {
     bool wrap = false;
 };
 
-#define USE_OPENGL 1
+#define USE_OPENGL 0
 
 class Game
 #ifdef USE_OPENGL
@@ -104,6 +104,12 @@ private:
     void checkEnemyCollisions();
     void doScrolling(double dt, bool twoPlayer);
     void drawAnimationLayer(QPainter &p, ParallaxLayer &l, QPointF &scrollOffset);
+
+    void setScreenSleepBlock(bool enable);
+    bool m_screenSleepBlocked = false;
+#ifdef Q_OS_MACOS
+    IOPMAssertionID m_powerAssertionId = kIOPMNullAssertionID;
+#endif
 // private:
 //     void mt2KeyPress(QKeyEvent *event);
 //     void mt2TestKeyPress(QKeyEvent *event);
