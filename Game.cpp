@@ -87,7 +87,7 @@ void Game::setScreenSleepBlock(bool enable) {
 #endif
 }
 
-void Game::displayGraphics(QPixmap pixmap, const QColor &color, bool full) {
+void Game::displayCaption(QPixmap pixmap, const QColor &color, bool full) {
     auto *ctx = QOpenGLContext::currentContext();
     if (!ctx) {
       qDebug() << "No current OpenGL context!";
@@ -126,17 +126,32 @@ void Game::playSfx(const QString &sfx) {
 }
 void Game::action() {
     showFullScreen();
-    displayGraphics(QPixmap(":/assets/intro/splash.png"), QColor(0, 200, 50));
+    displayCaption(QPixmap(":/assets/intro/splash.png"), QColor(0, 200, 50));
     playJingle("qrc:/assets/intro/pellsBawl_intro_jingle.wav");
     joystick->waitForPush();
-    showTitle = false;
+    clearCaption();
     level1();
+}
+
+void Game::nextLevel()
+{
+    switch(level) {
+    case 1: level2(); break;
+    case 2: level3(); break;
+    default: break;
+    }
 }
 
 void Game::level1()
 {
+    displayCaption(QPixmap(":/assets/intro/level01.jpg"), QColor(0, 200, 50), true); //fullScr
+    playJingle("qrc:/assets/intro/pellsBawl_intro_jingle.wav");
+    joystick->waitForPush();
+    clearCaption();
+
+    level = 1;
     // Load platforms from a JSON file
-    loadWorld("level1.json", ":/assets/level1/");
+    loadWorld("level1_wportal.json", ":/assets/level1/");
 
     pellsBawl = new PellsBawl(this);
     joyCommander = new PellsBawlCommander(this, pellsBawl);
@@ -151,7 +166,12 @@ void Game::level1()
 
 void Game::level2()
 {
-    pause(); clear(false); // keep pb
+    displayCaption(QPixmap(":/assets/intro/level01.jpg"), QColor(0, 200, 50));
+    playJingle("qrc:/assets/intro/pellsBawl_intro_jingle.wav");
+    clearCaption();
+
+    level=2;
+    pause(); clear(true); // keep pb
 
     //load artifacts for level 2...
 
@@ -167,6 +187,7 @@ void Game::level2()
 
 void Game::level3()
 {
+    level=3;
     pause(); clear(false); // keep pb
 
     // load level data.... (todo)
@@ -327,8 +348,10 @@ void Game::paintEvent(QPaintEvent *) {
     QPainter painter(this);
 
     if (showTitle) {
-        if (showFullscreen) painter.drawPixmap(painter.window(), titleGraphics);
-        else {
+        if (showFullscreen) {
+            painter.setViewport(rect());
+            painter.drawPixmap(painter.window(), titleGraphics);
+        } else {
             painter.setBrush(titleBg); painter.drawRect(rect());
             painter.drawPixmap((rect().bottomRight() - titleGraphics.rect().bottomRight()) / 2, titleGraphics); }
         return;
@@ -414,6 +437,20 @@ void Game::checkEnemyCollisions() {
             if (shape.rect.intersects(enemy.rect)) {
                 enemy.move(shape.rect.toRect());  // Move the enemy within its platform
             }
+        }
+    }
+}
+
+void Game::checkAreaCollisions() {
+    QRectF rect = pellsBawl->playerRectangle();
+
+    for (const auto &area : areas) {
+        if (area.rect.intersects(rect)) {
+            if (area.title.contains("Knap")) {
+                for (auto &wall : shapes) if(wall.isWall) shapes.removeAll(wall);
+                for (auto &wall : images) if(wall.id.contains("Wall")) images.removeAll(wall);
+            }
+            if (area.title.contains("NextLevel")) nextLevel();
         }
     }
 }
@@ -504,6 +541,7 @@ void Game::timerEvent(QTimerEvent *) {
     if (pellsBawl) {
         pellsBawl->checkCollisions(shapes, bounds);
         checkEnemyCollisions();
+        checkAreaCollisions();
     }
 
     if (pellsBawl) doScrolling(dt);
@@ -514,6 +552,19 @@ void Game::timerEvent(QTimerEvent *) {
 // ---- JSON helpers ----
 static QPointF jsonToPoint(const QJsonValue& v){ QJsonObject o=v.toObject(); return QPointF(o.value("x").toDouble(), o.value("y").toDouble()); }
 static QRectF jsonToRect(const QJsonValue& v){ QJsonObject o=v.toObject(); return QRectF(o.value("x").toDouble(), o.value("y").toDouble(), o.value("w").toDouble(), o.value("h").toDouble()); }
+
+QList<Area> loadAreas(const QJsonDocument& doc){
+    QList<Area> areas;
+    QJsonObject root = doc.object();
+    for (auto v : root.value("areas").toArray()){
+        QJsonObject o=v.toObject();
+        Area ar; ar.id = o.value("id").toString("dummy");
+        ar.title = o.value("title").toString("øf");
+        ar.rect = jsonToRect(o.value("rect"));
+        areas.push_back(ar);
+    }
+    return areas;
+}
 
 QList<Shape> loadShapes(const QJsonDocument& doc){
     QList<Shape> shapes;
@@ -569,6 +620,8 @@ void Game::loadWorld(const QString &filename, const QString &path) {
         auto i = root.value("interaction").toArray();
         qDebug() << i.isEmpty();
         if(!i.empty()) {
+            areas = loadAreas(doc);
+
             shapes = loadShapes(doc);
             qDebug() << "shapes:" << shapes.size();
             images = loadImages(doc, path);

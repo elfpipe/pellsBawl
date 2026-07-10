@@ -184,6 +184,13 @@ public:
         bool onGround = false;
         for (auto platform : platforms) {
             if (playerRect.intersects(platform.rect)) {
+                if(platform.isWall) {
+                    if(playerRect.center().x() <= platform.rect.center().x())
+                        playerRect.moveRight(platform.rect.left());
+                    else if(playerRect.center().x() > platform.rect.center().x())
+                        playerRect.moveLeft(platform.rect.right());
+                    continue;
+                }
                 double groundY = platform.rect.top();
                 QLineF slope;
                 if (platform.shape == Shape::TriLeft) {

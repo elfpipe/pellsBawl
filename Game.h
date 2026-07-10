@@ -81,8 +81,10 @@ public:
     void level2();
     void level3();
     void level4();
+    void nextLevel();
     void clear(bool pb);
-    void displayGraphics(QPixmap pixmap, const QColor &color = Qt::white, bool fill = false);
+    void displayCaption(QPixmap pixmap, const QColor &color = Qt::white, bool fill = false);
+    void clearCaption() { showTitle = false; }
     void playJingle(const QString jingle = QString(), bool repeat = false);
     void stopJingle() { player->stop(); }
     void playSfx(const QString &sfx);
@@ -102,6 +104,7 @@ private:
     void loadWorld(const QString &file, const QString &path);
     void doFighterSense(double dt);
     void checkEnemyCollisions();
+    void checkAreaCollisions();
     void doScrolling(double dt, bool twoPlayer);
     void drawAnimationLayer(QPainter &p, ParallaxLayer &l, QPointF &scrollOffset);
 
@@ -129,6 +132,8 @@ private: signals:
 private:
     int pauseId = -1;
 
+    int level = 1;
+
     QPixmap titleGraphics;
     bool showTitle = false; bool showFullscreen = false;
     QColor titleBg = Qt::white;
@@ -139,6 +144,7 @@ private:
     PellsBawl *pellsBawl = nullptr;
     QList<Enemy> enemies;
 
+    QList<Area> areas;
     QList<Shape> shapes;
     QList<Image> images;
     QRectF world = {0, 0, 1800, 1200};

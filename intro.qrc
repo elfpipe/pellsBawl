@@ -3,5 +3,6 @@
         <file>assets/intro/intro_alt.png</file>
         <file>assets/intro/pellsBawl_intro_jingle.wav</file>
         <file>assets/intro/splash.png</file>
+        <file>assets/intro/level01.jpg</file>
     </qresource>
 </RCC>

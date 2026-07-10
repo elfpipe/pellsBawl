@@ -18,6 +18,9 @@ struct Shape {
     } shape;
     QRectF rect; // used if rect
     bool isWall = false;
+    bool operator==(const Shape &b) const {
+        return !id.compare(b.id);
+    }
 };
 
 struct Image {
@@ -26,5 +29,16 @@ struct Image {
     QImage img;     // loaded image
     Transform tf;
     qreal z = 0;    // for future sorting
+    bool operator==(const Image &b) const {
+        return !id.compare(b.id);
+    }
 };
+
+struct Area {
+    Id id;
+    QRectF rect;
+    QString title;
+};
+
+
 #endif // PLATFORM_H
